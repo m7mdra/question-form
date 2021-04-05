@@ -8,8 +8,7 @@ import android.widget.CheckBox
 import android.widget.RadioButton
 import androidx.recyclerview.widget.RecyclerView
 import com.example.questionform.viewholder.*
-import com.mobitel.fes.ui.questionnaire.*
-import com.mobitel.fes.ui.questionnaire.QuestionType.*
+import com.example.questionform.QuestionType.*
 
 class QuestionFormAdapter(private val list: List<Question>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -113,8 +112,8 @@ class QuestionFormAdapter(private val list: List<Question>) :
             Image.ordinal -> {
                 val imageViewHolder = holder as ImageViewHolder
                 val imageQuestion = list[position] as ImageQuestion
-
                 imageViewHolder.titleTextView.text = imageQuestion.title
+                imageViewHolder.imagesRecyclerView.adapter
 
             }
 

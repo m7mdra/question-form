@@ -2,7 +2,6 @@ package com.example.questionform
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.mobitel.fes.ui.questionnaire.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
