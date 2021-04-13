@@ -7,10 +7,10 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.RadioButton
 import androidx.recyclerview.widget.RecyclerView
-import com.example.questionform.viewholder.*
 import com.example.questionform.QuestionType.*
+import com.example.questionform.viewholder.*
 
-class QuestionFormAdapter(private val list: List<Question>) :
+class QuestionFormAdapter(private val list: List<Question<*>>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -122,6 +122,14 @@ class QuestionFormAdapter(private val list: List<Question>) :
 
     override fun getItemCount(): Int {
         return list.size
+    }
+
+    fun validate(): Boolean {
+        return list.all { it.validate() }
+    }
+
+    fun collect(): List<*> {
+        return list.map { it.collect() }
     }
 
 }

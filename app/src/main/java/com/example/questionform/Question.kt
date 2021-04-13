@@ -3,12 +3,12 @@ package com.example.questionform
 import android.text.InputType
 import java.io.File
 
-abstract class Question(
+abstract class Question<T>(
     val title: String = "",
     val questionType: QuestionType
 ) {
-//    abstract fun validate(): Boolean
-//    abstract fun collect(): Question
+    abstract fun validate(): Boolean
+    abstract fun collect(): T
 
 }
 
@@ -29,21 +29,76 @@ sealed class ImageSource<T> {
 class FileImage(val file: File) : ImageSource<File>()
 class NetworkImage(val url: String) : ImageSource<String>()
 
-class ImageQuestion(title: String) : Question(title, QuestionType.Image)
+class ImageQuestion(title: String, private val maxInput: Int, private val minInput: Int) :
+    Question<List<ImageSource<*>>>(title, QuestionType.Image) {
+
+    private val images = listOf<ImageSource<*>>()
+    override fun validate(): Boolean {
+
+        val size = images.size
+        return size in (minInput + 1) until maxInput
+    }
+
+    override fun collect(): List<ImageSource<*>> {
+        return images
+    }
+
+
+}
+
 class AudioQuestion()
 class VideoQuestion()
 class InputQuestion(
     title: String,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     hint: String = ""
+
 ) :
-    Question(title, QuestionType.Input)
+    Question<String>(title, QuestionType.Input) {
+    private var value: String = ""
+    override fun validate(): Boolean {
+        return value.isNotBlank() && value.isNotEmpty()
+    }
+
+    override fun collect(): String {
+        return value
+    }
+
+}
 
 class DropdownQuestion(title: String, val entries: List<String>) :
-    Question(title, QuestionType.Dropdown)
+    Question<String>(title, QuestionType.Dropdown) {
+    private var selection: String = ""
+    override fun validate(): Boolean {
+        return selection.isNotBlank() && selection.isNotEmpty()
+    }
+
+    override fun collect(): String {
+        return selection
+    }
+}
 
 class RadioQuestion(title: String, val entries: List<String>) :
-    Question(title, QuestionType.Radio)
+    Question<String>(title, QuestionType.Radio) {
+    private var selection: String = ""
+    override fun validate(): Boolean {
+        return selection.isNotBlank() && selection.isNotEmpty()
+    }
+
+    override fun collect(): String {
+        return selection
+    }
+
+}
 
 class CheckQuestion(title: String, val entries: List<String>) :
-    Question(title, QuestionType.Check)
+    Question<List<String>>(title, QuestionType.Check) {
+    private var selection: List<String> = listOf()
+    override fun validate(): Boolean {
+        return selection.isNotEmpty()
+    }
+
+    override fun collect(): List<String> {
+        return selection
+    }
+}
