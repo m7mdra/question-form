@@ -38,7 +38,7 @@
             android:clipToPadding="false"
             app:spanCount="4"
             android:orientation="vertical"
-            tools:itemCount="10"
+            tools:itemCount="5"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             tools:listitem="@layout/row_row_image"
             app:layout_constraintEnd_toEndOf="parent"

@@ -1,7 +1,7 @@
 package com.example.questionform
 
 import android.text.InputType
-import java.io.File
+import android.util.Log
 
 abstract class Question<T>(
     val title: String = "",
@@ -9,6 +9,7 @@ abstract class Question<T>(
 ) {
     abstract fun validate(): Boolean
     abstract fun collect(): T
+    abstract fun update(value: T)
 
 }
 
@@ -22,25 +23,23 @@ enum class QuestionType(value: Int) {
 
 }
 
-sealed class ImageSource<T> {
-
-}
-
-class FileImage(val file: File) : ImageSource<File>()
-class NetworkImage(val url: String) : ImageSource<String>()
 
 class ImageQuestion(title: String, private val maxInput: Int, private val minInput: Int) :
-    Question<List<ImageSource<*>>>(title, QuestionType.Image) {
+    Question<List<String>>(title, QuestionType.Image) {
 
-    private val images = listOf<ImageSource<*>>()
+    private val images = mutableListOf<String>()
     override fun validate(): Boolean {
 
         val size = images.size
         return size in (minInput + 1) until maxInput
     }
 
-    override fun collect(): List<ImageSource<*>> {
+    override fun collect(): List<String> {
         return images
+    }
+
+    override fun update(value: List<String>) {
+        images.addAll(value)
     }
 
 
@@ -64,6 +63,10 @@ class InputQuestion(
         return value
     }
 
+    override fun update(value: String) {
+        this.value = value
+    }
+
 }
 
 class DropdownQuestion(title: String, val entries: List<String>) :
@@ -75,6 +78,11 @@ class DropdownQuestion(title: String, val entries: List<String>) :
 
     override fun collect(): String {
         return selection
+    }
+
+    override fun update(value: String) {
+        this.selection = value
+        selection.log()
     }
 }
 
@@ -89,6 +97,11 @@ class RadioQuestion(title: String, val entries: List<String>) :
         return selection
     }
 
+    override fun update(value: String) {
+        this.selection = value
+
+    }
+
 }
 
 class CheckQuestion(title: String, val entries: List<String>) :
@@ -101,4 +114,12 @@ class CheckQuestion(title: String, val entries: List<String>) :
     override fun collect(): List<String> {
         return selection
     }
+
+    override fun update(value: List<String>) {
+        this.selection = value
+    }
+}
+
+fun Any?.log(){
+    Log.d("MEGA","$this")
 }

@@ -10,9 +10,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.questionform.QuestionType.*
 import com.example.questionform.viewholder.*
 
-class QuestionFormAdapter(private val list: List<Question<*>>) :
+class QuestionFormAdapter(
+    private val list: List<Question<*>>,
+    private val imagePickListener: () -> Unit = {}
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    var lastImagePickIndex = -1
+    private val imageAdapters = mutableMapOf<Int, ImageAdapter>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return when (viewType) {
@@ -87,16 +92,24 @@ class QuestionFormAdapter(private val list: List<Question<*>>) :
                 autoCompleteTextView.onItemClickListener =
                     AdapterView.OnItemClickListener { _, _, index, _ ->
                         autoCompleteTextView.setText(dropdownQuestion.entries[index], false)
+                        dropdownQuestion.update(dropdownQuestion.entries[index])
                     }
             }
             Radio.ordinal -> {
                 val radioViewHolder = holder as RadioViewHolder
                 val radioQuestion = list[position] as RadioQuestion
                 radioViewHolder.titleTextView.text = radioQuestion.title
-                radioQuestion.entries.forEach {
+                val radioGroup = radioViewHolder.radioGroup
+                val entries = radioQuestion.entries
+                entries.forEach {
                     val radioButton = RadioButton(radioViewHolder.itemView.context)
+                    radioButton.id = it.hashCode()
                     radioButton.text = it
-                    radioViewHolder.radioGroup.addView(radioButton)
+                    radioGroup.addView(radioButton)
+                }
+                radioGroup.setOnCheckedChangeListener { group, checkedId ->
+                    checkedId.log()
+                    entries.find { it.hashCode() == checkedId }.log()
                 }
             }
             Check.ordinal -> {
@@ -106,18 +119,34 @@ class QuestionFormAdapter(private val list: List<Question<*>>) :
                 checkQuestion.entries.forEach {
                     val checkBox = CheckBox(checkViewHolder.itemView.context)
                     checkBox.text = it
+                    checkBox.id = it.hashCode()
                     checkViewHolder.checkboxLayout.addView(checkBox)
                 }
+
             }
             Image.ordinal -> {
                 val imageViewHolder = holder as ImageViewHolder
                 val imageQuestion = list[position] as ImageQuestion
+                val adapterPosition = holder.adapterPosition
+                imageViewHolder.imageButton.setOnClickListener {
+                    lastImagePickIndex = adapterPosition
+                    imagePickListener.invoke()
+                }
                 imageViewHolder.titleTextView.text = imageQuestion.title
-                imageViewHolder.imagesRecyclerView.adapter
+                val imageAdapter = ImageAdapter()
+                imageAdapters[adapterPosition] = imageAdapter
+                imageViewHolder.imagesRecyclerView.adapter = imageAdapter
 
             }
 
         }
+    }
+
+    fun updateImageAdapterAtPosition(position: Int, uri: String) {
+        val adapter: ImageAdapter = imageAdapters[position] ?: return
+        adapter.add(uri)
+        adapter.notifyDataSetChanged()
+
     }
 
     override fun getItemCount(): Int {
