@@ -1,5 +1,7 @@
 package com.example.questionform
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -9,6 +11,7 @@ import android.widget.RadioButton
 import androidx.recyclerview.widget.RecyclerView
 import com.example.questionform.QuestionType.*
 import com.example.questionform.viewholder.*
+import com.google.android.material.textfield.TextInputEditText
 
 class QuestionFormAdapter(
     private val list: List<Question<*>>,
@@ -17,7 +20,14 @@ class QuestionFormAdapter(
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var lastImagePickIndex = -1
+    private val textWatchers = mutableMapOf<Int, TextInputEditTextWatcher>()
     private val imageAdapters = mutableMapOf<Int, ImageAdapter>()
+
+    fun clear(){
+        textWatchers.values.forEach {
+            it.removeWatcher()
+        }
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return when (viewType) {
@@ -75,7 +85,37 @@ class QuestionFormAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             Input.ordinal -> {
-                (holder as InputViewHolder).titleTextView.text = list[position].title
+                val inputQuestion = list[position] as InputQuestion
+
+                val inputViewHolder = holder as InputViewHolder
+                inputViewHolder.titleTextView.text = list[position].title
+                val textWatcher = object : TextInputEditTextWatcher(inputViewHolder.textInputEditText){
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable) {
+                        inputQuestion.update(s.toString())
+                    }
+
+                }
+                textWatchers[position] = textWatcher
+
+                inputViewHolder.textInputEditText.addTextChangedListener(textWatcher)
             }
             Dropdown.ordinal -> {
                 val dropdownViewHolder = holder as DropdownViewHolder

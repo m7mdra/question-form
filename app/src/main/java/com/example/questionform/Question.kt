@@ -64,6 +64,8 @@ class InputQuestion(
     }
 
     override fun update(value: String) {
+        value.log()
+
         this.value = value
     }
 
