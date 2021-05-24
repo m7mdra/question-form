@@ -108,7 +108,6 @@ class QuestionFormAdapter(
                     radioGroup.addView(radioButton)
                 }
                 radioGroup.setOnCheckedChangeListener { group, checkedId ->
-                    checkedId.log()
                     entries.find { it.hashCode() == checkedId }.log()
                 }
             }
@@ -116,10 +115,18 @@ class QuestionFormAdapter(
                 val checkViewHolder = holder as CheckViewHolder
                 val checkQuestion = list[position] as CheckQuestion
                 checkViewHolder.titleTextView.text = checkQuestion.title
-                checkQuestion.entries.forEach {
+                checkQuestion.entries.forEachIndexed { index, s ->
                     val checkBox = CheckBox(checkViewHolder.itemView.context)
-                    checkBox.text = it
-                    checkBox.id = it.hashCode()
+                    checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
+                        if (isChecked) {
+                            checkQuestion.selectionMap[index] = s
+                        } else {
+                            checkQuestion.selectionMap.remove(index)
+                        }
+                        checkQuestion.selectionMap.log()
+                    }
+                    checkBox.text = s
+                    checkBox.id = s.hashCode()
                     checkViewHolder.checkboxLayout.addView(checkBox)
                 }
 

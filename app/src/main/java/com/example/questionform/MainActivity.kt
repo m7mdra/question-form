@@ -3,10 +3,13 @@ package com.example.questionform
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var questionFormAdapter: QuestionFormAdapter
@@ -15,11 +18,31 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val adapter = ArrayAdapter<String>(
+            this, android.R.layout.simple_list_item_1
+        )
+        adapter.addAll("High", "Medium", "Low")
+
         questionFormAdapter = QuestionFormAdapter(list) {
-            CropImage
-                .activity()
-                .setGuidelines(CropImageView.Guidelines.ON)
-                .start(this)
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Select image quality")
+                .setAdapter(
+                    adapter
+                ) { _, which ->
+                    val quality = when (which) {
+                        0 -> 100
+                        1 -> 60
+                        2 -> 30
+                        else -> 100
+                    }
+                    CropImage
+                        .activity()
+                        .setOutputCompressQuality(quality)
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .start(this)
+                }
+                .create().show()
+
         }
         recyclerView.adapter = questionFormAdapter
     }

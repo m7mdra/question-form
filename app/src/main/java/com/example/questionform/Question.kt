@@ -107,12 +107,13 @@ class RadioQuestion(title: String, val entries: List<String>) :
 class CheckQuestion(title: String, val entries: List<String>) :
     Question<List<String>>(title, QuestionType.Check) {
     private var selection: List<String> = listOf()
+     var selectionMap = mutableMapOf<Int,String>()
     override fun validate(): Boolean {
         return selection.isNotEmpty()
     }
 
     override fun collect(): List<String> {
-        return selection
+        return selectionMap.values.toList()
     }
 
     override fun update(value: List<String>) {
