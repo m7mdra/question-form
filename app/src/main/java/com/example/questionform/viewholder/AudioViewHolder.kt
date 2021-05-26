@@ -1,0 +1,16 @@
+package com.example.questionform.viewholder
+
+import android.view.View
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import kotlinx.android.synthetic.main.row_audio.view.*
+
+class AudioViewHolder(val view:View)  : RecyclerView.ViewHolder(view){
+    val titleTextView: TextView = view.titleTextView
+    val recordProgress: LinearProgressIndicator = view.recordProgress
+    val recordDurationTextView: TextView = view.recordDurationTextView
+    val recordAudioButton: MaterialButton = view.recordAudioButton
+
+}

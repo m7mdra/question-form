@@ -2,6 +2,7 @@ package com.example.questionform
 
 import android.text.InputType
 import android.util.Log
+import java.io.File
 
 abstract class Question<T>(
     val title: String = "",
@@ -45,7 +46,22 @@ class ImageQuestion(title: String, private val maxInput: Int, private val minInp
 
 }
 
-class AudioQuestion()
+class AudioQuestion(title: String) : Question<File?>(title, questionType = QuestionType.Audio) {
+    private var audioUri: File? = null
+    override fun validate(): Boolean {
+        return audioUri != null
+    }
+
+    override fun collect(): File? {
+        return audioUri
+    }
+
+    override fun update(value: File?) {
+        this.audioUri = value
+    }
+
+}
+
 class VideoQuestion()
 class InputQuestion(
     title: String,
@@ -109,7 +125,7 @@ class RadioQuestion(title: String, val entries: List<String>) :
 class CheckQuestion(title: String, val entries: List<String>) :
     Question<List<String>>(title, QuestionType.Check) {
     private var selection: List<String> = listOf()
-     var selectionMap = mutableMapOf<Int,String>()
+    var selectionMap = mutableMapOf<Int, String>()
     override fun validate(): Boolean {
         return selection.isNotEmpty()
     }
@@ -123,6 +139,6 @@ class CheckQuestion(title: String, val entries: List<String>) :
     }
 }
 
-fun Any?.log(){
-    Log.d("MEGA","$this")
+fun Any?.log() {
+    Log.d("MEGA", "$this")
 }

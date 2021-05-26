@@ -1,36 +1,44 @@
 package com.example.questionform
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.RadioButton
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.questionform.QuestionType.*
 import com.example.questionform.viewholder.*
-import com.google.android.material.textfield.TextInputEditText
 
-class QuestionFormAdapter(
+class QuestionAdapter(
     private val list: List<Question<*>>,
-    private val imagePickListener: () -> Unit = {}
+    private val imagePickListener: () -> Unit = {},
+    private val audioRecordListener: (Int) -> Unit = {}
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var lastImagePickIndex = -1
     private val textWatchers = mutableMapOf<Int, TextInputEditTextWatcher>()
     private val imageAdapters = mutableMapOf<Int, ImageAdapter>()
+    private val audioViewHolderIndexes = mutableListOf<Int>()
 
-    fun clear(){
+    fun clear() {
         textWatchers.values.forEach {
             it.removeWatcher()
         }
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return when (viewType) {
+            Audio.ordinal -> AudioViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.row_audio, parent, false)
+            )
             Input.ordinal -> InputViewHolder(
                 layoutInflater.inflate(
                     R.layout.row_input,
@@ -78,7 +86,7 @@ class QuestionFormAdapter(
             Radio -> Radio.ordinal
             Check -> Check.ordinal
             Image -> Image.ordinal
-            else -> 0
+            Audio -> Audio.ordinal
         }
     }
 
@@ -89,30 +97,31 @@ class QuestionFormAdapter(
 
                 val inputViewHolder = holder as InputViewHolder
                 inputViewHolder.titleTextView.text = list[position].title
-                val textWatcher = object : TextInputEditTextWatcher(inputViewHolder.textInputEditText){
-                    override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
-                    ) {
+                val textWatcher =
+                    object : TextInputEditTextWatcher(inputViewHolder.textInputEditText) {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
+
+                        }
+
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+
+                        }
+
+                        override fun afterTextChanged(s: Editable) {
+                            inputQuestion.update(s.toString())
+                        }
 
                     }
-
-                    override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
-                    ) {
-
-                    }
-
-                    override fun afterTextChanged(s: Editable) {
-                        inputQuestion.update(s.toString())
-                    }
-
-                }
                 textWatchers[position] = textWatcher
 
                 inputViewHolder.textInputEditText.addTextChangedListener(textWatcher)
@@ -147,7 +156,7 @@ class QuestionFormAdapter(
                     radioButton.text = it
                     radioGroup.addView(radioButton)
                 }
-                radioGroup.setOnCheckedChangeListener { group, checkedId ->
+                radioGroup.setOnCheckedChangeListener { _, checkedId ->
                     entries.find { it.hashCode() == checkedId }.log()
                 }
             }
@@ -156,7 +165,7 @@ class QuestionFormAdapter(
                 val checkQuestion = list[position] as CheckQuestion
                 checkViewHolder.titleTextView.text = checkQuestion.title
                 checkQuestion.entries.forEachIndexed { index, s ->
-                    val checkBox = CheckBox(checkViewHolder.itemView.context)
+                    val checkBox = CheckBox(checkViewHolder.context)
                     checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
                         if (isChecked) {
                             checkQuestion.selectionMap[index] = s
@@ -170,6 +179,24 @@ class QuestionFormAdapter(
                     checkViewHolder.checkboxLayout.addView(checkBox)
                 }
 
+            }
+            Audio.ordinal -> {
+                val audioViewHolder = holder as AudioViewHolder
+                audioViewHolderIndexes.add(position)
+                val question = list[position] as AudioQuestion
+                audioViewHolder.titleTextView.text = question.title
+                audioViewHolder.recordAudioButton.text =
+                    if (isAudioPermissionGranted(audioViewHolder.context)
+                    )
+                        "Record" else "grant permission"
+                audioViewHolder.recordAudioButton.setOnClickListener {
+                    if (isAudioPermissionGranted(audioViewHolder.context)) {
+
+                    } else {
+                        audioRecordListener.invoke(position)
+
+                    }
+                }
             }
             Image.ordinal -> {
                 val imageViewHolder = holder as ImageViewHolder
@@ -188,6 +215,12 @@ class QuestionFormAdapter(
 
         }
     }
+
+    private fun isAudioPermissionGranted(context: Context) =
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
 
     fun updateImageAdapterAtPosition(position: Int, uri: String) {
         val adapter: ImageAdapter = imageAdapters[position] ?: return
@@ -208,8 +241,16 @@ class QuestionFormAdapter(
         return list.map { it.collect() }
     }
 
+    fun updateRecordAudioButtons() {
+        audioViewHolderIndexes.forEach {
+            notifyItemChanged(it)
+        }
+    }
+
 }
 
 
+val RecyclerView.ViewHolder.context: Context
+    get() = this.itemView.context
 
 
