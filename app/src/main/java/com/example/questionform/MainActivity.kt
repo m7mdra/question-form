@@ -92,6 +92,7 @@ class MainActivity : AppCompatActivity() {
         arrayAdapter.addAll("High", "Medium", "Low")
 
         questionAdapter = QuestionAdapter(list, imagePickListener, audioRecordListener)
+
         recyclerView.adapter = questionAdapter
         recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
     }
@@ -122,6 +123,15 @@ val list = listOf(
     InputQuestion("What is the name of the security guard?"),
     ImageQuestion("Site panorama (8 photos) and shelters(4 photos) overview ", 4, 4),
     InputQuestion("What is the phone number of the security guard?"),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
     RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
     CheckQuestion(
         "Type of power source",

@@ -9,6 +9,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.android.synthetic.main.row_audio.view.*
 
 class AudioViewHolder(val view:View)  : RecyclerView.ViewHolder(view){
+
     val titleTextView: TextView = view.titleTextView
     val recordProgress: LinearProgressIndicator = view.recordProgress
     val recordDurationTextView: TextView = view.recordDurationTextView

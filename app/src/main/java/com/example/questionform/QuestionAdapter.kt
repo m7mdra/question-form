@@ -29,12 +29,23 @@ class QuestionAdapter(
     var lastImagePickIndex = -1
     private val textWatchers = mutableMapOf<Int, TextInputEditTextWatcher>()
     private val imageAdapters = mutableMapOf<Int, ImageAdapter>()
+
     private val audioViewHolderIndexes = mutableListOf<Int>()
     private val audioHandlers = mutableMapOf<Int, Handler>()
     private val audioHandlersCallback = mutableMapOf<Int, Runnable>()
     private val mediaPlayers = mutableMapOf<Int, MediaPlayer>()
 
     fun clear() {
+        mediaPlayers.forEach {
+            val mediaPlayer = it.value
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+        audioHandlers.forEach {
+            val runnable = audioHandlersCallback[it.key]
+            if (runnable != null)
+                it.value.removeCallbacks(runnable)
+        }
         textWatchers.values.forEach {
             it.removeWatcher()
         }
@@ -158,7 +169,7 @@ class QuestionAdapter(
                 val radioGroup = radioViewHolder.radioGroup
                 val entries = radioQuestion.entries
                 entries.forEach {
-                    val radioButton = RadioButton(radioViewHolder.itemView.context)
+                    val radioButton = RadioButton(radioViewHolder.context)
                     radioButton.id = it.hashCode()
                     radioButton.text = it
                     radioGroup.addView(radioButton)
@@ -192,7 +203,8 @@ class QuestionAdapter(
                 val audioViewHolder = holder as AudioViewHolder
 
                 audioViewHolderIndexes.add(position)
-                val mediaPlayer = MediaPlayer()
+                val mediaPlayer = MediaPlayer.create(holder.context, R.raw.test_audio)
+
                 val handler = Handler(Looper.getMainLooper())
 
                 val runnable = object : Runnable {
@@ -210,35 +222,35 @@ class QuestionAdapter(
                     }
 
                 }
-                mediaPlayers.replace(position,mediaPlayer)
-                audioHandlers.replace(position,handler)
-                audioHandlersCallback.replace(position,runnable)
+                mediaPlayers[position] = mediaPlayer
+                audioHandlers[position] = handler
+                audioHandlersCallback[position] = runnable
 
                 val question = list[position] as AudioQuestion
                 audioViewHolder.titleTextView.text = question.title
                 audioViewHolder.playOrStopButton.setOnClickListener {
 //                    val audio = question.collect() ?: return@setOnClickListener
                     if (mediaPlayer.isPlaying) {
-                        mediaPlayer.stop()
-                        mediaPlayer.reset()
-                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
+                        mediaPlayer.pause()
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                        holder.recordProgress.progress = 0
 
                     } else {
-                        mediaPlayer.reset()
-                        mediaPlayer.setDataSource("https://freepd.com/music/Forest%20Frolic%20Loop.mp3")
-                        mediaPlayer.prepareAsync()
+//                        mediaPlayer.reset()
+//                        mediaPlayer.setDataSource("https://freepd.com/music/Forest%20Frolic%20Loop.mp3")
+//                        mediaPlayer.prepareAsync()
+                        mediaPlayer.start()
+                        handler.removeCallbacks(runnable)
+                        handler.post(runnable)
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
 
                     }
                 }
                 mediaPlayer.setOnPreparedListener {
-                    mediaPlayer.start()
-                    handler.removeCallbacks(runnable)
-                    handler.post(runnable)
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
+
                 }
                 mediaPlayer.setOnCompletionListener {
                     holder.recordProgress.progress = 0
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
                     holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
 
                 }
@@ -303,6 +315,28 @@ class QuestionAdapter(
         }
     }
 
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        super.onViewRecycled(holder)
+        "onViewRecycled:${holder::class.java}".log()
+        if (holder is AudioViewHolder) {
+            val adapterPosition = holder.adapterPosition
+
+            val mediaPlayer = mediaPlayers[adapterPosition]
+            "${mediaPlayer?.isPlaying} is playing? $adapterPosition ${mediaPlayers.size} ".log()
+            if (mediaPlayer != null)
+                if (mediaPlayer.isPlaying) {
+                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                    holder.recordProgress.progress = 0
+                    mediaPlayer.stop()
+                    mediaPlayer.release()
+                    audioHandlers[adapterPosition]?.removeCallbacks(
+                        audioHandlersCallback[adapterPosition] ?: Runnable { })
+                    audioHandlers.remove(adapterPosition)
+                    audioHandlersCallback.remove(adapterPosition)
+                    mediaPlayers.remove(adapterPosition)
+                }
+        }
+    }
 }
 
 
