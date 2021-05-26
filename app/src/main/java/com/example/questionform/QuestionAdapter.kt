@@ -3,6 +3,9 @@ package com.example.questionform
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -15,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.questionform.QuestionType.*
 import com.example.questionform.viewholder.*
 
+
 class QuestionAdapter(
     private val list: List<Question<*>>,
     private val imagePickListener: () -> Unit = {},
@@ -26,6 +30,9 @@ class QuestionAdapter(
     private val textWatchers = mutableMapOf<Int, TextInputEditTextWatcher>()
     private val imageAdapters = mutableMapOf<Int, ImageAdapter>()
     private val audioViewHolderIndexes = mutableListOf<Int>()
+    private val audioHandlers = mutableMapOf<Int, Handler>()
+    private val audioHandlersCallback = mutableMapOf<Int, Runnable>()
+    private val mediaPlayers = mutableMapOf<Int, MediaPlayer>()
 
     fun clear() {
         textWatchers.values.forEach {
@@ -181,10 +188,60 @@ class QuestionAdapter(
 
             }
             Audio.ordinal -> {
+                "called".log()
                 val audioViewHolder = holder as AudioViewHolder
+
                 audioViewHolderIndexes.add(position)
+                val mediaPlayer = MediaPlayer()
+                val handler = Handler(Looper.getMainLooper())
+
+                val runnable = object : Runnable {
+                    override fun run() {
+                        if (mediaPlayer.isPlaying) {
+                            val playPosition: Int = mediaPlayer.currentPosition
+                            val duration: Int = mediaPlayer.duration
+
+                            if (duration > 0) {
+                                val pos = 1000L * playPosition / duration
+                                holder.recordProgress.progress = pos.toInt()
+                            }
+                            handler.postDelayed(this, 1000 - playPosition.toLong() % 1000)
+                        }
+                    }
+
+                }
+                mediaPlayers.replace(position,mediaPlayer)
+                audioHandlers.replace(position,handler)
+                audioHandlersCallback.replace(position,runnable)
+
                 val question = list[position] as AudioQuestion
                 audioViewHolder.titleTextView.text = question.title
+                audioViewHolder.playOrStopButton.setOnClickListener {
+//                    val audio = question.collect() ?: return@setOnClickListener
+                    if (mediaPlayer.isPlaying) {
+                        mediaPlayer.stop()
+                        mediaPlayer.reset()
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
+
+                    } else {
+                        mediaPlayer.reset()
+                        mediaPlayer.setDataSource("https://freepd.com/music/Forest%20Frolic%20Loop.mp3")
+                        mediaPlayer.prepareAsync()
+
+                    }
+                }
+                mediaPlayer.setOnPreparedListener {
+                    mediaPlayer.start()
+                    handler.removeCallbacks(runnable)
+                    handler.post(runnable)
+                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
+                }
+                mediaPlayer.setOnCompletionListener {
+                    holder.recordProgress.progress = 0
+                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+
+                }
                 audioViewHolder.recordAudioButton.text =
                     if (isAudioPermissionGranted(audioViewHolder.context)
                     )
@@ -194,7 +251,6 @@ class QuestionAdapter(
 
                     } else {
                         audioRecordListener.invoke(position)
-
                     }
                 }
             }

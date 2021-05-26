@@ -1,6 +1,7 @@
 package com.example.questionform.viewholder
 
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
@@ -12,5 +13,6 @@ class AudioViewHolder(val view:View)  : RecyclerView.ViewHolder(view){
     val recordProgress: LinearProgressIndicator = view.recordProgress
     val recordDurationTextView: TextView = view.recordDurationTextView
     val recordAudioButton: MaterialButton = view.recordAudioButton
+    val playOrStopButton: ImageView = view.playOrStopButton
 
 }
