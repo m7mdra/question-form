@@ -20,8 +20,8 @@ enum class QuestionType(value: Int) {
     Radio(2),
     Check(3),
     Image(4),
-    Audio(5)
-//    Video(6)
+    Audio(5),
+    Video(6)
 
 }
 
@@ -63,7 +63,21 @@ class AudioQuestion(title: String) : Question<File?>(title, questionType = Quest
 
 }
 
-class VideoQuestion()
+class VideoQuestion(title: String) : Question<File?>(title,questionType = QuestionType.Video){
+    private var videoUri: File? = null
+
+    override fun validate(): Boolean {
+        return videoUri != null
+    }
+
+    override fun collect(): File? {
+        return videoUri
+    }
+
+    override fun update(value: File?) {
+        this.videoUri = value
+    }
+}
 class InputQuestion(
     title: String,
     inputType: Int = InputType.TYPE_CLASS_TEXT,

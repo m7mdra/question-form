@@ -17,11 +17,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <VideoView
-        android:id="@+id/videoView2"
+        android:id="@+id/videoView"
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,13 +30,15 @@
 
     <com.google.android.material.button.MaterialButton
         android:layout_width="wrap_content"
+        android:id="@+id/captureOrPickVideoButton"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:text="capture/pick video"
         app:icon="@drawable/ic_baseline_videocam_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/videoView2" />
+        app:layout_constraintTop_toBottomOf="@+id/videoView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

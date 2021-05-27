@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity() {
 }
 
 val list = listOf(
+    VideoQuestion("Video question here."),
     AudioQuestion("Record a summary of the condition of the power generator line 0"),
     AudioQuestion("Record a summary of the condition of the power generator line 1"),
     AudioQuestion("Record a summary of the condition of the power generator line 2"),

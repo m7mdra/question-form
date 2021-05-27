@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.MediaController
 import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.recyclerview.widget.RecyclerView
@@ -92,7 +93,14 @@ class QuestionAdapter(
                     false
                 )
             )
-            else -> throw  NullPointerException()
+            Video.ordinal -> VideoViewHolder(
+                layoutInflater.inflate(
+                    R.layout.row_video,
+                    parent,
+                    false
+                )
+            )
+            else -> throw IllegalArgumentException()
         }
     }
 
@@ -105,6 +113,7 @@ class QuestionAdapter(
             Check -> Check.ordinal
             Image -> Image.ordinal
             Audio -> Audio.ordinal
+            Video -> Video.ordinal
         }
     }
 
@@ -216,7 +225,8 @@ class QuestionAdapter(
                             if (duration > 0) {
                                 val pos = 1000L * playPosition / duration
                                 holder.recordProgress.progress = pos.toInt()
-                                holder.recordDurationTextView.text = (playPosition/1000L).formatDuration()
+                                holder.recordDurationTextView.text =
+                                    (playPosition / 1000L).formatDuration()
                             }
                             handler.postDelayed(this, 1000 - playPosition.toLong() % 1000)
                         }
@@ -279,6 +289,16 @@ class QuestionAdapter(
                 imageAdapters[adapterPosition] = imageAdapter
                 imageViewHolder.imagesRecyclerView.adapter = imageAdapter
 
+            }
+            Video.ordinal -> {
+                val videoViewHolder = holder as VideoViewHolder
+                val videoView = videoViewHolder.videoView
+
+                videoView.setMediaController(MediaController(holder.context))
+                videoView.setVideoPath("https://vod-progressive.akamaized.net/exp=1622115924~acl=%2Fvimeo-prod-skyfire-std-us%2F01%2F3306%2F20%2F516532097%2F2399156942.mp4~hmac=c4bffc22f65ba429d021ed9d979826cd99f829416bf812c35b91b09356f5b0ad/vimeo-prod-skyfire-std-us/01/3306/20/516532097/2399156942.mp4?filename=Cat+-+66004.mp4")
+                videoView.setOnPreparedListener {
+                    videoView.start()
+                }
             }
 
         }
