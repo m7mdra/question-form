@@ -233,7 +233,8 @@ class QuestionAdapter(
                 audioViewHolder.playOrStopButton.setOnClickListener {
                     val audio = question.collect() ?: return@setOnClickListener
                     if (mediaPlayer.isPlaying) {
-                        mediaPlayer.pause()
+                        mediaPlayer.stop()
+                        holder.recordDurationTextView.text = "00:00"
                         holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
                         holder.recordProgress.progress = 0
                     } else {
@@ -251,6 +252,7 @@ class QuestionAdapter(
                 }
                 mediaPlayer.setOnCompletionListener {
                     holder.recordProgress.progress = 0
+                    holder.recordDurationTextView.text = "00:00"
                     holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
 
                 }

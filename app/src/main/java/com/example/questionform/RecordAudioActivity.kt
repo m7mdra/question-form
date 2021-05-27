@@ -6,7 +6,6 @@ import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Handler
-import android.text.format.DateUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
@@ -29,11 +28,17 @@ class RecordAudioActivity : AppCompatActivity() {
         mediaRecorder = MediaRecorder()
         mediaPlayer = MediaPlayer()
         playButton.disable()
+        deleteButton.setOnClickListener {
+            recordFile.delete()
+            playButton.disable()
+            recordDurationTextView.text = "00:00"
+            didRecord = false
+        }
         doneButton.setOnClickListener {
             val intent = Intent()
             intent.putExtra("recordPath", recordFile.toUri())
             intent.putExtra("position", this@RecordAudioActivity.intent.getIntExtra("position", -1))
-            setResult(if (didRecord) Activity.RESULT_OK else Activity.RESULT_CANCELED,intent)
+            setResult(if (didRecord) Activity.RESULT_OK else Activity.RESULT_CANCELED, intent)
             finish()
         }
         recordButton.setOnClickListener {
@@ -69,7 +74,7 @@ class RecordAudioActivity : AppCompatActivity() {
         if (duration > 0) {
             val pos = 1000L * position / duration
             recordProgress.progress = pos.toInt()
-            recordDurationTextView.text = (position/1000L).formatDuration()
+            recordDurationTextView.text = (position / 1000L).formatDuration()
         }
 
 
@@ -90,12 +95,15 @@ class RecordAudioActivity : AppCompatActivity() {
 
             mediaPlayer.setOnPreparedListener {
                 mediaPlayer.start()
+                deleteButton.disable()
                 handler.removeCallbacks(progressCallback)
                 handler.post(progressCallback)
                 playButton.setImageResource(R.drawable.ic_baseline_pause_24)
             }
             mediaPlayer.setOnCompletionListener {
                 recordProgress.progress = 0
+                deleteButton.enable()
+
                 playButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
             }
         }
@@ -149,11 +157,15 @@ class RecordAudioActivity : AppCompatActivity() {
                     mediaRecorder.prepare()
                     mediaRecorder.start()
                     isRecording = true
+                    deleteButton.disable()
+
                     updateRecordingView()
                 } else {
                     isRecording = false
                     mediaRecorder.stop()
                     updateRecordingView()
+                    deleteButton.enable()
+
                     didRecord = true
 
                 }
@@ -178,9 +190,7 @@ class RecordAudioActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RECORD_AUDIO_REQUEST_CODE) {
             if (isAudioPermissionGranted()) {
-
-            } else {
-
+                startRecording()
             }
         }
     }
