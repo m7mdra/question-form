@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
@@ -11,9 +12,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.CheckBox
-import android.widget.RadioButton
 import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
 import androidx.recyclerview.widget.RecyclerView
 import com.example.questionform.QuestionType.*
 import com.example.questionform.viewholder.*
@@ -163,39 +163,39 @@ class QuestionAdapter(
                     }
             }
             Radio.ordinal -> {
-                val radioViewHolder = holder as RadioViewHolder
-                val radioQuestion = list[position] as RadioQuestion
-                radioViewHolder.titleTextView.text = radioQuestion.title
-                val radioGroup = radioViewHolder.radioGroup
-                val entries = radioQuestion.entries
-                entries.forEach {
-                    val radioButton = RadioButton(radioViewHolder.context)
-                    radioButton.id = it.hashCode()
-                    radioButton.text = it
-                    radioGroup.addView(radioButton)
-                }
-                radioGroup.setOnCheckedChangeListener { _, checkedId ->
-                    entries.find { it.hashCode() == checkedId }.log()
-                }
+                /*  val radioViewHolder = holder as RadioViewHolder
+                  val radioQuestion = list[position] as RadioQuestion
+                  radioViewHolder.titleTextView.text = radioQuestion.title
+                  val radioGroup = radioViewHolder.radioGroup
+                  val entries = radioQuestion.entries
+                  entries.forEach {
+                      val radioButton = RadioButton(radioViewHolder.context)
+                      radioButton.id = it.hashCode()
+                      radioButton.text = it
+                      radioGroup.addView(radioButton)
+                  }
+                  radioGroup.setOnCheckedChangeListener { _, checkedId ->
+                      entries.find { it.hashCode() == checkedId }.log()
+                  }*/
             }
             Check.ordinal -> {
-                val checkViewHolder = holder as CheckViewHolder
-                val checkQuestion = list[position] as CheckQuestion
-                checkViewHolder.titleTextView.text = checkQuestion.title
-                checkQuestion.entries.forEachIndexed { index, s ->
-                    val checkBox = CheckBox(checkViewHolder.context)
-                    checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
-                        if (isChecked) {
-                            checkQuestion.selectionMap[index] = s
-                        } else {
-                            checkQuestion.selectionMap.remove(index)
-                        }
-                        checkQuestion.selectionMap.log()
-                    }
-                    checkBox.text = s
-                    checkBox.id = s.hashCode()
-                    checkViewHolder.checkboxLayout.addView(checkBox)
-                }
+                /*  val checkViewHolder = holder as CheckViewHolder
+                  val checkQuestion = list[position] as CheckQuestion
+                  checkViewHolder.titleTextView.text = checkQuestion.title
+                  checkQuestion.entries.forEachIndexed { index, s ->
+                      val checkBox = CheckBox(checkViewHolder.context)
+                      checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
+                          if (isChecked) {
+                              checkQuestion.selectionMap[index] = s
+                          } else {
+                              checkQuestion.selectionMap.remove(index)
+                          }
+                          checkQuestion.selectionMap.log()
+                      }
+                      checkBox.text = s
+                      checkBox.id = s.hashCode()
+                      checkViewHolder.checkboxLayout.addView(checkBox)
+                  }*/
 
             }
             Audio.ordinal -> {
@@ -203,7 +203,7 @@ class QuestionAdapter(
                 val audioViewHolder = holder as AudioViewHolder
 
                 audioViewHolderIndexes.add(position)
-                val mediaPlayer = MediaPlayer.create(holder.context, R.raw.test_audio)
+                val mediaPlayer = MediaPlayer()
 
                 val handler = Handler(Looper.getMainLooper())
 
@@ -216,6 +216,7 @@ class QuestionAdapter(
                             if (duration > 0) {
                                 val pos = 1000L * playPosition / duration
                                 holder.recordProgress.progress = pos.toInt()
+                                holder.recordDurationTextView.text = (playPosition/1000L).formatDuration()
                             }
                             handler.postDelayed(this, 1000 - playPosition.toLong() % 1000)
                         }
@@ -228,25 +229,24 @@ class QuestionAdapter(
 
                 val question = list[position] as AudioQuestion
                 audioViewHolder.titleTextView.text = question.title
+                holder.playOrStopButton.isEnabled = question.collect() != null
                 audioViewHolder.playOrStopButton.setOnClickListener {
-//                    val audio = question.collect() ?: return@setOnClickListener
+                    val audio = question.collect() ?: return@setOnClickListener
                     if (mediaPlayer.isPlaying) {
                         mediaPlayer.pause()
                         holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
                         holder.recordProgress.progress = 0
-
                     } else {
-//                        mediaPlayer.reset()
-//                        mediaPlayer.setDataSource("https://freepd.com/music/Forest%20Frolic%20Loop.mp3")
-//                        mediaPlayer.prepareAsync()
-                        mediaPlayer.start()
-                        handler.removeCallbacks(runnable)
-                        handler.post(runnable)
-                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
-
+                        mediaPlayer.reset()
+                        mediaPlayer.setDataSource(audio.path)
+                        mediaPlayer.prepareAsync()
                     }
                 }
                 mediaPlayer.setOnPreparedListener {
+                    mediaPlayer.start()
+                    handler.removeCallbacks(runnable)
+                    handler.post(runnable)
+                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
 
                 }
                 mediaPlayer.setOnCompletionListener {
@@ -259,11 +259,9 @@ class QuestionAdapter(
                     )
                         "Record" else "grant permission"
                 audioViewHolder.recordAudioButton.setOnClickListener {
-                    if (isAudioPermissionGranted(audioViewHolder.context)) {
 
-                    } else {
-                        audioRecordListener.invoke(position)
-                    }
+                    audioRecordListener.invoke(position)
+
                 }
             }
             Image.ordinal -> {
@@ -318,6 +316,7 @@ class QuestionAdapter(
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         "onViewRecycled:${holder::class.java}".log()
+
         if (holder is AudioViewHolder) {
             val adapterPosition = holder.adapterPosition
 
@@ -337,10 +336,16 @@ class QuestionAdapter(
                 }
         }
     }
+
+    fun addRecordFile(recordFile: Uri?, position: Int) {
+        if (recordFile == null)
+            return
+        if (position == -1)
+            return
+        val audioQuestion = list[position] as AudioQuestion
+        audioQuestion.update(recordFile.toFile())
+        notifyItemChanged(position)
+    }
 }
-
-
-val RecyclerView.ViewHolder.context: Context
-    get() = this.itemView.context
 
 

@@ -20,7 +20,8 @@ enum class QuestionType(value: Int) {
     Radio(2),
     Check(3),
     Image(4),
-    Audio(5),
+    Audio(5)
+//    Video(6)
 
 }
 

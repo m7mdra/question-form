@@ -1,9 +1,8 @@
 package com.example.questionform
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -18,32 +17,34 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     private lateinit var questionAdapter: QuestionAdapter
     private lateinit var arrayAdapter: ArrayAdapter<String>
-    private val recordAudioPermission = Manifest.permission.RECORD_AUDIO
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode==123){
-            if(isAudioPermissionGranted()){
+        if (requestCode == 123) {
+            if (isAudioPermissionGranted()) {
                 questionAdapter.updateRecordAudioButtons()
                 Toast.makeText(this, "you can record now.", Toast.LENGTH_SHORT).show()
 
-            }else{
+            } else {
                 Toast.makeText(this, "permission not granted.", Toast.LENGTH_SHORT).show()
 
             }
         }
     }
+
     private val audioRecordListener = { position: Int ->
         if (isAudioPermissionGranted()) {
-            Toast.makeText(this, "Recording...", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, RecordAudioActivity::class.java)
+            intent.putExtra("position", position)
+            startActivityForResult(intent, 321)
         } else {
-            if (shouldShowRequestPermissionRationale(recordAudioPermission)) {
+            if (shouldShowRequestPermissionRationale(RECORD_AUDIO_PERMISSION)) {
                 MaterialAlertDialogBuilder(this)
                     .setTitle("Audio permission required.")
-                    .setPositiveButton("grant"){_,_->
+                    .setPositiveButton("grant") { _, _ ->
                         askForPermission()
                     }
                     .create().show()
@@ -53,12 +54,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isAudioPermissionGranted() =
-        checkSelfPermission(recordAudioPermission) == PackageManager.PERMISSION_GRANTED
-
-    private fun askForPermission() {
-        requestPermissions(arrayOf(recordAudioPermission), 123)
-    }
 
     private val imagePickListener = {
         MaterialAlertDialogBuilder(this)
@@ -100,6 +95,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 321) {
+            if (resultCode == RESULT_OK) {
+                val recordFile: Uri? = data?.getParcelableExtra<Uri>("recordPath")
+                val position = data?.getIntExtra("position", -1) ?: -1
+                recordFile.log()
+                position.log()
+                questionAdapter.addRecordFile(recordFile,position)
+
+            }
+        }
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result = CropImage.getActivityResult(data)
             if (resultCode == Activity.RESULT_OK) {
