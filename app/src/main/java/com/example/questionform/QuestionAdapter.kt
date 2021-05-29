@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -76,13 +77,7 @@ class QuestionAdapter(
                     false
                 )
             )
-            Radio.ordinal -> RadioViewHolder(
-                layoutInflater.inflate(
-                    R.layout.row_radio,
-                    parent,
-                    false
-                )
-            )
+
             Check.ordinal -> CheckViewHolder(
                 layoutInflater.inflate(
                     R.layout.row_check,
@@ -113,7 +108,6 @@ class QuestionAdapter(
         return when (question.questionType) {
             Input -> Input.ordinal
             Dropdown -> Dropdown.ordinal
-            Radio -> Radio.ordinal
             Check -> Check.ordinal
             Image -> Image.ordinal
             Audio -> Audio.ordinal
@@ -175,22 +169,7 @@ class QuestionAdapter(
                         dropdownQuestion.update(dropdownQuestion.entries[index])
                     }
             }
-            Radio.ordinal -> {
-                /*  val radioViewHolder = holder as RadioViewHolder
-                  val radioQuestion = list[position] as RadioQuestion
-                  radioViewHolder.titleTextView.text = radioQuestion.title
-                  val radioGroup = radioViewHolder.radioGroup
-                  val entries = radioQuestion.entries
-                  entries.forEach {
-                      val radioButton = RadioButton(radioViewHolder.context)
-                      radioButton.id = it.hashCode()
-                      radioButton.text = it
-                      radioGroup.addView(radioButton)
-                  }
-                  radioGroup.setOnCheckedChangeListener { _, checkedId ->
-                      entries.find { it.hashCode() == checkedId }.log()
-                  }*/
-            }
+
             Check.ordinal -> {
                 /*  val checkViewHolder = holder as CheckViewHolder
                   val checkQuestion = list[position] as CheckQuestion
@@ -242,6 +221,7 @@ class QuestionAdapter(
                 audioHandlersCallback[position] = runnable
 
                 val question = list[position] as AudioQuestion
+                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
                 audioViewHolder.titleTextView.text = question.title
                 holder.playOrStopButton.isEnabled = question.collect() != null
                 audioViewHolder.playOrStopButton.setOnClickListener {
@@ -310,7 +290,7 @@ class QuestionAdapter(
                     videoView.setVideoURI(file.toUri())
                 }
                 videoView.setOnPreparedListener {
-                    it.setVolume(0f,0f)
+                    it.setVolume(0f, 0f)
                     it.start()
                     it.isLooping = true
                 }
@@ -337,7 +317,14 @@ class QuestionAdapter(
     }
 
     fun validate(): Boolean {
-        return list.all { it.validate() }
+        list.forEachIndexed { index, question ->
+            question.log()
+            question.validate().log()
+            question.hasError = !question.validate()
+            "hasError? ${question.hasError}".log()
+            notifyItemChanged(index)
+        }
+       return list.all { it.validate() }
     }
 
     fun collect(): List<*> {
@@ -352,8 +339,7 @@ class QuestionAdapter(
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
-        "onViewRecycled:${holder::class.java}".log()
-        if(holder is VideoViewHolder){
+        if (holder is VideoViewHolder) {
             val videoView = holder.videoView
             videoView.stopPlayback()
         }
@@ -366,7 +352,6 @@ class QuestionAdapter(
         val adapterPosition = holder.adapterPosition
 
         val mediaPlayer = mediaPlayers[adapterPosition]
-        "${mediaPlayer?.isPlaying} is playing? $adapterPosition ${mediaPlayers.size} ".log()
 
         if (mediaPlayer != null)
             if (mediaPlayer.isPlaying) {

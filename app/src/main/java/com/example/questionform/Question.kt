@@ -6,8 +6,11 @@ import java.io.File
 
 abstract class Question<T>(
     val title: String = "",
-    val questionType: QuestionType
+    val questionType: QuestionType,
+    val error: String = "",
+    val required: Boolean = false
 ) {
+    abstract var hasError: Boolean
     abstract fun validate(): Boolean
     abstract fun collect(): T
     abstract fun update(value: T)
@@ -17,7 +20,6 @@ abstract class Question<T>(
 enum class QuestionType(value: Int) {
     Input(0),
     Dropdown(1),
-    Radio(2),
     Check(3),
     Image(4),
     Audio(5),
@@ -28,6 +30,8 @@ enum class QuestionType(value: Int) {
 
 class ImageQuestion(title: String, private val maxInput: Int, private val minInput: Int) :
     Question<List<String>>(title, QuestionType.Image) {
+    override var hasError: Boolean = false
+
 
     private val images = mutableListOf<String>()
     override fun validate(): Boolean {
@@ -49,8 +53,16 @@ class ImageQuestion(title: String, private val maxInput: Int, private val minInp
 
 class AudioQuestion(title: String) : Question<File?>(title, questionType = QuestionType.Audio) {
     private var audioUri: File? = null
+    override var hasError: Boolean = false
+    get() {
+        return audioUri==null
+    }
+
     override fun validate(): Boolean {
-        return audioUri != null
+
+        val predicate = audioUri != null
+        hasError = predicate
+        return predicate
     }
 
     override fun collect(): File? {
@@ -63,8 +75,9 @@ class AudioQuestion(title: String) : Question<File?>(title, questionType = Quest
 
 }
 
-class VideoQuestion(title: String) : Question<File?>(title,questionType = QuestionType.Video){
+class VideoQuestion(title: String) : Question<File?>(title, questionType = QuestionType.Video) {
     private var videoUri: File? = null
+    override var hasError: Boolean = false
 
     override fun validate(): Boolean {
         return videoUri != null
@@ -78,6 +91,7 @@ class VideoQuestion(title: String) : Question<File?>(title,questionType = Questi
         this.videoUri = value
     }
 }
+
 class InputQuestion(
     title: String,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
@@ -85,6 +99,8 @@ class InputQuestion(
 
 ) :
     Question<String>(title, QuestionType.Input) {
+    override var hasError: Boolean = false
+
     private var value: String = ""
     override fun validate(): Boolean {
         return value.isNotBlank() && value.isNotEmpty()
@@ -104,6 +120,8 @@ class InputQuestion(
 
 class DropdownQuestion(title: String, val entries: List<String>) :
     Question<String>(title, QuestionType.Dropdown) {
+    override var hasError: Boolean = false
+
     private var selection: String = ""
     override fun validate(): Boolean {
         return selection.isNotBlank() && selection.isNotEmpty()
@@ -119,26 +137,11 @@ class DropdownQuestion(title: String, val entries: List<String>) :
     }
 }
 
-class RadioQuestion(title: String, val entries: List<String>) :
-    Question<String>(title, QuestionType.Radio) {
-    private var selection: String = ""
-    override fun validate(): Boolean {
-        return selection.isNotBlank() && selection.isNotEmpty()
-    }
-
-    override fun collect(): String {
-        return selection
-    }
-
-    override fun update(value: String) {
-        this.selection = value
-
-    }
-
-}
 
 class CheckQuestion(title: String, val entries: List<String>) :
     Question<List<String>>(title, QuestionType.Check) {
+    override var hasError: Boolean = false
+
     private var selection: List<String> = listOf()
     var selectionMap = mutableMapOf<Int, String>()
     override fun validate(): Boolean {

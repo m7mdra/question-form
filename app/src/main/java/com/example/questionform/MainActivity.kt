@@ -96,7 +96,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        validateButton.setOnClickListener {
+            questionAdapter.validate().log()
+        }
         arrayAdapter = ArrayAdapter(
             this, android.R.layout.simple_list_item_1
         )
@@ -188,16 +190,7 @@ val list = listOf(
     InputQuestion("What is the name of the security guard?"),
     ImageQuestion("Site panorama (8 photos) and shelters(4 photos) overview ", 4, 4),
     InputQuestion("What is the phone number of the security guard?"),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
-    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO")),
+
     CheckQuestion(
         "Type of power source",
         listOf("Power line", "Generator", "Solar pales", "All above")

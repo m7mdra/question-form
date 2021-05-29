@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_margin="8dp"
     app:contentPadding="8dp"
+    android:animateLayoutChanges="true"
     android:layout_height="wrap_content">
 
 
@@ -75,4 +76,18 @@
         app:icon="@drawable/ic_baseline_mic_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:id="@+id/errorTextView"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        android:textColor="@color/design_default_color_error"
+        android:text="This field can not be empty."
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recordDurationTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
