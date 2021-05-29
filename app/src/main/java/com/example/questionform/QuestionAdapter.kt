@@ -212,7 +212,7 @@ class QuestionAdapter(
 
             }
             Audio.ordinal -> {
-                "called".log()
+
                 val audioViewHolder = holder as AudioViewHolder
 
                 audioViewHolderIndexes.add(position)
@@ -297,6 +297,7 @@ class QuestionAdapter(
             Video.ordinal -> {
                 val videoViewHolder = holder as VideoViewHolder
                 val videoView = videoViewHolder.videoView
+
                 val videoQuestion = list[position] as VideoQuestion
                 holder.captureOrPickVideoButton.setOnClickListener {
                     lastImageVideoIndex = position
@@ -309,6 +310,7 @@ class QuestionAdapter(
                     videoView.setVideoURI(file.toUri())
                 }
                 videoView.setOnPreparedListener {
+                    it.setVolume(0f,0f)
                     it.start()
                     it.isLooping = true
                 }
@@ -354,27 +356,30 @@ class QuestionAdapter(
         if(holder is VideoViewHolder){
             val videoView = holder.videoView
             videoView.stopPlayback()
-
         }
         if (holder is AudioViewHolder) {
-            val adapterPosition = holder.adapterPosition
-
-            val mediaPlayer = mediaPlayers[adapterPosition]
-            "${mediaPlayer?.isPlaying} is playing? $adapterPosition ${mediaPlayers.size} ".log()
-
-            if (mediaPlayer != null)
-                if (mediaPlayer.isPlaying) {
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                    holder.recordProgress.progress = 0
-                    mediaPlayer.stop()
-                    mediaPlayer.release()
-                    audioHandlers[adapterPosition]?.removeCallbacks(
-                        audioHandlersCallback[adapterPosition] ?: Runnable { })
-                    audioHandlers.remove(adapterPosition)
-                    audioHandlersCallback.remove(adapterPosition)
-                    mediaPlayers.remove(adapterPosition)
-                }
+            recycleAudioView(holder)
         }
+    }
+
+    private fun recycleAudioView(holder: AudioViewHolder) {
+        val adapterPosition = holder.adapterPosition
+
+        val mediaPlayer = mediaPlayers[adapterPosition]
+        "${mediaPlayer?.isPlaying} is playing? $adapterPosition ${mediaPlayers.size} ".log()
+
+        if (mediaPlayer != null)
+            if (mediaPlayer.isPlaying) {
+                holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                holder.recordProgress.progress = 0
+                mediaPlayer.stop()
+                mediaPlayer.release()
+                audioHandlers[adapterPosition]?.removeCallbacks(
+                    audioHandlersCallback[adapterPosition] ?: Runnable { })
+                audioHandlers.remove(adapterPosition)
+                audioHandlersCallback.remove(adapterPosition)
+                mediaPlayers.remove(adapterPosition)
+            }
     }
 
     fun addRecordFile(recordFile: Uri?, position: Int) {
