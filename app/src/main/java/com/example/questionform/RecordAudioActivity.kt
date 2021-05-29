@@ -45,7 +45,7 @@ class RecordAudioActivity : AppCompatActivity() {
             if (isAudioPermissionGranted()) {
                 startRecording()
             } else {
-                askForPermission()
+                askForAudioPermission()
             }
         }
         playButton.setOnClickListener {

@@ -4,26 +4,42 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider.getUriForFile
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
+import java.io.IOException
+import java.util.*
 
 
+@Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
     private lateinit var questionAdapter: QuestionAdapter
     private lateinit var arrayAdapter: ArrayAdapter<String>
+
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 123) {
+        if (requestCode == CAMERA_REQUEST_CODE) {
+            if (isCameraPermissionGranted()) {
+                dispatchVideoCaptureIntent()
+            } else {
+                Toast.makeText(this, "Camera permission not granted", Toast.LENGTH_SHORT).show()
+            }
+        }
+        if (requestCode == RECORD_AUDIO_REQUEST_CODE) {
             if (isAudioPermissionGranted()) {
                 questionAdapter.updateRecordAudioButtons()
                 Toast.makeText(this, "you can record now.", Toast.LENGTH_SHORT).show()
@@ -45,11 +61,11 @@ class MainActivity : AppCompatActivity() {
                 MaterialAlertDialogBuilder(this)
                     .setTitle("Audio permission required.")
                     .setPositiveButton("grant") { _, _ ->
-                        askForPermission()
+                        askForAudioPermission()
                     }
                     .create().show()
             } else {
-                askForPermission()
+                askForAudioPermission()
             }
         }
     }
@@ -86,22 +102,65 @@ class MainActivity : AppCompatActivity() {
         )
         arrayAdapter.addAll("High", "Medium", "Low")
 
-        questionAdapter = QuestionAdapter(list, imagePickListener, audioRecordListener)
+        questionAdapter = QuestionAdapter(list, imagePickListener, audioRecordListener, {
+            if (isCameraPermissionGranted()) {
+                dispatchVideoCaptureIntent()
+            } else {
+                askForCameraPermission()
+            }
+        })
 
         recyclerView.adapter = questionAdapter
         recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
     }
 
+    private lateinit var videoFile: File
+    private fun dispatchVideoCaptureIntent() {
+        try {
+            Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { intent ->
+                intent.resolveActivity(packageManager)?.also { _ ->
+                    val newFile: File? = try {
+                        val imagePath = File(filesDir, "videos")
+                        imagePath.mkdir()
+                        File.createTempFile("video${Date().time}", ".mp4", imagePath)
+
+                    } catch (ex: IOException) {
+                        finish()
+                        null
+                    }
+                    if (newFile != null) {
+                        videoFile = newFile
+                    }
+                    newFile?.also {
+                        it.log()
+                        val contentUri =
+                            getUriForFile(this, packageName, it)
+                        contentUri.log()
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri)
+                        startActivityForResult(intent, 43)
+                    }
+                }
+            }
+        }catch (error:Exception){
+            error.printStackTrace()
+        }
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 43) {
+            if (resultCode == RESULT_OK) {
+                questionAdapter.updatePickedVideo(videoFile)
+            }
+        }
         if (requestCode == 321) {
             if (resultCode == RESULT_OK) {
                 val recordFile: Uri? = data?.getParcelableExtra<Uri>("recordPath")
                 val position = data?.getIntExtra("position", -1) ?: -1
                 recordFile.log()
                 position.log()
-                questionAdapter.addRecordFile(recordFile,position)
+                questionAdapter.addRecordFile(recordFile, position)
 
             }
         }

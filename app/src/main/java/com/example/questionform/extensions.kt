@@ -18,14 +18,23 @@ import androidx.recyclerview.widget.RecyclerView
 val RecyclerView.ViewHolder.context: Context
     get() = this.itemView.context
  const val RECORD_AUDIO_PERMISSION = Manifest.permission.RECORD_AUDIO
+ const val CAMERA_PERMISSION = Manifest.permission.CAMERA
 const val RECORD_AUDIO_REQUEST_CODE = 123
+const val CAMERA_REQUEST_CODE = 124
 
  fun Context.isAudioPermissionGranted() =
     checkSelfPermission(RECORD_AUDIO_PERMISSION) == PackageManager.PERMISSION_GRANTED
 
- fun Activity.askForPermission() {
+ fun Context.isCameraPermissionGranted() =
+    checkSelfPermission(CAMERA_PERMISSION) == PackageManager.PERMISSION_GRANTED
+
+ fun Activity.askForAudioPermission() {
     requestPermissions(arrayOf(RECORD_AUDIO_PERMISSION), RECORD_AUDIO_REQUEST_CODE)
 }
+ fun Activity.askForCameraPermission() {
+    requestPermissions(arrayOf(CAMERA_PERMISSION), RECORD_AUDIO_REQUEST_CODE)
+}
+
 fun EditText.asString() = text.toString().trim()
 
 

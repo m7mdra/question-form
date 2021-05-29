@@ -15,19 +15,23 @@ import android.widget.ArrayAdapter
 import android.widget.MediaController
 import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.example.questionform.QuestionType.*
 import com.example.questionform.viewholder.*
+import java.io.File
 
 
 class QuestionAdapter(
     private val list: List<Question<*>>,
     private val imagePickListener: () -> Unit = {},
-    private val audioRecordListener: (Int) -> Unit = {}
+    private val audioRecordListener: (Int) -> Unit = {},
+    private val videoPickListener: (Int) -> Unit = {}
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var lastImagePickIndex = -1
+    var lastImageVideoIndex = -1
     private val textWatchers = mutableMapOf<Int, TextInputEditTextWatcher>()
     private val imageAdapters = mutableMapOf<Int, ImageAdapter>()
 
@@ -293,11 +297,20 @@ class QuestionAdapter(
             Video.ordinal -> {
                 val videoViewHolder = holder as VideoViewHolder
                 val videoView = videoViewHolder.videoView
-
-                videoView.setMediaController(MediaController(holder.context))
-                videoView.setVideoPath("https://vod-progressive.akamaized.net/exp=1622115924~acl=%2Fvimeo-prod-skyfire-std-us%2F01%2F3306%2F20%2F516532097%2F2399156942.mp4~hmac=c4bffc22f65ba429d021ed9d979826cd99f829416bf812c35b91b09356f5b0ad/vimeo-prod-skyfire-std-us/01/3306/20/516532097/2399156942.mp4?filename=Cat+-+66004.mp4")
+                val videoQuestion = list[position] as VideoQuestion
+                holder.captureOrPickVideoButton.setOnClickListener {
+                    lastImageVideoIndex = position
+                    videoPickListener.invoke(position)
+                }
+                val mediaController = MediaController(holder.context)
+                videoView.setMediaController(mediaController)
+                val file = videoQuestion.collect()
+                if (file != null) {
+                    videoView.setVideoURI(file.toUri())
+                }
                 videoView.setOnPreparedListener {
-                    videoView.start()
+                    it.start()
+                    it.isLooping = true
                 }
             }
 
@@ -338,12 +351,17 @@ class QuestionAdapter(
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         "onViewRecycled:${holder::class.java}".log()
+        if(holder is VideoViewHolder){
+            val videoView = holder.videoView
+            videoView.stopPlayback()
 
+        }
         if (holder is AudioViewHolder) {
             val adapterPosition = holder.adapterPosition
 
             val mediaPlayer = mediaPlayers[adapterPosition]
             "${mediaPlayer?.isPlaying} is playing? $adapterPosition ${mediaPlayers.size} ".log()
+
             if (mediaPlayer != null)
                 if (mediaPlayer.isPlaying) {
                     holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
@@ -367,6 +385,12 @@ class QuestionAdapter(
         val audioQuestion = list[position] as AudioQuestion
         audioQuestion.update(recordFile.toFile())
         notifyItemChanged(position)
+    }
+
+    fun updatePickedVideo(uri: File) {
+        val question = list[lastImageVideoIndex] as VideoQuestion
+        question.update(uri)
+        notifyItemChanged(lastImageVideoIndex)
     }
 }
 
