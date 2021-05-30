@@ -9,7 +9,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider.getUriForFile
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageView
@@ -143,7 +142,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-        }catch (error:Exception){
+        } catch (error: Exception) {
             error.printStackTrace()
         }
     }
@@ -190,8 +189,23 @@ val list = listOf(
     InputQuestion("What is the name of the security guard?"),
     ImageQuestion("Site panorama (8 photos) and shelters(4 photos) overview ", 4, 4),
     InputQuestion("What is the phone number of the security guard?"),
-
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
+    RadioQuestion("Is there gasoil of container available ?", listOf("YES", "NO","Maybe")),
     CheckQuestion(
+        "Type of power source",
+        listOf("Power line", "Generator", "Solar pales", "All above")
+    ), CheckQuestion(
+        "Type of power source",
+        listOf("Power line", "Generator", "Solar pales", "All above")
+    ), CheckQuestion(
         "Type of power source",
         listOf("Power line", "Generator", "Solar pales", "All above")
     ),

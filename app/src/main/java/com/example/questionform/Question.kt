@@ -20,6 +20,7 @@ abstract class Question<T>(
 enum class QuestionType(value: Int) {
     Input(0),
     Dropdown(1),
+    Radio(2),
     Check(3),
     Image(4),
     Audio(5),
@@ -54,9 +55,7 @@ class ImageQuestion(title: String, private val maxInput: Int, private val minInp
 class AudioQuestion(title: String) : Question<File?>(title, questionType = QuestionType.Audio) {
     private var audioUri: File? = null
     override var hasError: Boolean = false
-    get() {
-        return audioUri==null
-    }
+
 
     override fun validate(): Boolean {
 
@@ -137,6 +136,25 @@ class DropdownQuestion(title: String, val entries: List<String>) :
     }
 }
 
+class RadioQuestion(title: String, val entries: List<String>) :
+    Question<String>(title, QuestionType.Radio) {
+    override var hasError: Boolean = false
+
+    private var selection: String = ""
+    override fun validate(): Boolean {
+        return selection.isNotBlank() && selection.isNotEmpty()
+    }
+
+    override fun collect(): String {
+        return selection
+    }
+
+    override fun update(value: String) {
+        this.selection = value
+
+    }
+
+}
 
 class CheckQuestion(title: String, val entries: List<String>) :
     Question<List<String>>(title, QuestionType.Check) {

@@ -11,9 +11,7 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.MediaController
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.core.net.toUri
@@ -77,7 +75,13 @@ class QuestionAdapter(
                     false
                 )
             )
-
+            Radio.ordinal -> RadioViewHolder(
+                layoutInflater.inflate(
+                    R.layout.row_radio,
+                    parent,
+                    false
+                )
+            )
             Check.ordinal -> CheckViewHolder(
                 layoutInflater.inflate(
                     R.layout.row_check,
@@ -108,6 +112,7 @@ class QuestionAdapter(
         return when (question.questionType) {
             Input -> Input.ordinal
             Dropdown -> Dropdown.ordinal
+            Radio -> Radio.ordinal
             Check -> Check.ordinal
             Image -> Image.ordinal
             Audio -> Audio.ordinal
@@ -169,25 +174,45 @@ class QuestionAdapter(
                         dropdownQuestion.update(dropdownQuestion.entries[index])
                     }
             }
+            Radio.ordinal -> {
+                val radioViewHolder = holder as RadioViewHolder
+                val radioQuestion = list[position] as RadioQuestion
+                radioViewHolder.titleTextView.text = radioQuestion.title
+                val radioGroup = radioViewHolder.radioGroup
+                val entries = radioQuestion.entries
+                entries.forEach {
+                    val radioButton = RadioButton(radioViewHolder.context)
+                    radioButton.id = it.hashCode()
+                    radioButton.text = it
+                    radioButton.isChecked = radioQuestion.collect().hashCode() == it.hashCode()
+                    radioGroup.addView(radioButton)
+                    radioButton.setOnCheckedChangeListener { _, isChecked ->
+                        if (isChecked)
+                            radioQuestion.update(it)
+                    }
+                }
 
+            }
             Check.ordinal -> {
-                /*  val checkViewHolder = holder as CheckViewHolder
-                  val checkQuestion = list[position] as CheckQuestion
-                  checkViewHolder.titleTextView.text = checkQuestion.title
-                  checkQuestion.entries.forEachIndexed { index, s ->
-                      val checkBox = CheckBox(checkViewHolder.context)
-                      checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
-                          if (isChecked) {
-                              checkQuestion.selectionMap[index] = s
-                          } else {
-                              checkQuestion.selectionMap.remove(index)
-                          }
-                          checkQuestion.selectionMap.log()
-                      }
-                      checkBox.text = s
-                      checkBox.id = s.hashCode()
-                      checkViewHolder.checkboxLayout.addView(checkBox)
-                  }*/
+                val checkViewHolder = holder as CheckViewHolder
+                val checkQuestion = list[position] as CheckQuestion
+                checkViewHolder.titleTextView.text = checkQuestion.title
+
+                checkQuestion.entries.forEachIndexed { index, s ->
+                    val checkBox = CheckBox(checkViewHolder.context)
+                    checkBox.isChecked = checkQuestion.selectionMap.containsKey(index)
+                    checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
+                        if (isChecked) {
+                            checkQuestion.selectionMap[index] = s
+                        } else {
+                            checkQuestion.selectionMap.remove(index)
+                        }
+                        checkQuestion.selectionMap.log()
+                    }
+                    checkBox.text = s
+                    checkBox.id = s.hashCode()
+                    checkViewHolder.checkboxLayout.addView(checkBox)
+                }
 
             }
             Audio.ordinal -> {
@@ -324,7 +349,7 @@ class QuestionAdapter(
             "hasError? ${question.hasError}".log()
             notifyItemChanged(index)
         }
-       return list.all { it.validate() }
+        return list.all { it.validate() }
     }
 
     fun collect(): List<*> {
@@ -345,6 +370,12 @@ class QuestionAdapter(
         }
         if (holder is AudioViewHolder) {
             recycleAudioView(holder)
+        }
+        if (holder is CheckViewHolder) {
+            holder.checkboxLayout.removeAllViews()
+        }
+        if (holder is RadioViewHolder) {
+            holder.radioGroup.removeAllViews()
         }
     }
 
