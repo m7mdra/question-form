@@ -22,14 +22,7 @@ class RecordAudioActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
     private var didRecord = false
     private var isRecording = false
-    override fun onStop() {
-        super.onStop()
-        mediaPlayer.stop()
-        mediaPlayer.release()
-        mediaRecorder.stop()
-        mediaRecorder.release()
-        
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
