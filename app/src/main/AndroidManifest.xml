@@ -20,7 +20,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.QuestionForm">
-        <activity android:name=".RecordAudioActivity"></activity>
+        <activity android:name="com.m7mdra.questionForm.RecordAudioActivity"></activity>
         <activity android:name=".CameraActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>

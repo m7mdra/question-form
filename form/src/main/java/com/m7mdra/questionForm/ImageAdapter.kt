@@ -1,13 +1,11 @@
-package com.example.questionform
+package com.m7mdra.questionForm
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
-import com.example.questionform.viewholder.RowImageViewHolder
+import com.m7mdra.questionForm.viewholder.RowImageViewHolder
 import com.squareup.picasso.Picasso
-import java.io.File
-import java.net.URI
 
 class ImageAdapter : RecyclerView.Adapter<RowImageViewHolder>() {
 

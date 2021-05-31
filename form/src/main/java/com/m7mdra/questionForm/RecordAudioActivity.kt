@@ -1,4 +1,4 @@
-package com.example.questionform
+package com.m7mdra.questionForm
 
 import android.app.Activity
 import android.content.Intent

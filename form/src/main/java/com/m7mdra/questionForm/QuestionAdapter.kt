@@ -1,4 +1,4 @@
-package com.example.questionform
+package com.m7mdra.questionForm
 
 import android.Manifest
 import android.content.Context
@@ -16,8 +16,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
-import com.example.questionform.QuestionType.*
-import com.example.questionform.viewholder.*
+import com.m7mdra.questionForm.QuestionType.*
+import com.m7mdra.questionForm.viewholder.*
 import java.io.File
 
 
