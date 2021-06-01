@@ -97,19 +97,19 @@ class InputQuestion(
     hint: String = ""
 
 ) :
-    Question<String>(title, QuestionType.Input) {
+    Question<String?>(title, QuestionType.Input) {
     override var hasError: Boolean = false
 
-    private var value: String = ""
+    private var value: String? = null
     override fun validate(): Boolean {
-        return value.isNotBlank() && value.isNotEmpty()
+        return value!=null && value!!.isNotBlank() && value!!.isNotEmpty()
     }
 
-    override fun collect(): String {
+    override fun collect(): String? {
         return value
     }
 
-    override fun update(value: String) {
+    override fun update(value: String?) {
         value.log()
 
         this.value = value

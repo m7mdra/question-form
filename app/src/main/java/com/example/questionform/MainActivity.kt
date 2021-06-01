@@ -13,11 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.m7mdra.questionForm.askForAudioPermission
-import com.m7mdra.questionForm.askForCameraPermission
-import com.m7mdra.questionForm.isAudioPermissionGranted
-import com.m7mdra.questionForm.isCameraPermissionGranted
-import com.m7mdra.questionForm.log
+import com.m7mdra.questionForm.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.IOException
@@ -26,7 +22,7 @@ import java.util.*
 
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
-    private lateinit var questionAdapter: com.m7mdra.questionForm.QuestionAdapter
+    private lateinit var questionAdapter: QuestionAdapter
     private lateinit var arrayAdapter: ArrayAdapter<String>
 
 
@@ -36,14 +32,15 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == com.m7mdra.questionForm.CAMERA_REQUEST_CODE) {
+        if (requestCode == CAMERA_REQUEST_CODE) {
             if (isCameraPermissionGranted()) {
-                dispatchVideoCaptureIntent()
+                Toast.makeText(this, "Camera permission granted, you can now complete the process", Toast.LENGTH_SHORT).show()
+                questionAdapter.updateCameraAndVideoButton()
             } else {
                 Toast.makeText(this, "Camera permission not granted", Toast.LENGTH_SHORT).show()
             }
         }
-        if (requestCode == com.m7mdra.questionForm.RECORD_AUDIO_REQUEST_CODE) {
+        if (requestCode == RECORD_AUDIO_REQUEST_CODE) {
             if (isAudioPermissionGranted()) {
                 questionAdapter.updateRecordAudioButtons()
                 Toast.makeText(this, "you can record now.", Toast.LENGTH_SHORT).show()
@@ -57,11 +54,11 @@ class MainActivity : AppCompatActivity() {
 
     private val audioRecordListener = { position: Int ->
         if (isAudioPermissionGranted()) {
-            val intent = Intent(this, com.m7mdra.questionForm.RecordAudioActivity::class.java)
+            val intent = Intent(this, RecordAudioActivity::class.java)
             intent.putExtra("position", position)
             startActivityForResult(intent, 321)
         } else {
-            if (shouldShowRequestPermissionRationale(com.m7mdra.questionForm.RECORD_AUDIO_PERMISSION)) {
+            if (shouldShowRequestPermissionRationale(RECORD_AUDIO_PERMISSION)) {
                 MaterialAlertDialogBuilder(this)
                     .setTitle("Audio permission required.")
                     .setPositiveButton("grant") { _, _ ->
@@ -109,7 +106,7 @@ class MainActivity : AppCompatActivity() {
         arrayAdapter.addAll("High", "Medium", "Low")
 
         questionAdapter =
-            com.m7mdra.questionForm.QuestionAdapter(list, imagePickListener, audioRecordListener, {
+            QuestionAdapter(list, imagePickListener, audioRecordListener, {
                 if (isCameraPermissionGranted()) {
                     dispatchVideoCaptureIntent()
                 } else {
@@ -122,6 +119,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var videoFile: File
+    private lateinit var imageFile: File
     private fun dispatchVideoCaptureIntent() {
         try {
             Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { intent ->
@@ -153,12 +151,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun dispatchImageCaptureIntent() {
+        try {
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { intent ->
+                intent.resolveActivity(packageManager)?.also { _ ->
+                    val newFile: File? = try {
+                        val imagePath = File(filesDir, "images")
+                        imagePath.mkdir()
+                        File.createTempFile("image${Date().time}", ".jpeg", imagePath)
+
+                    } catch (ex: IOException) {
+                        finish()
+                        null
+                    }
+                    if (newFile != null) {
+                        imageFile = newFile
+                    }
+                    newFile?.also {
+                        it.log()
+                        val contentUri =
+                            getUriForFile(this, packageName, it)
+                        contentUri.log()
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri)
+                        startActivityForResult(intent, 42)
+                    }
+                }
+            }
+        } catch (error: Exception) {
+            error.printStackTrace()
+        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 43) {
             if (resultCode == RESULT_OK) {
                 questionAdapter.updatePickedVideo(videoFile)
+            }
+        }
+        if(requestCode==42){
+            if(resultCode== RESULT_OK){
+                questionAdapter.updateImageAdapterAtPosition(imageFile.path)
             }
         }
         if (requestCode == 321) {
@@ -176,7 +209,6 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 result?.also {
                     questionAdapter.updateImageAdapterAtPosition(
-                        questionAdapter.lastImagePickIndex,
                         it.originalUri.toString()
                     )
                 }
@@ -188,66 +220,66 @@ class MainActivity : AppCompatActivity() {
 }
 
 val list = listOf(
-    com.m7mdra.questionForm.VideoQuestion("Video question here."),
-    com.m7mdra.questionForm.AudioQuestion("Record a summary of the condition of the power generator line 0"),
-    com.m7mdra.questionForm.AudioQuestion("Record a summary of the condition of the power generator line 1"),
-    com.m7mdra.questionForm.AudioQuestion("Record a summary of the condition of the power generator line 2"),
-    com.m7mdra.questionForm.InputQuestion("What is the name of the security guard?"),
-    com.m7mdra.questionForm.ImageQuestion(
+    VideoQuestion("Video question here."),
+    AudioQuestion("Record a summary of the condition of the power generator line 0"),
+    AudioQuestion("Record a summary of the condition of the power generator line 1"),
+    AudioQuestion("Record a summary of the condition of the power generator line 2"),
+    InputQuestion("What is the name of the security guard?"),
+    ImageQuestion(
         "Site panorama (8 photos) and shelters(4 photos) overview ",
         4,
         4
     ),
-    com.m7mdra.questionForm.InputQuestion("What is the phone number of the security guard?"),
-    com.m7mdra.questionForm.RadioQuestion(
+    InputQuestion("What is the phone number of the security guard?"),
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.RadioQuestion(
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.RadioQuestion(
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.RadioQuestion(
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.RadioQuestion(
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.RadioQuestion(
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.RadioQuestion(
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.RadioQuestion(
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.RadioQuestion(
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.RadioQuestion(
+    RadioQuestion(
         "Is there gasoil of container available ?",
         listOf("YES", "NO", "Maybe")
     ),
-    com.m7mdra.questionForm.CheckQuestion(
+    CheckQuestion(
         "Type of power source",
         listOf("Power line", "Generator", "Solar pales", "All above")
-    ), com.m7mdra.questionForm.CheckQuestion(
+    ), CheckQuestion(
         "Type of power source",
         listOf("Power line", "Generator", "Solar pales", "All above")
-    ), com.m7mdra.questionForm.CheckQuestion(
+    ), CheckQuestion(
         "Type of power source",
         listOf("Power line", "Generator", "Solar pales", "All above")
     ),
-    com.m7mdra.questionForm.DropdownQuestion("Tower type", listOf("GSM", "2G", "3G", "3.75G", "4G"))
+    DropdownQuestion("Tower type", listOf("GSM", "2G", "3G", "3.75G", "4G"))
 )

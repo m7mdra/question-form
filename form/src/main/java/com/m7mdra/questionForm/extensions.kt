@@ -32,7 +32,7 @@ const val CAMERA_REQUEST_CODE = 124
     requestPermissions(arrayOf(RECORD_AUDIO_PERMISSION), RECORD_AUDIO_REQUEST_CODE)
 }
  fun Activity.askForCameraPermission() {
-    requestPermissions(arrayOf(CAMERA_PERMISSION), RECORD_AUDIO_REQUEST_CODE)
+    requestPermissions(arrayOf(CAMERA_PERMISSION), CAMERA_REQUEST_CODE)
 }
 
 fun EditText.asString() = text.toString().trim()

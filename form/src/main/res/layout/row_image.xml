@@ -42,6 +42,7 @@
         <com.google.android.material.button.MaterialButton
             android:layout_marginTop="8dp"
             android:id="@+id/captureImageButton"
+            app:icon="@drawable/ic_baseline_camera_alt_24"
             android:layout_width="wrap_content"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_height="wrap_content"

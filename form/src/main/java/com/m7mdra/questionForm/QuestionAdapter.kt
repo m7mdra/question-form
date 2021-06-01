@@ -29,12 +29,13 @@ class QuestionAdapter(
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var lastImagePickIndex = -1
-    var lastImageVideoIndex = -1
+    private var lastImagePickIndex = -1
+    private var lastImageVideoIndex = -1
     private val textWatchers = mutableMapOf<Int, TextInputEditTextWatcher>()
     private val imageAdapters = mutableMapOf<Int, ImageAdapter>()
 
     private val audioViewHolderIndexes = mutableListOf<Int>()
+    private val mediaViewHolderIndexes = mutableListOf<Int>()
     private val audioHandlers = mutableMapOf<Int, Handler>()
     private val audioHandlersCallback = mutableMapOf<Int, Runnable>()
     private val mediaPlayers = mutableMapOf<Int, MediaPlayer>()
@@ -127,6 +128,7 @@ class QuestionAdapter(
 
                 val inputViewHolder = holder as InputViewHolder
                 inputViewHolder.titleTextView.text = list[position].title
+                inputViewHolder.textInputEditText.setText(inputQuestion.collect() ?: "")
                 val textWatcher =
                     object : TextInputEditTextWatcher(inputViewHolder.textInputEditText) {
                         override fun beforeTextChanged(
@@ -286,9 +288,14 @@ class QuestionAdapter(
                 }
             }
             Image.ordinal -> {
+                mediaViewHolderIndexes.add(position)
+
                 val imageViewHolder = holder as ImageViewHolder
                 val imageQuestion = list[position] as ImageQuestion
                 val adapterPosition = holder.adapterPosition
+                val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
+
+                holder.imageButton.text = if(cameraPermissionGranted) "Capture image" else "grant permission"
                 imageViewHolder.imageButton.setOnClickListener {
                     lastImagePickIndex = adapterPosition
                     imagePickListener.invoke()
@@ -300,10 +307,14 @@ class QuestionAdapter(
 
             }
             Video.ordinal -> {
+                mediaViewHolderIndexes.add(position)
                 val videoViewHolder = holder as VideoViewHolder
                 val videoView = videoViewHolder.videoView
 
                 val videoQuestion = list[position] as VideoQuestion
+                val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
+                holder.titleTextView.text = videoQuestion.title
+                holder.captureOrPickVideoButton.text = if(cameraPermissionGranted) "Record video" else "grant permission"
                 holder.captureOrPickVideoButton.setOnClickListener {
                     lastImageVideoIndex = position
                     videoPickListener.invoke(position)
@@ -330,8 +341,8 @@ class QuestionAdapter(
             Manifest.permission.RECORD_AUDIO
         ) == PackageManager.PERMISSION_GRANTED
 
-    fun updateImageAdapterAtPosition(position: Int, uri: String) {
-        val adapter: ImageAdapter = imageAdapters[position] ?: return
+    fun updateImageAdapterAtPosition( uri: String) {
+        val adapter: ImageAdapter = imageAdapters[lastImagePickIndex] ?: return
         adapter.add(uri)
         adapter.notifyDataSetChanged()
 
@@ -364,10 +375,12 @@ class QuestionAdapter(
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
+        val adapterPosition = holder.adapterPosition
         if (holder is VideoViewHolder) {
             val videoView = holder.videoView
             videoView.stopPlayback()
         }
+
         if (holder is AudioViewHolder) {
             recycleAudioView(holder)
         }
@@ -376,6 +389,9 @@ class QuestionAdapter(
         }
         if (holder is RadioViewHolder) {
             holder.radioGroup.removeAllViews()
+        }
+        if (holder is InputViewHolder) {
+            holder.textInputEditText.removeTextChangedListener(textWatchers[adapterPosition])
         }
     }
 
@@ -412,6 +428,13 @@ class QuestionAdapter(
         val question = list[lastImageVideoIndex] as VideoQuestion
         question.update(uri)
         notifyItemChanged(lastImageVideoIndex)
+    }
+
+    fun updateCameraAndVideoButton() {
+
+        mediaViewHolderIndexes.forEach {
+            notifyItemChanged(it)
+        }
     }
 }
 
