@@ -295,13 +295,14 @@ class QuestionAdapter(
                 val adapterPosition = holder.adapterPosition
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
 
-                holder.imageButton.text = if(cameraPermissionGranted) "Capture image" else "grant permission"
+//                holder.imageButton.text = if(cameraPermissionGranted) "Capture image" else "grant permission"
                 imageViewHolder.imageButton.setOnClickListener {
                     lastImagePickIndex = adapterPosition
                     imagePickListener.invoke()
                 }
                 imageViewHolder.titleTextView.text = imageQuestion.title
                 val imageAdapter = ImageAdapter()
+
                 imageAdapters[adapterPosition] = imageAdapter
                 imageViewHolder.imagesRecyclerView.adapter = imageAdapter
 

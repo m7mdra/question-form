@@ -8,7 +8,9 @@ abstract class Question<T>(
     val title: String = "",
     val questionType: QuestionType,
     val error: String = "",
-    val required: Boolean = false
+    val required: Boolean = false,
+    val validationMode: ValidationMode = ValidationMode.Off
+
 ) {
     abstract var hasError: Boolean
     abstract fun validate(): Boolean
@@ -55,12 +57,14 @@ class ImageQuestion(title: String, private val maxInput: Int, private val minInp
 class AudioQuestion(title: String) : Question<File?>(title, questionType = QuestionType.Audio) {
     private var audioUri: File? = null
     override var hasError: Boolean = false
+        get() {
+            return !validate()
+        }
 
 
     override fun validate(): Boolean {
 
         val predicate = audioUri != null
-        hasError = predicate
         return predicate
     }
 
@@ -102,7 +106,7 @@ class InputQuestion(
 
     private var value: String? = null
     override fun validate(): Boolean {
-        return value!=null && value!!.isNotBlank() && value!!.isNotEmpty()
+        return value != null && value!!.isNotBlank() && value!!.isNotEmpty()
     }
 
     override fun collect(): String? {
