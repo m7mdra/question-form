@@ -295,7 +295,7 @@ class QuestionAdapter(
                 val adapterPosition = holder.adapterPosition
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
 
-//                holder.imageButton.text = if(cameraPermissionGranted) "Capture image" else "grant permission"
+                holder.imageButton.text = if(cameraPermissionGranted) "Capture image" else "Grant permission"
                 imageViewHolder.imageButton.setOnClickListener {
                     lastImagePickIndex = adapterPosition
                     imagePickListener.invoke()
@@ -311,11 +311,10 @@ class QuestionAdapter(
                 mediaViewHolderIndexes.add(position)
                 val videoViewHolder = holder as VideoViewHolder
                 val videoView = videoViewHolder.videoView
-
                 val videoQuestion = list[position] as VideoQuestion
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
                 holder.titleTextView.text = videoQuestion.title
-                holder.captureOrPickVideoButton.text = if(cameraPermissionGranted) "Record video" else "grant permission"
+                holder.captureOrPickVideoButton.text = if(cameraPermissionGranted) "Record video" else "Grant permission"
                 holder.captureOrPickVideoButton.setOnClickListener {
                     lastImageVideoIndex = position
                     videoPickListener.invoke(position)

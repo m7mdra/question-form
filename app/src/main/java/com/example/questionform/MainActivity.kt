@@ -73,25 +73,11 @@ class MainActivity : AppCompatActivity() {
 
 
     private val imagePickListener = {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Select image quality")
-            .setAdapter(
-                arrayAdapter
-            ) { _, which ->
-                val quality = when (which) {
-                    0 -> 100
-                    1 -> 60
-                    2 -> 30
-                    else -> 100
-                }
-                CropImage
-                    .activity()
-                    .setOutputCompressQuality(quality)
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .start(this)
-            }
-            .create().show()
-
+     if(isCameraPermissionGranted()){
+         dispatchImageCaptureIntent()
+     }else{
+         askForCameraPermission()
+     }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
