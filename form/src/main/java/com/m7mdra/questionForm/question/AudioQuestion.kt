@@ -6,14 +6,13 @@ class AudioQuestion(title: String) : Question<File?>(title, questionType = Quest
     override var value: File? = null
 
     override var hasError: Boolean = false
-        get() {
-            return !validate()
-        }
 
 
     override fun validate(): Boolean {
 
-        return value != null
+        val b = value != null
+        hasError = b
+        return b
     }
 
     override fun collect(): File? {
@@ -22,6 +21,7 @@ class AudioQuestion(title: String) : Question<File?>(title, questionType = Quest
 
     override fun update(value: File?) {
         this.value = value
+        validate()
     }
 
 }

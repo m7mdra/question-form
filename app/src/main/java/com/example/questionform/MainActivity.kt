@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.canhub.cropper.CropImage
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.m7mdra.questionForm.*
+import com.m7mdra.questionForm.question.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.IOException
