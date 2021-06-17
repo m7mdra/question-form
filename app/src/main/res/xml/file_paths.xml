@@ -2,5 +2,6 @@
 <paths>
     <files-path name="videos" path="videos"/>
     <files-path name="images" path="images"/>
+    <files-path name="audios" path="audios"/>
 
 </paths>

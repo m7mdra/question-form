@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.text.format.DateUtils
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -21,7 +22,9 @@ val RecyclerView.ViewHolder.context: Context
  const val CAMERA_PERMISSION = Manifest.permission.CAMERA
 const val RECORD_AUDIO_REQUEST_CODE = 123
 const val CAMERA_REQUEST_CODE = 124
-
+fun Any?.log() {
+    Log.d("MEGA", "$this")
+}
  fun Context.isAudioPermissionGranted() =
     checkSelfPermission(RECORD_AUDIO_PERMISSION) == PackageManager.PERMISSION_GRANTED
 

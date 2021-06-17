@@ -2,6 +2,7 @@ package com.example.questionform
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -11,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider.getUriForFile
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.canhub.cropper.CropImage
-import com.canhub.cropper.CropImageView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.m7mdra.questionForm.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -25,32 +25,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var questionAdapter: QuestionAdapter
     private lateinit var arrayAdapter: ArrayAdapter<String>
 
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CAMERA_REQUEST_CODE) {
-            if (isCameraPermissionGranted()) {
-                Toast.makeText(this, "Camera permission granted, you can now complete the process", Toast.LENGTH_SHORT).show()
-                questionAdapter.updateCameraAndVideoButton()
-            } else {
-                Toast.makeText(this, "Camera permission not granted", Toast.LENGTH_SHORT).show()
-            }
-        }
-        if (requestCode == RECORD_AUDIO_REQUEST_CODE) {
-            if (isAudioPermissionGranted()) {
-                questionAdapter.updateRecordAudioButtons()
-                Toast.makeText(this, "you can record now.", Toast.LENGTH_SHORT).show()
-
-            } else {
-                Toast.makeText(this, "permission not granted.", Toast.LENGTH_SHORT).show()
-
-            }
-        }
-    }
 
     private val audioRecordListener = { position: Int ->
         if (isAudioPermissionGranted()) {
@@ -73,11 +47,18 @@ class MainActivity : AppCompatActivity() {
 
 
     private val imagePickListener = {
-     if(isCameraPermissionGranted()){
-         dispatchImageCaptureIntent()
-     }else{
-         askForCameraPermission()
-     }
+        if (isCameraPermissionGranted()) {
+            dispatchImageCaptureIntent()
+        } else {
+            askForCameraPermission()
+        }
+    }
+    private val videoPickListener: (Int) -> Unit = {
+        if (isCameraPermissionGranted()) {
+            dispatchVideoCaptureIntent()
+        } else {
+            askForCameraPermission()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,13 +72,11 @@ class MainActivity : AppCompatActivity() {
         )
         arrayAdapter.addAll("High", "Medium", "Low")
 
+
         questionAdapter =
-            QuestionAdapter(list, imagePickListener, audioRecordListener, {
-                if (isCameraPermissionGranted()) {
-                    dispatchVideoCaptureIntent()
-                } else {
-                    askForCameraPermission()
-                }
+            QuestionAdapter(list, imagePickListener, audioRecordListener, videoPickListener,imageClickListener = {parentPosition,childPosition,image->
+
+                image.log()
             })
 
         recyclerView.adapter = questionAdapter
@@ -175,8 +154,8 @@ class MainActivity : AppCompatActivity() {
                 questionAdapter.updatePickedVideo(videoFile)
             }
         }
-        if(requestCode==42){
-            if(resultCode== RESULT_OK){
+        if (requestCode == 42) {
+            if (resultCode == RESULT_OK) {
                 questionAdapter.updateImageAdapterAtPosition(imageFile.path)
             }
         }
@@ -200,6 +179,36 @@ class MainActivity : AppCompatActivity() {
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 val error = result!!.error
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_REQUEST_CODE) {
+            if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
+                Toast.makeText(
+                    this,
+                    "Camera permission granted, you can now complete the process",
+                    Toast.LENGTH_SHORT
+                ).show()
+                questionAdapter.updateCameraAndVideoButton()
+            } else {
+                Toast.makeText(this, "Camera permission not granted", Toast.LENGTH_SHORT).show()
+            }
+        }
+        if (requestCode == RECORD_AUDIO_REQUEST_CODE) {
+            if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
+                questionAdapter.updateRecordAudioButtons()
+                Toast.makeText(this, "you can record now.", Toast.LENGTH_SHORT).show()
+
+            } else {
+                Toast.makeText(this, "permission not granted.", Toast.LENGTH_SHORT).show()
+
             }
         }
     }

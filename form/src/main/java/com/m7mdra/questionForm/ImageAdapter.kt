@@ -2,14 +2,13 @@ package com.m7mdra.questionForm
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.m7mdra.questionForm.viewholder.RowImageViewHolder
 import com.squareup.picasso.Picasso
-import java.io.File
 
-class ImageAdapter : RecyclerView.Adapter<RowImageViewHolder>() {
+class ImageAdapter(val clickListener: (Int, String) -> Unit = {_,_->}) :
+    RecyclerView.Adapter<RowImageViewHolder>() {
 
     private val list = mutableListOf<String>()
 
@@ -27,6 +26,9 @@ class ImageAdapter : RecyclerView.Adapter<RowImageViewHolder>() {
 
     override fun onBindViewHolder(holder: RowImageViewHolder, position: Int) {
         val imageSource: String = list[position]
+        holder.view.setOnClickListener {
+            clickListener.invoke(position,imageSource)
+        }
         Picasso.get().load(imageSource.toUri()).into(holder.selectedImageView)
 
     }

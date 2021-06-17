@@ -25,7 +25,8 @@ class QuestionAdapter(
     private val list: List<Question<*>>,
     private val imagePickListener: () -> Unit = {},
     private val audioRecordListener: (Int) -> Unit = {},
-    private val videoPickListener: (Int) -> Unit = {}
+    private val videoPickListener: (Int) -> Unit = {},
+    private val imageClickListener: (Int, Int, String) -> Unit = { _, _, _ -> }
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -295,13 +296,16 @@ class QuestionAdapter(
                 val adapterPosition = holder.adapterPosition
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
 
-                holder.imageButton.text = if(cameraPermissionGranted) "Capture image" else "Grant permission"
+                holder.imageButton.text =
+                    if (cameraPermissionGranted) "Capture image" else "Grant permission"
                 imageViewHolder.imageButton.setOnClickListener {
                     lastImagePickIndex = adapterPosition
                     imagePickListener.invoke()
                 }
                 imageViewHolder.titleTextView.text = imageQuestion.title
-                val imageAdapter = ImageAdapter()
+                val imageAdapter = ImageAdapter { childPosition, image ->
+                    imageClickListener.invoke(position, childPosition, image)
+                }
 
                 imageAdapters[adapterPosition] = imageAdapter
                 imageViewHolder.imagesRecyclerView.adapter = imageAdapter
@@ -314,7 +318,8 @@ class QuestionAdapter(
                 val videoQuestion = list[position] as VideoQuestion
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
                 holder.titleTextView.text = videoQuestion.title
-                holder.captureOrPickVideoButton.text = if(cameraPermissionGranted) "Record video" else "Grant permission"
+                holder.captureOrPickVideoButton.text =
+                    if (cameraPermissionGranted) "Record video" else "Grant permission"
                 holder.captureOrPickVideoButton.setOnClickListener {
                     lastImageVideoIndex = position
                     videoPickListener.invoke(position)
@@ -341,7 +346,7 @@ class QuestionAdapter(
             Manifest.permission.RECORD_AUDIO
         ) == PackageManager.PERMISSION_GRANTED
 
-    fun updateImageAdapterAtPosition( uri: String) {
+    fun updateImageAdapterAtPosition(uri: String) {
         val adapter: ImageAdapter = imageAdapters[lastImagePickIndex] ?: return
         adapter.add(uri)
         adapter.notifyDataSetChanged()
