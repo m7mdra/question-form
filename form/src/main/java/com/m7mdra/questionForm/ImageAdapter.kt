@@ -6,6 +6,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.m7mdra.questionForm.viewholder.RowImageViewHolder
 import com.squareup.picasso.Picasso
+import java.io.File
 
 class ImageAdapter(val clickListener: (Int, String) -> Unit = {_,_->}) :
     RecyclerView.Adapter<RowImageViewHolder>() {
@@ -29,7 +30,7 @@ class ImageAdapter(val clickListener: (Int, String) -> Unit = {_,_->}) :
         holder.view.setOnClickListener {
             clickListener.invoke(position,imageSource)
         }
-        Picasso.get().load(imageSource.toUri()).into(holder.selectedImageView)
+        Picasso.get().load(File(imageSource)).into(holder.selectedImageView)
 
     }
 
