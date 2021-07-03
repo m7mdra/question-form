@@ -7,6 +7,7 @@ enum class QuestionType(value: Int) {
     Check(3),
     Image(4),
     Audio(5),
-    Video(6)
+    Video(6),
+    Date(7)
 
 }

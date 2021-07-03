@@ -15,9 +15,9 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.core.net.toUri
-import com.m7mdra.questionForm.question.QuestionType.*
 import androidx.recyclerview.widget.RecyclerView
 import com.m7mdra.questionForm.question.*
+import com.m7mdra.questionForm.question.QuestionType.*
 import com.m7mdra.questionForm.viewholder.*
 import java.io.File
 
@@ -106,25 +106,26 @@ class QuestionAdapter(
                     false
                 )
             )
+            Date.ordinal -> DateVideoHolder(
+                layoutInflater.inflate(
+                    R.layout.row_date,
+                    parent,
+                    false
+                )
+            )
             else -> throw IllegalArgumentException()
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        val question = list[position]
-        return when (question.questionType) {
-            Input -> Input.ordinal
-            Dropdown -> Dropdown.ordinal
-            Radio -> Radio.ordinal
-            Check -> Check.ordinal
-            Image -> Image.ordinal
-            Audio -> Audio.ordinal
-            Video -> Video.ordinal
-        }
+        return list[position].questionType.ordinal
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
+            Date.ordinal -> {
+                //TODO
+            }
             Input.ordinal -> {
                 val inputQuestion = list[position] as InputQuestion
 

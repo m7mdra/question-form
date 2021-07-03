@@ -277,5 +277,6 @@ val list = listOf(
         "Type of power source",
         listOf("Power line", "Generator", "Solar pales", "All above")
     ),
+    DateQuestion("Date on last oil inspection?"),
     DropdownQuestion("Tower type", listOf("GSM", "2G", "3G", "3.75G", "4G"))
 )

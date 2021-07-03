@@ -19,23 +19,21 @@
         android:text="Title"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textColor="@android:color/black"
-        app:layout_constraintEnd_toStartOf="@+id/recordAudioButton"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?actionBarItemBackground"
-        android:background="@drawable/circle"
         android:id="@+id/playOrStopButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:background="@drawable/circle"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?actionBarItemBackground"
         android:src="@drawable/ic_baseline_play_arrow_24"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
 
@@ -44,13 +42,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:progress="0"
         android:max="1000"
+        android:progress="0"
         app:layout_constraintBottom_toBottomOf="@+id/playOrStopButton"
         app:layout_constraintEnd_toStartOf="@+id/recordDurationTextView"
         app:layout_constraintStart_toEndOf="@+id/playOrStopButton"
-        app:layout_constraintTop_toTopOf="@+id/playOrStopButton"
+        app:layout_constraintTop_toBottomOf="@+id/titleTextView"
         app:trackCornerRadius="16dp"
         app:trackThickness="8dp" />
 
@@ -71,23 +70,24 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="Record"
-        app:icon="@drawable/ic_baseline_mic_24"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:id="@+id/errorTextView"
         android:layout_marginBottom="8dp"
-        android:visibility="gone"
-        android:textColor="@color/design_default_color_error"
-        android:text="This field can not be empty."
+        android:text="Record"
+        app:icon="@drawable/ic_baseline_mic_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recordDurationTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/recordProgress" />
+
+    <TextView
+        android:id="@+id/errorTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="This field can not be empty."
+        android:textColor="@color/design_default_color_error"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recordProgress" />
 </androidx.constraintlayout.widget.ConstraintLayout>
