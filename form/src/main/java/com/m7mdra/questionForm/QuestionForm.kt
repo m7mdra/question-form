@@ -1,5 +1,6 @@
 package com.m7mdra.questionForm
 
-class QuestionForm {
+import androidx.recyclerview.widget.RecyclerView
 
+class QuestionForm(val recyclerView:RecyclerView) {
 }

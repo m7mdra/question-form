@@ -387,7 +387,6 @@ class QuestionAdapter(
             val videoView = holder.videoView
             videoView.stopPlayback()
         }
-
         if (holder is AudioViewHolder) {
             recycleAudioView(holder)
         }
