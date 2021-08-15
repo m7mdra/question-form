@@ -33,7 +33,9 @@ class QuestionAdapter(
 
     private var lastImagePickIndex = -1
     private var lastImageVideoIndex = -1
+
     private val textWatchers = mutableMapOf<Int, TextInputEditTextWatcher>()
+    private val dropDownListener = mutableMapOf<Int, AdapterView.OnItemClickListener>()
     private val imageAdapters = mutableMapOf<Int, ImageAdapter>()
 
     private val audioViewHolderIndexes = mutableListOf<Int>()
@@ -124,7 +126,8 @@ class QuestionAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             Date.ordinal -> {
-                //TODO
+                val dateVideoHolder = holder as DateVideoHolder
+
             }
             Input.ordinal -> {
                 val inputQuestion = list[position] as InputQuestion
@@ -165,7 +168,9 @@ class QuestionAdapter(
                 val dropdownViewHolder = holder as DropdownViewHolder
                 val dropdownQuestion = list[position] as DropdownQuestion
                 dropdownViewHolder.titleTextView.text = dropdownQuestion.title
+
                 val autoCompleteTextView = dropdownViewHolder.autoCompleteTextView
+                autoCompleteTextView.setText(dropdownQuestion.value, false)
                 autoCompleteTextView.setAdapter(
                     ArrayAdapter<String>(
                         holder.itemView.context,
@@ -173,11 +178,13 @@ class QuestionAdapter(
                         dropdownQuestion.entries
                     )
                 )
-                autoCompleteTextView.onItemClickListener =
-                    AdapterView.OnItemClickListener { _, _, index, _ ->
-                        autoCompleteTextView.setText(dropdownQuestion.entries[index], false)
-                        dropdownQuestion.update(dropdownQuestion.entries[index])
-                    }
+                val onItemClickListener = AdapterView.OnItemClickListener { _, _, index, _ ->
+                    autoCompleteTextView.setText(dropdownQuestion.entries[index], false)
+                    dropdownQuestion.update(dropdownQuestion.entries[index])
+                    notifyItemChanged(position)
+                }
+                autoCompleteTextView.onItemClickListener = onItemClickListener
+                dropDownListener[position] = onItemClickListener
             }
             Radio.ordinal -> {
                 val radioViewHolder = holder as RadioViewHolder
@@ -360,13 +367,6 @@ class QuestionAdapter(
     }
 
     fun validate(): Boolean {
-        list.forEachIndexed { index, question ->
-            question.log()
-            question.validate().log()
-            question.hasError = !question.validate()
-            "hasError? ${question.hasError}".log()
-            notifyItemChanged(index)
-        }
         return list.all { it.validate() }
     }
 
@@ -398,6 +398,10 @@ class QuestionAdapter(
         }
         if (holder is InputViewHolder) {
             holder.textInputEditText.removeTextChangedListener(textWatchers[adapterPosition])
+        }
+        if (holder is DropdownViewHolder) {
+            holder.autoCompleteTextView.onItemClickListener = null
+            dropDownListener.clear()
         }
     }
 

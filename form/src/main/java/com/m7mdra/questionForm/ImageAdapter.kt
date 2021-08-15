@@ -8,7 +8,7 @@ import com.m7mdra.questionForm.viewholder.RowImageViewHolder
 import com.squareup.picasso.Picasso
 import java.io.File
 
-class ImageAdapter(val clickListener: (Int, String) -> Unit = {_,_->}) :
+class ImageAdapter(private val clickListener: (Int, String) -> Unit = { _, _->}) :
     RecyclerView.Adapter<RowImageViewHolder>() {
 
     private val list = mutableListOf<String>()
