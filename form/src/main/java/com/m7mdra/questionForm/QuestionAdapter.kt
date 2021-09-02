@@ -108,13 +108,7 @@ class QuestionAdapter(
                     false
                 )
             )
-            Date.ordinal -> DateVideoHolder(
-                layoutInflater.inflate(
-                    R.layout.row_date,
-                    parent,
-                    false
-                )
-            )
+
             else -> throw IllegalArgumentException()
         }
     }
@@ -125,16 +119,13 @@ class QuestionAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            Date.ordinal -> {
-                val dateVideoHolder = holder as DateVideoHolder
 
-            }
             Input.ordinal -> {
                 val inputQuestion = list[position] as InputQuestion
 
                 val inputViewHolder = holder as InputViewHolder
                 inputViewHolder.titleTextView.text = list[position].title
-                inputViewHolder.textInputEditText.setText(inputQuestion.collect() ?: "")
+                inputViewHolder.textInputEditText.setText(inputQuestion.value ?: "")
                 val textWatcher =
                     object : TextInputEditTextWatcher(inputViewHolder.textInputEditText) {
                         override fun beforeTextChanged(
@@ -262,7 +253,7 @@ class QuestionAdapter(
                 audioViewHolder.titleTextView.text = question.title
                 holder.playOrStopButton.isEnabled = question.collect() != null
                 audioViewHolder.playOrStopButton.setOnClickListener {
-                    val audio = question.collect() ?: return@setOnClickListener
+                    val audio = question.collect().second ?: return@setOnClickListener
                     if (mediaPlayer.isPlaying) {
                         mediaPlayer.stop()
                         holder.recordDurationTextView.text = "00:00"
@@ -335,7 +326,7 @@ class QuestionAdapter(
                 }
                 val mediaController = MediaController(holder.context)
                 videoView.setMediaController(mediaController)
-                val file = videoQuestion.collect()
+                val file = videoQuestion.collect().second
                 if (file != null) {
                     videoView.setVideoURI(file.toUri())
                 }
@@ -370,7 +361,7 @@ class QuestionAdapter(
         return list.all { it.validate() }
     }
 
-    fun collect(): List<*> {
+    fun collect(): List<Pair<String, *>> {
         return list.map { it.collect() }
     }
 

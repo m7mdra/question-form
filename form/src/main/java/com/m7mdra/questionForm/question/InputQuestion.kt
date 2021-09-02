@@ -4,12 +4,12 @@ import android.text.InputType
 
 class InputQuestion(
     title: String,
-
+    val id:String,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     hint: String = ""
 
 ) :
-    Question<String?>(title, QuestionType.Input) {
+    Question<String?>(title, QuestionType.Input,id = id) {
     override var hasError: Boolean = false
 
     override var value: String? = null
@@ -17,8 +17,8 @@ class InputQuestion(
         return value != null && value!!.isNotBlank() && value!!.isNotEmpty()
     }
 
-    override fun collect(): String? {
-        return value
+    override fun collect(): Pair<String,String?> {
+        return id to value
     }
 
     override fun update(value: String?) {

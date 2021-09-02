@@ -1,7 +1,7 @@
 package com.m7mdra.questionForm.question
 
-class CheckQuestion(title: String, val entries: List<String>) :
-    Question<List<String>>(title, QuestionType.Check) {
+class CheckQuestion(title: String, val entries: List<String>, val id: String) :
+    Question<List<String>>(title, QuestionType.Check, id = id) {
     override var hasError: Boolean = false
 
     override var value: List<String> = listOf()
@@ -10,8 +10,8 @@ class CheckQuestion(title: String, val entries: List<String>) :
         return value.isNotEmpty()
     }
 
-    override fun collect(): List<String> {
-        return selectionMap.values.toList()
+    override fun collect(): Pair<String, List<String>> {
+        return id to selectionMap.values.toList()
     }
 
     override fun update(value: List<String>) {

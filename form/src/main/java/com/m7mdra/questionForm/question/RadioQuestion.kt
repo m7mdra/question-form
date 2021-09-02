@@ -1,19 +1,22 @@
 package com.m7mdra.questionForm.question
 
-class RadioQuestion(title: String, val entries: List<String>) :
-    Question<String>(title, QuestionType.Radio) {
+class RadioQuestion(
+    title: String, val entries: List<String>, val id: String
+) :
+    Question<String?>(title, QuestionType.Radio, id = id) {
     override var hasError: Boolean = false
 
-    override var value: String = ""
+    override var value: String? = ""
     override fun validate(): Boolean {
-        return value.isNotBlank() && value.isNotEmpty()
+        val nonNullValue: String = value ?: ""
+        return nonNullValue.isNotBlank() && nonNullValue.isNotEmpty()
     }
 
-    override fun collect(): String {
-        return value
+    override fun collect(): Pair<String, String?> {
+        return id to value
     }
 
-    override fun update(value: String) {
+    override fun update(value: String?) {
         this.value = value
 
     }

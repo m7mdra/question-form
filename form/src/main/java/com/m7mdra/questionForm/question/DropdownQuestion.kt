@@ -1,7 +1,7 @@
 package com.m7mdra.questionForm.question
 
-class DropdownQuestion(title: String, val entries: List<String>) :
-    Question<String>(title, QuestionType.Dropdown) {
+class DropdownQuestion(title: String, val entries: List<String>, val id: String) :
+    Question<String>(title, QuestionType.Dropdown, id = id) {
     override var hasError: Boolean = false
 
     override var value: String = ""
@@ -9,8 +9,8 @@ class DropdownQuestion(title: String, val entries: List<String>) :
         return value.isNotBlank() && value.isNotEmpty()
     }
 
-    override fun collect(): String {
-        return value
+    override fun collect(): Pair<String, String> {
+        return id to value
     }
 
     override fun update(value: String) {

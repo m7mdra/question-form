@@ -2,7 +2,9 @@ package com.m7mdra.questionForm.question
 
 import java.io.File
 
-class VideoQuestion(title: String) : Question<File?>(title, questionType = QuestionType.Video) {
+class VideoQuestion(
+    title: String, val id: String
+) : Question<File?>(title, questionType = QuestionType.Video, id = id) {
     override var value: File? = null
     override var hasError: Boolean = false
 
@@ -10,8 +12,8 @@ class VideoQuestion(title: String) : Question<File?>(title, questionType = Quest
         return value != null
     }
 
-    override fun collect(): File? {
-        return value
+    override fun collect(): Pair<String, File?> {
+        return id to value
     }
 
     override fun update(value: File?) {
