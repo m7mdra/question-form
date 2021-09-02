@@ -21,10 +21,7 @@ import java.util.*
 class QuestionForm(private val activity: Activity, private val recyclerView: RecyclerView) {
     private val questionAdapter by lazy {
         QuestionAdapter(
-            listOf(
-                InputQuestion(title = "General condition of tower?"),
-                ImageQuestion(title = "Rectifiers and batteries", maxInput = 5, minInput = 2)
-            ),
+            listOf(),
             imagePickListener,
             audioRecordListener,
             videoPickListener

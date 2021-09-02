@@ -108,7 +108,13 @@ class QuestionAdapter(
                     false
                 )
             )
-
+            Title.ordinal -> TitleViewHolder(
+                layoutInflater.inflate(
+                    R.layout.row_title,
+                    parent,
+                    false
+                )
+            )
             else -> throw IllegalArgumentException()
         }
     }
@@ -119,7 +125,10 @@ class QuestionAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-
+            Title.ordinal -> {
+                val holder = holder as TitleViewHolder
+                holder.titleTextView.text = list[position].title
+            }
             Input.ordinal -> {
                 val inputQuestion = list[position] as InputQuestion
 
@@ -187,7 +196,7 @@ class QuestionAdapter(
                     val radioButton = RadioButton(radioViewHolder.context)
                     radioButton.id = it.hashCode()
                     radioButton.text = it
-                    radioButton.isChecked = radioQuestion.collect().hashCode() == it.hashCode()
+                    radioButton.isChecked = radioQuestion.collect().second.hashCode() == it.hashCode()
                     radioGroup.addView(radioButton)
                     radioButton.setOnCheckedChangeListener { _, isChecked ->
                         if (isChecked)
