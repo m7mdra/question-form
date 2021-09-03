@@ -334,16 +334,28 @@ class QuestionAdapter(
                     lastImageVideoIndex = position
                     videoPickListener.invoke(position)
                 }
-                val mediaController = MediaController(holder.context)
-                videoView.setMediaController(mediaController)
+
+
                 val file = videoQuestion.collect().second
                 if (file != null) {
                     videoView.setVideoURI(file.toUri())
                 }
+                holder.playOrStopButton.setOnClickListener {
+                    if (videoView.isPlaying) {
+                        videoViewHolder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+                        videoView.pause()
+                    } else {
+                        videoViewHolder.playOrStopButton.setImageResource(R.drawable.ic_baseline_pause_circle_filled_24)
+                        videoView.start()
+                    }
+                }
+                videoView.setOnCompletionListener {
+                    videoViewHolder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+
+                }
                 videoView.setOnPreparedListener {
-                    it.setVolume(0f, 0f)
-                    it.start()
-                    it.isLooping = true
+                    holder.playOrStopButton.show()
+                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
                 }
             }
 
