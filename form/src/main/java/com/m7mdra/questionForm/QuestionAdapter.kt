@@ -196,7 +196,8 @@ class QuestionAdapter(
                     val radioButton = RadioButton(radioViewHolder.context)
                     radioButton.id = it.hashCode()
                     radioButton.text = it
-                    radioButton.isChecked = radioQuestion.collect().second.hashCode() == it.hashCode()
+                    radioButton.isChecked =
+                        radioQuestion.collect().second.hashCode() == it.hashCode()
                     radioGroup.addView(radioButton)
                     radioButton.setOnCheckedChangeListener { _, isChecked ->
                         if (isChecked)
@@ -382,6 +383,7 @@ class QuestionAdapter(
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
+        "recycled viewType ${holder.javaClass.simpleName}".log()
         val adapterPosition = holder.adapterPosition
         if (holder is VideoViewHolder) {
             val videoView = holder.videoView
