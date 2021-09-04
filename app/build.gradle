@@ -47,4 +47,5 @@ dependencies {
     implementation project(":form")
     implementation ("com.github.CanHub:Android-Image-Cropper:3.1.1")
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+    debugImplementation 'com.github.javafaker:javafaker:1.0.2'
 }

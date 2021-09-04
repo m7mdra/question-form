@@ -2,20 +2,21 @@ package com.m7mdra.questionForm.question
 
 class ImageQuestion(
     title: String,
-    private val maxInput: Int,
-    private val minInput: Int,
+    private val maxInput: Int = 1,
+    private val minInput: Int = 1,
     val id: String,
     val mandatory: Boolean = false
 ) :
-    Question<MutableList<String>>(title, QuestionType.Image, id = id,required = mandatory) {
+    Question<MutableList<String>>(title, QuestionType.Image, id = id, required = mandatory) {
     override var hasError: Boolean = false
     override var value: MutableList<String> = mutableListOf()
 
 
     override fun validate(): Boolean {
+        hasError = value.isEmpty() && mandatory
 
-        val size = value.size
-        return size in (minInput + 1) until maxInput
+
+        return value.isNotEmpty()
     }
 
     override fun collect(): Pair<String, MutableList<String>> {

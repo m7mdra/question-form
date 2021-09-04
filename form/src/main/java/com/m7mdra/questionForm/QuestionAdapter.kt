@@ -23,6 +23,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.m7mdra.questionForm.question.*
 import com.m7mdra.questionForm.question.QuestionType.*
@@ -138,14 +139,16 @@ class QuestionAdapter(
                 holder.titleTextView.text = list[position].title
             }
             Input.ordinal -> {
-                val inputQuestion = list[position] as InputQuestion
+                val question = list[position] as InputQuestion
 
-                val inputViewHolder = holder as InputViewHolder
-                inputViewHolder.titleTextView.text =
-                    titleWithRedAsterisk(inputQuestion.mandatory, inputQuestion.title)
-                inputViewHolder.textInputEditText.setText(inputQuestion.value ?: "")
+                val holder = holder as InputViewHolder
+                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+
+                holder.titleTextView.text =
+                    titleWithRedAsterisk(question.mandatory, question.title)
+                holder.textInputEditText.setText(question.value ?: "")
                 val textWatcher =
-                    object : TextInputEditTextWatcher(inputViewHolder.textInputEditText) {
+                    object : TextInputEditTextWatcher(holder.textInputEditText) {
                         override fun beforeTextChanged(
                             s: CharSequence?,
                             start: Int,
@@ -165,87 +168,95 @@ class QuestionAdapter(
                         }
 
                         override fun afterTextChanged(s: Editable) {
-                            inputQuestion.update(s.toString())
+                            question.update(s.toString())
                         }
 
                     }
                 textWatchers[position] = textWatcher
 
-                inputViewHolder.textInputEditText.addTextChangedListener(textWatcher)
+                holder.textInputEditText.addTextChangedListener(textWatcher)
             }
             Dropdown.ordinal -> {
-                val dropdownViewHolder = holder as DropdownViewHolder
-                val dropdownQuestion = list[position] as DropdownQuestion
-                dropdownViewHolder.titleTextView.text =
-                    titleWithRedAsterisk(dropdownQuestion.mandatory, dropdownQuestion.title)
+                val holder = holder as DropdownViewHolder
+                val question = list[position] as DropdownQuestion
+                holder.titleTextView.text =
+                    titleWithRedAsterisk(question.required, question.title)
 
-                val autoCompleteTextView = dropdownViewHolder.autoCompleteTextView
-                autoCompleteTextView.setText(dropdownQuestion.value, false)
+                val autoCompleteTextView = holder.autoCompleteTextView
+                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+
+                autoCompleteTextView.setText(question.value, false)
                 autoCompleteTextView.setAdapter(
                     ArrayAdapter<String>(
                         holder.itemView.context,
                         android.R.layout.simple_dropdown_item_1line,
-                        dropdownQuestion.entries
+                        question.entries
                     )
                 )
                 val onItemClickListener = AdapterView.OnItemClickListener { _, _, index, _ ->
-                    autoCompleteTextView.setText(dropdownQuestion.entries[index], false)
-                    dropdownQuestion.update(dropdownQuestion.entries[index])
+                    autoCompleteTextView.setText(question.entries[index], false)
+                    question.update(question.entries[index])
                     notifyItemChanged(position)
                 }
                 autoCompleteTextView.onItemClickListener = onItemClickListener
                 dropDownListener[position] = onItemClickListener
             }
             Radio.ordinal -> {
-                val radioViewHolder = holder as RadioViewHolder
-                val radioQuestion = list[position] as RadioQuestion
-                radioViewHolder.titleTextView.text =
-                    titleWithRedAsterisk(radioQuestion.mandatory, radioQuestion.title)
-                val radioGroup = radioViewHolder.radioGroup
-                val entries = radioQuestion.entries
+                val holder = holder as RadioViewHolder
+                val question = list[position] as RadioQuestion
+                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+
+                holder.titleTextView.text =
+                    titleWithRedAsterisk(question.mandatory, question.title)
+
+                val radioGroup = holder.radioGroup
+                val entries = question.entries
                 entries.forEach {
-                    val radioButton = RadioButton(radioViewHolder.context)
+                    val radioButton = RadioButton(holder.context)
                     radioButton.id = it.hashCode()
                     radioButton.text = it
                     radioButton.isChecked =
-                        radioQuestion.collect().second.hashCode() == it.hashCode()
+                        question.collect().second.hashCode() == it.hashCode()
                     radioGroup.addView(radioButton)
                     radioButton.setOnCheckedChangeListener { _, isChecked ->
                         if (isChecked)
-                            radioQuestion.update(it)
+                            question.update(it)
                     }
                 }
 
             }
             Check.ordinal -> {
-                val checkViewHolder = holder as CheckViewHolder
-                val checkQuestion = list[position] as CheckQuestion
-                checkViewHolder.titleTextView.text =
-                    titleWithRedAsterisk(checkQuestion.mandatory, checkQuestion.title)
+                val holder = holder as CheckViewHolder
+                val question = list[position] as CheckQuestion
+                holder.titleTextView.text =
+                    titleWithRedAsterisk(question.required, question.title)
 
-                checkQuestion.entries.forEachIndexed { index, s ->
-                    val checkBox = CheckBox(checkViewHolder.context)
-                    checkBox.isChecked = checkQuestion.selectionMap.containsKey(index)
+                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+                question.entries.forEachIndexed { index, s ->
+                    val checkBox = CheckBox(holder.context)
+                    checkBox.isChecked = question.selectionMap.containsKey(index)
                     checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
                         if (isChecked) {
-                            checkQuestion.selectionMap[index] = s
+                            question.selectionMap[index] = s
                         } else {
-                            checkQuestion.selectionMap.remove(index)
+                            question.selectionMap.remove(index)
                         }
-                        checkQuestion.selectionMap.log()
+
                     }
                     checkBox.text = s
                     checkBox.id = s.hashCode()
-                    checkViewHolder.checkboxLayout.addView(checkBox)
+                    holder.checkboxLayout.addView(checkBox)
                 }
 
             }
             Audio.ordinal -> {
 
-                val audioViewHolder = holder as AudioViewHolder
+                val holder = holder as AudioViewHolder
+                val question = list[position] as AudioQuestion
 
                 audioViewHolderIndexes.add(position)
                 val mediaPlayer = MediaPlayer()
+                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
 
                 val handler = Handler(Looper.getMainLooper())
 
@@ -270,12 +281,11 @@ class QuestionAdapter(
                 audioHandlers[position] = handler
                 audioHandlersCallback[position] = runnable
 
-                val question = list[position] as AudioQuestion
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
-                audioViewHolder.titleTextView.text =
-                    titleWithRedAsterisk(question.mandatory, question.title)
+                holder.titleTextView.text =
+                    titleWithRedAsterisk(question.required, question.title)
                 holder.playOrStopButton.isEnabled = question.collect() != null
-                audioViewHolder.playOrStopButton.setOnClickListener {
+                holder.playOrStopButton.setOnClickListener {
                     val audio = question.collect().second ?: return@setOnClickListener
                     if (mediaPlayer.isPlaying) {
                         mediaPlayer.stop()
@@ -301,11 +311,11 @@ class QuestionAdapter(
                     holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
 
                 }
-                audioViewHolder.recordAudioButton.text =
-                    if (isAudioPermissionGranted(audioViewHolder.context)
+                holder.recordAudioButton.text =
+                    if (isAudioPermissionGranted(holder.context)
                     )
                         "Record" else "grant permission"
-                audioViewHolder.recordAudioButton.setOnClickListener {
+                holder.recordAudioButton.setOnClickListener {
 
                     audioRecordListener.invoke(position)
 
@@ -314,38 +324,41 @@ class QuestionAdapter(
             Image.ordinal -> {
                 mediaViewHolderIndexes.add(position)
 
-                val imageViewHolder = holder as ImageViewHolder
-                val imageQuestion = list[position] as ImageQuestion
+                val holder = holder as ImageViewHolder
+                val question = list[position] as ImageQuestion
                 val adapterPosition = holder.adapterPosition
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
+                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
 
                 holder.imageButton.text =
                     if (cameraPermissionGranted) "Capture image" else "Grant permission"
-                imageViewHolder.imageButton.setOnClickListener {
+                holder.imageButton.setOnClickListener {
                     lastImagePickIndex = adapterPosition
                     imagePickListener.invoke()
                 }
 
-                imageViewHolder.titleTextView.text =
-                    titleWithRedAsterisk(imageQuestion.mandatory, imageQuestion.title)
+                holder.titleTextView.text =
+                    titleWithRedAsterisk(question.mandatory, question.title)
                 val imageAdapter = ImageAdapter { childPosition, image ->
                     imageClickListener.invoke(position, childPosition, image)
                 }
 
                 imageAdapters[adapterPosition] = imageAdapter
-                if (imageQuestion.value.isNotEmpty())
-                    imageAdapter.addAll(imageQuestion.value)
-                imageViewHolder.imagesRecyclerView.adapter = imageAdapter
+                if (question.value.isNotEmpty())
+                    imageAdapter.addAll(question.value)
+                holder.imagesRecyclerView.adapter = imageAdapter
 
             }
             Video.ordinal -> {
                 mediaViewHolderIndexes.add(position)
-                val videoViewHolder = holder as VideoViewHolder
-                val videoView = videoViewHolder.videoView
-                val videoQuestion = list[position] as VideoQuestion
+                val holder = holder as VideoViewHolder
+                val question = list[position] as VideoQuestion
+                val videoView = holder.videoView
+                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
                 holder.titleTextView.text =
-                    titleWithRedAsterisk(videoQuestion.mandatory, videoQuestion.title)
+                    titleWithRedAsterisk(question.mandatory, question.title)
                 holder.captureOrPickVideoButton.text =
                     if (cameraPermissionGranted) "Record video" else "Grant permission"
                 holder.captureOrPickVideoButton.setOnClickListener {
@@ -354,22 +367,22 @@ class QuestionAdapter(
                 }
 
 
-                val file = videoQuestion.collect().second
+                val file = question.collect().second
                 if (file != null) {
                     videoView.show()
                     videoView.setVideoURI(file.toUri())
                 }
                 holder.playOrStopButton.setOnClickListener {
                     if (videoView.isPlaying) {
-                        videoViewHolder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
                         videoView.pause()
                     } else {
-                        videoViewHolder.playOrStopButton.setImageResource(R.drawable.ic_baseline_pause_circle_filled_24)
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_pause_circle_filled_24)
                         videoView.start()
                     }
                 }
                 videoView.setOnCompletionListener {
-                    videoViewHolder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
 
                 }
                 videoView.setOnPreparedListener {
@@ -399,7 +412,35 @@ class QuestionAdapter(
     }
 
     fun validate(): Boolean {
+
+        notifyErrors()
         return list.all { it.validate() }
+    }
+
+    private var attachedRecyclerView: RecyclerView? = null
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        attachedRecyclerView = recyclerView
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        attachedRecyclerView = null
+    }
+
+    private fun notifyErrors() {
+        list.filter { !it.validate() && it.required }.forEachIndexed { index, _ ->
+            notifyItemChanged(index)
+        }
+
+        attachedRecyclerView?.post {
+            val first = list.firstOrNull { !it.validate() && it.required } ?: return@post
+            val indexOfFirstError = list.indexOf(first)
+            "$indexOfFirstError first error index".log()
+            if (indexOfFirstError != -1)
+                attachedRecyclerView?.smoothSnapToPosition(indexOfFirstError)
+        }
+
     }
 
     fun collect(): List<Pair<String, *>> {
@@ -414,7 +455,7 @@ class QuestionAdapter(
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
-        "recycled viewType ${holder.javaClass.simpleName}".log()
+
         val adapterPosition = holder.adapterPosition
         if (holder is VideoViewHolder) {
             val videoView = holder.videoView
@@ -474,7 +515,6 @@ class QuestionAdapter(
     }
 
     fun updateCameraAndVideoButton() {
-
         mediaViewHolderIndexes.forEach {
             notifyItemChanged(it)
         }
@@ -503,6 +543,20 @@ class QuestionAdapter(
                 })
         }
     }
+
+    private fun RecyclerView.smoothSnapToPosition(
+        position: Int,
+        snapMode: Int = LinearSmoothScroller.SNAP_TO_START
+    ) {
+        val smoothScroller = object : LinearSmoothScroller(this.context) {
+            override fun getVerticalSnapPreference(): Int = snapMode
+            override fun getHorizontalSnapPreference(): Int = snapMode
+        }
+        smoothScroller.targetPosition = position
+
+        layoutManager?.startSmoothScroll(smoothScroller)
+    }
+
 }
 
 

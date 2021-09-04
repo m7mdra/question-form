@@ -57,4 +57,18 @@ android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/videoView" />
+
+    <TextView
+        android:id="@+id/errorTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="This field can not be empty."
+        android:textColor="@color/design_default_color_error"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/videoView"
+        tools:ignore="UnknownIdInLayout"
+        tools:visibility="visible" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,7 +11,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider.getUriForFile
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.canhub.cropper.CropImage
+import com.github.javafaker.Faker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.m7mdra.questionForm.*
 import com.m7mdra.questionForm.question.*
@@ -74,15 +76,89 @@ class MainActivity : AppCompatActivity() {
         )
         arrayAdapter.addAll("High", "Medium", "Low")
 
-
+        val list = generateList()
         questionAdapter =
-            QuestionAdapter(list, imagePickListener, audioRecordListener, videoPickListener,imageClickListener = {parentPosition,childPosition,image->
+            QuestionAdapter(
+                list,
+                imagePickListener,
+                audioRecordListener,
+                videoPickListener,
+                imageClickListener = { parentPosition, childPosition, image ->
 
-                image.log()
-            })
+                    image.log()
+                })
 
         recyclerView.adapter = questionAdapter
+
+        val linearLayoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = linearLayoutManager
+        linearLayoutManager.isSmoothScrollbarEnabled = true
         recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+    }
+
+    private fun generateList(): List<Question<*>> {
+        val list = mutableListOf<Question<*>>()
+        val faker = Faker()
+        repeat((0..100).count()) {
+            list.add(
+                CheckQuestion(
+                    title = faker.elderScrolls().quote(),
+                    entries = listOf(
+                        faker.elderScrolls().creature(),
+                        faker.elderScrolls().creature(),
+                        faker.elderScrolls().creature(),
+                        faker.elderScrolls().creature()
+                    ),
+                    id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )
+            list.add(
+                RadioQuestion(
+                    title = faker.howIMetYourMother().quote(),
+                    entries = listOf(
+                        faker.howIMetYourMother().character(),
+                        faker.howIMetYourMother().character(),
+                        faker.howIMetYourMother().character(),
+                        faker.howIMetYourMother().character()
+                    ),
+                    id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )
+       /*     list.add(
+                ImageQuestion(
+                    faker.hobbit().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )
+            list.add(
+                VideoQuestion(
+                    faker.backToTheFuture().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )
+            list.add(
+                AudioQuestion(
+                    title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )*/
+            list.add(
+                DropdownQuestion(
+                    faker.friends().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool(),
+                    entries = listOf(
+                        faker.friends().character(),
+                        faker.friends().character(),
+                        faker.friends().character(),
+                        faker.friends().character()
+                    )
+                )
+            )
+        }
+        list.shuffle()
+        return list
     }
 
     private lateinit var videoFile: File
@@ -216,53 +292,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
-fun randomString():String{
-    return  Random(0).nextInt().toString()
+
+fun randomString(): String {
+    return Random(0).nextInt().toString()
 }
-val list = listOf(
-    TitleQuestion("Test title 1"),
-    RadioQuestion(
-        "number of Radio question",
 
-        entries = listOf("entry 1", "entry 2", "entry 3"),
-        id = randomString(),
-        mandatory = true
-    ),
-    ImageQuestion("Test image question", 1, 1, randomString()),
-    VideoQuestion("Test video question", randomString()),
-    AudioQuestion("Test audio question", randomString(),        mandatory = true
-    ),
-    DropdownQuestion(
-        "Test audio question",
-        listOf("option 1", "option 2", "option 3"),
-        randomString(),
-        mandatory = true
-
-    ),
-    InputQuestion("Test input question",id = randomString()),
-    CheckQuestion(
-        "number of Radio question",
-        entries = listOf("entry 1", "entry 2", "entry 3"),
-        id = randomString()
-    ),
-    TitleQuestion("Test title"),
-    RadioQuestion(
-        "number of Radio question",
-        entries = listOf("entry 1", "entry 2", "entry 3"),
-        id = randomString()
-    ),
-    ImageQuestion("Test image question", 1, 1, randomString()),
-    VideoQuestion("Test video question", randomString()),
-    AudioQuestion("Test audio question", randomString()),
-    DropdownQuestion(
-        "Test audio question",
-        listOf("option 1", "option 2", "option 3"),
-        randomString()
-    ),
-    InputQuestion("Test input question",id = randomString()),
-    CheckQuestion(
-        "number of Radio question",
-        entries = listOf("entry 1", "entry 2", "entry 3"),
-        id = randomString()
-    )
-)

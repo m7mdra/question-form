@@ -111,6 +111,13 @@ class RecordAudioActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStop() {
+        handler.removeCallbacks(recordTimerRunnable)
+        mediaPlayer.release()
+        mediaRecorder.release()
+        super.onStop()
+    }
+
     var recordTime = 0L
     private val handler: Handler
         get() = Handler(mainLooper)

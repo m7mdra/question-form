@@ -1,19 +1,25 @@
 package com.m7mdra.questionForm.question
 
-class DropdownQuestion(title: String, val entries: List<String>, val id: String,val mandatory: Boolean = false) :
-    Question<String>(title, QuestionType.Dropdown, id = id,required = mandatory) {
+class DropdownQuestion(
+    title: String,
+    val entries: List<String>,
+    val id: String,
+   private val mandatory: Boolean = false
+) :
+    Question<String?>(title, QuestionType.Dropdown, id = id, required = mandatory) {
     override var hasError: Boolean = false
 
-    override var value: String = ""
+    override var value: String? = ""
     override fun validate(): Boolean {
-        return value.isNotBlank() && value.isNotEmpty()
+        hasError = value != null && mandatory
+        return value != null
     }
 
-    override fun collect(): Pair<String, String> {
+    override fun collect(): Pair<String, String?> {
         return id to value
     }
 
-    override fun update(value: String) {
+    override fun update(value: String?) {
         this.value = value
     }
 }

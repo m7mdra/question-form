@@ -10,6 +10,8 @@ class VideoQuestion(
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {
+        hasError = value == null && mandatory
+
         return value != null
     }
 
