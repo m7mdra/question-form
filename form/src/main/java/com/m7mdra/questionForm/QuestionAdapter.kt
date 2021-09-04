@@ -338,6 +338,7 @@ class QuestionAdapter(
 
                 val file = videoQuestion.collect().second
                 if (file != null) {
+                    videoView.show()
                     videoView.setVideoURI(file.toUri())
                 }
                 holder.playOrStopButton.setOnClickListener {

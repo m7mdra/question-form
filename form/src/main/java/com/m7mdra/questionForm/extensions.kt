@@ -18,23 +18,25 @@ import androidx.recyclerview.widget.RecyclerView
 
 val RecyclerView.ViewHolder.context: Context
     get() = this.itemView.context
- const val RECORD_AUDIO_PERMISSION = Manifest.permission.RECORD_AUDIO
- const val CAMERA_PERMISSION = Manifest.permission.CAMERA
+const val RECORD_AUDIO_PERMISSION = Manifest.permission.RECORD_AUDIO
+const val CAMERA_PERMISSION = Manifest.permission.CAMERA
 const val RECORD_AUDIO_REQUEST_CODE = 123
 const val CAMERA_REQUEST_CODE = 124
 fun Any?.log() {
-    Log.d("MEGA", "$this")
+    Log.d("MEGA", "${this ?: "null"}")
 }
- fun Context.isAudioPermissionGranted() =
+
+fun Context.isAudioPermissionGranted() =
     checkSelfPermission(RECORD_AUDIO_PERMISSION) == PackageManager.PERMISSION_GRANTED
 
- fun Context.isCameraPermissionGranted() =
+fun Context.isCameraPermissionGranted() =
     checkSelfPermission(CAMERA_PERMISSION) == PackageManager.PERMISSION_GRANTED
 
- fun Activity.askForAudioPermission() {
+fun Activity.askForAudioPermission() {
     requestPermissions(arrayOf(RECORD_AUDIO_PERMISSION), RECORD_AUDIO_REQUEST_CODE)
 }
- fun Activity.askForCameraPermission() {
+
+fun Activity.askForCameraPermission() {
     requestPermissions(arrayOf(CAMERA_PERMISSION), CAMERA_REQUEST_CODE)
 }
 
@@ -53,6 +55,7 @@ fun View.hideKeyboard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(windowToken, 0)
 }
+
 fun View.enable() {
     isEnabled = true
 }
@@ -62,20 +65,28 @@ fun View.disable() {
 }
 
 
-fun ViewGroup.disableChildern() {
+fun ViewGroup.disableChildren() {
     children.forEach {
+        if (it is ViewGroup) {
+            it.disableChildren()
+        }
         it.disable()
     }
 }
-fun ViewGroup.enableChildern(){
+
+fun ViewGroup.enableChildren() {
     children.forEach {
+        if(it is ViewGroup){
+            it.enableChildren()
+        }
         it.enable()
     }
 }
 
 
-fun AppCompatActivity.adjustScreen(){
+fun AppCompatActivity.adjustScreen() {
     window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
     window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 }
+
 fun Long.formatDuration(): String = DateUtils.formatElapsedTime(this)
