@@ -14,7 +14,11 @@ class ImageAdapter(private val clickListener: (Int, String) -> Unit = { _, _->})
     private val list = mutableListOf<String>()
 
     fun add(url: String) {
-        list.add(url)
+        list.add(0,url)
+        notifyItemInserted(0)
+    }
+    fun addAll(urls:List<String>){
+        list.addAll(urls)
         notifyDataSetChanged()
     }
 
@@ -30,7 +34,11 @@ class ImageAdapter(private val clickListener: (Int, String) -> Unit = { _, _->})
         holder.view.setOnClickListener {
             clickListener.invoke(position,imageSource)
         }
-        Picasso.get().load(File(imageSource)).into(holder.selectedImageView)
+        Picasso.get()
+            .load(File(imageSource))
+            .fit()
+            .centerInside()
+            .into(holder.selectedImageView)
 
     }
 

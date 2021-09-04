@@ -1,7 +1,7 @@
 package com.m7mdra.questionForm.question
 
-class DropdownQuestion(title: String, val entries: List<String>, val id: String) :
-    Question<String>(title, QuestionType.Dropdown, id = id) {
+class DropdownQuestion(title: String, val entries: List<String>, val id: String,val mandatory: Boolean = false) :
+    Question<String>(title, QuestionType.Dropdown, id = id,required = mandatory) {
     override var hasError: Boolean = false
 
     override var value: String = ""

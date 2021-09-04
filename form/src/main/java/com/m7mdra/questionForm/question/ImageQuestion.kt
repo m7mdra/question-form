@@ -4,9 +4,10 @@ class ImageQuestion(
     title: String,
     private val maxInput: Int,
     private val minInput: Int,
-    val id: String
+    val id: String,
+    val mandatory: Boolean = false
 ) :
-    Question<MutableList<String>>(title, QuestionType.Image, id = id) {
+    Question<MutableList<String>>(title, QuestionType.Image, id = id,required = mandatory) {
     override var hasError: Boolean = false
     override var value: MutableList<String> = mutableListOf()
 

@@ -6,10 +6,11 @@ class InputQuestion(
     title: String,
     val id:String,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
-    hint: String = ""
+    hint: String = "",
+    val mandatory: Boolean = false
 
 ) :
-    Question<String?>(title, QuestionType.Input,id = id) {
+    Question<String?>(title, QuestionType.Input,id = id,required = mandatory) {
     override var hasError: Boolean = false
 
     override var value: String? = null

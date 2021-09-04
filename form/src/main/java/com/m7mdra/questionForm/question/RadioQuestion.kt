@@ -1,9 +1,10 @@
 package com.m7mdra.questionForm.question
 
 class RadioQuestion(
-    title: String, val entries: List<String>, val id: String
+    title: String, val entries: List<String>, val id: String,
+    val mandatory: Boolean = false
 ) :
-    Question<String?>(title, QuestionType.Radio, id = id) {
+    Question<String?>(title, QuestionType.Radio, id = id,required = mandatory) {
     override var hasError: Boolean = false
 
     override var value: String? = ""

@@ -223,16 +223,21 @@ val list = listOf(
     TitleQuestion("Test title 1"),
     RadioQuestion(
         "number of Radio question",
+
         entries = listOf("entry 1", "entry 2", "entry 3"),
-        id = randomString()
+        id = randomString(),
+        mandatory = true
     ),
     ImageQuestion("Test image question", 1, 1, randomString()),
     VideoQuestion("Test video question", randomString()),
-    AudioQuestion("Test audio question", randomString()),
+    AudioQuestion("Test audio question", randomString(),        mandatory = true
+    ),
     DropdownQuestion(
         "Test audio question",
         listOf("option 1", "option 2", "option 3"),
-        randomString()
+        randomString(),
+        mandatory = true
+
     ),
     InputQuestion("Test input question",id = randomString()),
     CheckQuestion(

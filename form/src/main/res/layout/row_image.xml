@@ -28,12 +28,13 @@
             android:id="@+id/imagesRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="8dp"
             android:clipToPadding="false"
-            app:spanCount="4"
-            android:orientation="vertical"
-            tools:itemCount="5"
-            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="3"
+
+            android:orientation="horizontal"
+            tools:itemCount="3"
+
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/row_row_image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

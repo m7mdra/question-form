@@ -3,11 +3,19 @@ package com.m7mdra.questionForm
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.Typeface
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -133,7 +141,8 @@ class QuestionAdapter(
                 val inputQuestion = list[position] as InputQuestion
 
                 val inputViewHolder = holder as InputViewHolder
-                inputViewHolder.titleTextView.text = list[position].title
+                inputViewHolder.titleTextView.text =
+                    titleWithRedAsterisk(inputQuestion.mandatory, inputQuestion.title)
                 inputViewHolder.textInputEditText.setText(inputQuestion.value ?: "")
                 val textWatcher =
                     object : TextInputEditTextWatcher(inputViewHolder.textInputEditText) {
@@ -167,7 +176,8 @@ class QuestionAdapter(
             Dropdown.ordinal -> {
                 val dropdownViewHolder = holder as DropdownViewHolder
                 val dropdownQuestion = list[position] as DropdownQuestion
-                dropdownViewHolder.titleTextView.text = dropdownQuestion.title
+                dropdownViewHolder.titleTextView.text =
+                    titleWithRedAsterisk(dropdownQuestion.mandatory, dropdownQuestion.title)
 
                 val autoCompleteTextView = dropdownViewHolder.autoCompleteTextView
                 autoCompleteTextView.setText(dropdownQuestion.value, false)
@@ -189,7 +199,8 @@ class QuestionAdapter(
             Radio.ordinal -> {
                 val radioViewHolder = holder as RadioViewHolder
                 val radioQuestion = list[position] as RadioQuestion
-                radioViewHolder.titleTextView.text = radioQuestion.title
+                radioViewHolder.titleTextView.text =
+                    titleWithRedAsterisk(radioQuestion.mandatory, radioQuestion.title)
                 val radioGroup = radioViewHolder.radioGroup
                 val entries = radioQuestion.entries
                 entries.forEach {
@@ -209,7 +220,8 @@ class QuestionAdapter(
             Check.ordinal -> {
                 val checkViewHolder = holder as CheckViewHolder
                 val checkQuestion = list[position] as CheckQuestion
-                checkViewHolder.titleTextView.text = checkQuestion.title
+                checkViewHolder.titleTextView.text =
+                    titleWithRedAsterisk(checkQuestion.mandatory, checkQuestion.title)
 
                 checkQuestion.entries.forEachIndexed { index, s ->
                     val checkBox = CheckBox(checkViewHolder.context)
@@ -260,7 +272,8 @@ class QuestionAdapter(
 
                 val question = list[position] as AudioQuestion
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
-                audioViewHolder.titleTextView.text = question.title
+                audioViewHolder.titleTextView.text =
+                    titleWithRedAsterisk(question.mandatory, question.title)
                 holder.playOrStopButton.isEnabled = question.collect() != null
                 audioViewHolder.playOrStopButton.setOnClickListener {
                     val audio = question.collect().second ?: return@setOnClickListener
@@ -312,12 +325,16 @@ class QuestionAdapter(
                     lastImagePickIndex = adapterPosition
                     imagePickListener.invoke()
                 }
-                imageViewHolder.titleTextView.text = imageQuestion.title
+
+                imageViewHolder.titleTextView.text =
+                    titleWithRedAsterisk(imageQuestion.mandatory, imageQuestion.title)
                 val imageAdapter = ImageAdapter { childPosition, image ->
                     imageClickListener.invoke(position, childPosition, image)
                 }
 
                 imageAdapters[adapterPosition] = imageAdapter
+                if (imageQuestion.value.isNotEmpty())
+                    imageAdapter.addAll(imageQuestion.value)
                 imageViewHolder.imagesRecyclerView.adapter = imageAdapter
 
             }
@@ -327,7 +344,8 @@ class QuestionAdapter(
                 val videoView = videoViewHolder.videoView
                 val videoQuestion = list[position] as VideoQuestion
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
-                holder.titleTextView.text = videoQuestion.title
+                holder.titleTextView.text =
+                    titleWithRedAsterisk(videoQuestion.mandatory, videoQuestion.title)
                 holder.captureOrPickVideoButton.text =
                     if (cameraPermissionGranted) "Record video" else "Grant permission"
                 holder.captureOrPickVideoButton.setOnClickListener {
@@ -371,8 +389,8 @@ class QuestionAdapter(
 
     fun updateImageAdapterAtPosition(uri: String) {
         val adapter: ImageAdapter = imageAdapters[lastImagePickIndex] ?: return
+        (list[lastImagePickIndex] as ImageQuestion).update(mutableListOf(uri))
         adapter.add(uri)
-        adapter.notifyDataSetChanged()
 
     }
 
@@ -459,6 +477,30 @@ class QuestionAdapter(
 
         mediaViewHolderIndexes.forEach {
             notifyItemChanged(it)
+        }
+    }
+
+    private fun titleWithRedAsterisk(isRequired: Boolean, title: String): CharSequence {
+        return if (!isRequired)
+            title
+        else {
+            val builder = SpannableStringBuilder()
+            builder.append(title)
+            builder.append("  ")
+            builder.append(SpannableString("*")
+                .apply {
+                    setSpan(
+                        ForegroundColorSpan(Color.RED),
+                        0,
+                        1,
+                        Spannable.SPAN_EXCLUSIVE_INCLUSIVE
+                    )
+                    setSpan(
+                        StyleSpan(Typeface.BOLD), 0,
+                        1, Spannable.SPAN_EXCLUSIVE_INCLUSIVE
+                    )
+                    setSpan(RelativeSizeSpan(1.1f), 0, 1, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                })
         }
     }
 }

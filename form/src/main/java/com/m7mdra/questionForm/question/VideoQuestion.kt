@@ -3,8 +3,9 @@ package com.m7mdra.questionForm.question
 import java.io.File
 
 class VideoQuestion(
-    title: String, val id: String
-) : Question<File?>(title, questionType = QuestionType.Video, id = id) {
+    title: String, val id: String,
+    val mandatory: Boolean = false
+) : Question<File?>(title, questionType = QuestionType.Video, id = id, required = mandatory) {
     override var value: File? = null
     override var hasError: Boolean = false
 

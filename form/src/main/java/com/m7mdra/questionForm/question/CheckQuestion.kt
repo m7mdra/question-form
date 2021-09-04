@@ -1,7 +1,12 @@
 package com.m7mdra.questionForm.question
 
-class CheckQuestion(title: String, val entries: List<String>, val id: String) :
-    Question<List<String>>(title, QuestionType.Check, id = id) {
+class CheckQuestion(
+    title: String,
+    val entries: List<String>,
+    val id: String,
+    val mandatory: Boolean = false
+) :
+    Question<List<String>>(title, QuestionType.Check, id = id, required = mandatory) {
     override var hasError: Boolean = false
 
     override var value: List<String> = listOf()
