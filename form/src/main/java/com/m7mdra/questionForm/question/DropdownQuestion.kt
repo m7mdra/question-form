@@ -4,14 +4,16 @@ class DropdownQuestion(
     title: String,
     val entries: List<String>,
     val id: String,
-   private val mandatory: Boolean = false
+    private val mandatory: Boolean = false
 ) :
     Question<String?>(title, QuestionType.Dropdown, id = id, required = mandatory) {
     override var hasError: Boolean = false
 
-    override var value: String? = ""
+    override var value: String? = null
+
     override fun validate(): Boolean {
-        hasError = value != null && mandatory
+        hasError = value == null && mandatory
+
         return value != null
     }
 

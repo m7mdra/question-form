@@ -23,6 +23,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.m7mdra.questionForm.question.*
@@ -32,6 +33,7 @@ import java.io.File
 
 
 class QuestionAdapter(
+    private val context: Context,
     private val list: List<Question<*>>,
     private val imagePickListener: () -> Unit = {},
     private val audioRecordListener: (Int) -> Unit = {},
@@ -145,7 +147,7 @@ class QuestionAdapter(
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
 
                 holder.titleTextView.text =
-                    titleWithRedAsterisk(question.mandatory, question.title)
+                    titleWithRedAsterisk(question.required, question.title, position)
                 holder.textInputEditText.setText(question.value ?: "")
                 val textWatcher =
                     object : TextInputEditTextWatcher(holder.textInputEditText) {
@@ -180,7 +182,7 @@ class QuestionAdapter(
                 val holder = holder as DropdownViewHolder
                 val question = list[position] as DropdownQuestion
                 holder.titleTextView.text =
-                    titleWithRedAsterisk(question.required, question.title)
+                    titleWithRedAsterisk(question.required, question.title, position)
 
                 val autoCompleteTextView = holder.autoCompleteTextView
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
@@ -196,7 +198,7 @@ class QuestionAdapter(
                 val onItemClickListener = AdapterView.OnItemClickListener { _, _, index, _ ->
                     autoCompleteTextView.setText(question.entries[index], false)
                     question.update(question.entries[index])
-                    notifyItemChanged(position)
+
                 }
                 autoCompleteTextView.onItemClickListener = onItemClickListener
                 dropDownListener[position] = onItemClickListener
@@ -207,7 +209,7 @@ class QuestionAdapter(
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
 
                 holder.titleTextView.text =
-                    titleWithRedAsterisk(question.mandatory, question.title)
+                    titleWithRedAsterisk(question.required, question.title, position)
 
                 val radioGroup = holder.radioGroup
                 val entries = question.entries
@@ -216,7 +218,7 @@ class QuestionAdapter(
                     radioButton.id = it.hashCode()
                     radioButton.text = it
                     radioButton.isChecked =
-                        question.collect().second.hashCode() == it.hashCode()
+                        question.value.hashCode() == it.hashCode()
                     radioGroup.addView(radioButton)
                     radioButton.setOnCheckedChangeListener { _, isChecked ->
                         if (isChecked)
@@ -229,7 +231,7 @@ class QuestionAdapter(
                 val holder = holder as CheckViewHolder
                 val question = list[position] as CheckQuestion
                 holder.titleTextView.text =
-                    titleWithRedAsterisk(question.required, question.title)
+                    titleWithRedAsterisk(question.required, question.title, position)
 
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
                 question.entries.forEachIndexed { index, s ->
@@ -283,8 +285,9 @@ class QuestionAdapter(
 
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
                 holder.titleTextView.text =
-                    titleWithRedAsterisk(question.required, question.title)
-                holder.playOrStopButton.isEnabled = question.collect() != null
+
+                    titleWithRedAsterisk(question.required, question.title, position)
+                holder.playOrStopButton.isEnabled = question.value != null
                 holder.playOrStopButton.setOnClickListener {
                     val audio = question.collect().second ?: return@setOnClickListener
                     if (mediaPlayer.isPlaying) {
@@ -338,7 +341,7 @@ class QuestionAdapter(
                 }
 
                 holder.titleTextView.text =
-                    titleWithRedAsterisk(question.mandatory, question.title)
+                    titleWithRedAsterisk(question.mandatory, question.title, position)
                 val imageAdapter = ImageAdapter { childPosition, image ->
                     imageClickListener.invoke(position, childPosition, image)
                 }
@@ -358,7 +361,7 @@ class QuestionAdapter(
 
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
                 holder.titleTextView.text =
-                    titleWithRedAsterisk(question.mandatory, question.title)
+                    titleWithRedAsterisk(question.mandatory, question.title, position)
                 holder.captureOrPickVideoButton.text =
                     if (cameraPermissionGranted) "Record video" else "Grant permission"
                 holder.captureOrPickVideoButton.setOnClickListener {
@@ -412,7 +415,10 @@ class QuestionAdapter(
     }
 
     fun validate(): Boolean {
-
+        list.filterIsInstance<InputQuestion>()
+            .forEach {
+                "V:${it.validate()} R:${it.required} v:${it.value}".log()
+            }
         notifyErrors()
         return list.all { it.validate() }
     }
@@ -429,18 +435,38 @@ class QuestionAdapter(
     }
 
     private fun notifyErrors() {
-        list.filter { !it.validate() && it.required }.forEachIndexed { index, _ ->
-            notifyItemChanged(index)
-        }
 
-        attachedRecyclerView?.post {
+        post {
             val first = list.firstOrNull { !it.validate() && it.required } ?: return@post
             val indexOfFirstError = list.indexOf(first)
             "$indexOfFirstError first error index".log()
-            if (indexOfFirstError != -1)
+            if (indexOfFirstError != -1) {
                 attachedRecyclerView?.smoothSnapToPosition(indexOfFirstError)
+            }
         }
-
+/*        val linearLayoutManager = attachedRecyclerView?.layoutManager as LinearLayoutManager
+        val range = visibleRange(linearLayoutManager)
+        "visible children range: $range".log()
+        attachedRecyclerView?.post{
+            range.forEach {
+                if(!list[it].validate() && list[it].required){
+                    notifyItemChanged(it)
+                }
+            }
+        }*/
+        post {
+            list.filter { !it.validate() && it.required }.forEachIndexed { index, _ ->
+                notifyItemChanged(index)
+            }
+        }
+    }
+    fun post(block:()->Unit){
+        attachedRecyclerView?.post(block)
+    }
+    private fun visibleRange(linearLayoutManager: LinearLayoutManager): IntRange {
+        val firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition()
+        val lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition()
+        return IntRange(firstVisibleItemPosition, lastVisibleItemPosition)
     }
 
     fun collect(): List<Pair<String, *>> {
@@ -520,12 +546,54 @@ class QuestionAdapter(
         }
     }
 
-    private fun titleWithRedAsterisk(isRequired: Boolean, title: String): CharSequence {
-        return if (!isRequired)
-            title
-        else {
+    private fun titleWithRedAsterisk(
+        isRequired: Boolean,
+        title: String,
+        position: Int
+    ): CharSequence {
+        return if (!isRequired) {
             val builder = SpannableStringBuilder()
-            builder.append(title)
+            builder.append(SpannableString("${position+1}")
+                .apply {
+                    setSpan(
+                        ForegroundColorSpan(Color.BLACK),
+                        0,
+                        position.toString().length,
+                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+                    )
+                    setSpan(
+                        StyleSpan(Typeface.BOLD), 0,
+                        position.toString().length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+                    )
+                    setSpan(
+                        RelativeSizeSpan(1.2f), 0,
+                        position.toString().length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+                    )
+                })
+            builder.append(SpannableString(" $title"))
+
+
+        } else {
+            val builder = SpannableStringBuilder()
+            builder.append(SpannableString("${position+1}")
+                .apply {
+                    setSpan(
+                        ForegroundColorSpan(Color.BLACK),
+                        0,
+                        position.toString().length,
+                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+                    )
+                    setSpan(
+                        StyleSpan(Typeface.BOLD), 0,
+                        position.toString().length,
+                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+                    )
+                    setSpan(
+                        RelativeSizeSpan(1.2f), 0,
+                        position.toString().length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+                    )
+                })
+            builder.append(SpannableString(" $title"))
             builder.append("  ")
             builder.append(SpannableString("*")
                 .apply {
@@ -533,27 +601,25 @@ class QuestionAdapter(
                         ForegroundColorSpan(Color.RED),
                         0,
                         1,
-                        Spannable.SPAN_EXCLUSIVE_INCLUSIVE
+                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE
                     )
                     setSpan(
                         StyleSpan(Typeface.BOLD), 0,
-                        1, Spannable.SPAN_EXCLUSIVE_INCLUSIVE
+                        1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE
                     )
                     setSpan(RelativeSizeSpan(1.1f), 0, 1, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
                 })
         }
     }
 
-    private fun RecyclerView.smoothSnapToPosition(
-        position: Int,
-        snapMode: Int = LinearSmoothScroller.SNAP_TO_START
-    ) {
-        val smoothScroller = object : LinearSmoothScroller(this.context) {
-            override fun getVerticalSnapPreference(): Int = snapMode
-            override fun getHorizontalSnapPreference(): Int = snapMode
+
+
+    private fun RecyclerView.smoothSnapToPosition(position: Int) {
+         val smoothScroller = object : LinearSmoothScroller(context) {
+            override fun getVerticalSnapPreference(): Int = SNAP_TO_START
+            override fun getHorizontalSnapPreference(): Int = SNAP_TO_START
         }
         smoothScroller.targetPosition = position
-
         layoutManager?.startSmoothScroll(smoothScroller)
     }
 

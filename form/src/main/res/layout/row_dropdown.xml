@@ -27,10 +27,12 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint=" select value"
+            android:hint="Select a value"
             app:endIconMode="dropdown_menu">
 
             <AutoCompleteTextView
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:id="@+id/autoCompleteTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

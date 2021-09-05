@@ -21,6 +21,7 @@ import java.util.*
 class QuestionForm(private val activity: Activity, private val recyclerView: RecyclerView) {
     private val questionAdapter by lazy {
         QuestionAdapter(
+            activity,
             listOf(),
             imagePickListener,
             audioRecordListener,

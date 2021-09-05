@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
         val list = generateList()
         questionAdapter =
             QuestionAdapter(
+                this,
                 list,
                 imagePickListener,
                 audioRecordListener,
@@ -100,50 +101,50 @@ class MainActivity : AppCompatActivity() {
         val list = mutableListOf<Question<*>>()
         val faker = Faker()
         repeat((0..100).count()) {
-            list.add(
-                CheckQuestion(
-                    title = faker.elderScrolls().quote(),
-                    entries = listOf(
-                        faker.elderScrolls().creature(),
-                        faker.elderScrolls().creature(),
-                        faker.elderScrolls().creature(),
-                        faker.elderScrolls().creature()
-                    ),
-                    id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
-                )
-            )
-            list.add(
-                RadioQuestion(
-                    title = faker.howIMetYourMother().quote(),
-                    entries = listOf(
-                        faker.howIMetYourMother().character(),
-                        faker.howIMetYourMother().character(),
-                        faker.howIMetYourMother().character(),
-                        faker.howIMetYourMother().character()
-                    ),
-                    id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
-                )
-            )
-       /*     list.add(
-                ImageQuestion(
-                    faker.hobbit().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
-                )
-            )
-            list.add(
-                VideoQuestion(
-                    faker.backToTheFuture().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
-                )
-            )
-            list.add(
-                AudioQuestion(
-                    title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
-                )
-            )*/
+               list.add(
+                   CheckQuestion(
+                       title = faker.elderScrolls().quote(),
+                       entries = listOf(
+                           faker.elderScrolls().creature(),
+                           faker.elderScrolls().creature(),
+                           faker.elderScrolls().creature(),
+                           faker.elderScrolls().creature()
+                       ),
+                       id = faker.crypto().md5(),
+                       mandatory = faker.bool().bool()
+                   )
+               )
+               list.add(
+                   RadioQuestion(
+                       title = faker.howIMetYourMother().quote(),
+                       entries = listOf(
+                           faker.howIMetYourMother().character(),
+                           faker.howIMetYourMother().character(),
+                           faker.howIMetYourMother().character(),
+                           faker.howIMetYourMother().character()
+                       ),
+                       id = faker.crypto().md5(),
+                       mandatory = faker.bool().bool()
+                   )
+               )
+                 list.add(
+                     ImageQuestion(
+                         faker.hobbit().quote(), id = faker.crypto().md5(),
+                         mandatory = faker.bool().bool()
+                     )
+                 )
+                 list.add(
+                     VideoQuestion(
+                         faker.backToTheFuture().quote(), id = faker.crypto().md5(),
+                         mandatory = faker.bool().bool()
+                     )
+                 )
+                 list.add(
+                     AudioQuestion(
+                         title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
+                         mandatory = faker.bool().bool()
+                     )
+                 )
             list.add(
                 DropdownQuestion(
                     faker.friends().quote(), id = faker.crypto().md5(),
@@ -154,6 +155,13 @@ class MainActivity : AppCompatActivity() {
                         faker.friends().character(),
                         faker.friends().character()
                     )
+                )
+            )
+            list.add(
+                InputQuestion(
+                    faker.harryPotter().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+
                 )
             )
         }
