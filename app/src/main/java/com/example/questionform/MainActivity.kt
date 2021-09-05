@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         val list = mutableListOf<Question<*>>()
         val faker = Faker()
         repeat((0..100).count()) {
- /*              list.add(
+               list.add(
                    CheckQuestion(
                        title = faker.elderScrolls().quote(),
                        entries = listOf(
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                         faker.friends().character()
                     )
                 )
-            )*/
+            )
             list.add(
                 InputQuestion(
                     faker.harryPotter().quote(), id = faker.crypto().md5(),

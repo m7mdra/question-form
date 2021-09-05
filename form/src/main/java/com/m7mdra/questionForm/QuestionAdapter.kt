@@ -253,68 +253,66 @@ class QuestionAdapter(
 
             }
             Audio.ordinal -> {
-
                 val holder = holder as AudioViewHolder
                 val question = list[position] as AudioQuestion
-
                 audioViewHolderIndexes.add(position)
-                val mediaPlayer = MediaPlayer()
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
-
-                val handler = Handler(Looper.getMainLooper())
-
-                val runnable = object : Runnable {
-                    override fun run() {
-                        if (mediaPlayer.isPlaying) {
-                            val playPosition: Int = mediaPlayer.currentPosition
-                            val duration: Int = mediaPlayer.duration
-
-                            if (duration > 0) {
-                                val pos = 1000L * playPosition / duration
-                                holder.recordProgress.progress = pos.toInt()
-                                holder.recordDurationTextView.text =
-                                    (playPosition / 1000L).formatDuration()
-                            }
-                            handler.postDelayed(this, 1000 - playPosition.toLong() % 1000)
-                        }
-                    }
-
-                }
-                mediaPlayers[position] = mediaPlayer
-                audioHandlers[position] = handler
-                audioHandlersCallback[position] = runnable
-
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
                 holder.titleTextView.text =
-
                     titleWithRedAsterisk(question.required, question.title, position)
-                holder.playOrStopButton.isEnabled = question.value != null
-                holder.playOrStopButton.setOnClickListener {
-                    val audio = question.collect().second ?: return@setOnClickListener
-                    if (mediaPlayer.isPlaying) {
-                        mediaPlayer.stop()
+                if (question.value != null) {
+                    val mediaPlayer = MediaPlayer()
+                    val handler = Handler(Looper.getMainLooper())
+
+                    val runnable = object : Runnable {
+                        override fun run() {
+                            if (mediaPlayer.isPlaying) {
+                                val playPosition: Int = mediaPlayer.currentPosition
+                                val duration: Int = mediaPlayer.duration
+
+                                if (duration > 0) {
+                                    val pos = 1000L * playPosition / duration
+                                    holder.recordProgress.progress = pos.toInt()
+                                    holder.recordDurationTextView.text =
+                                        (playPosition / 1000L).formatDuration()
+                                }
+                                handler.postDelayed(this, 1000 - playPosition.toLong() % 1000)
+                            }
+                        }
+
+                    }
+                    mediaPlayers[position] = mediaPlayer
+                    audioHandlers[position] = handler
+                    audioHandlersCallback[position] = runnable
+                    holder.playOrStopButton.setOnClickListener {
+                        val audio = question.collect().second ?: return@setOnClickListener
+                        if (mediaPlayer.isPlaying) {
+                            mediaPlayer.stop()
+                            holder.recordDurationTextView.text = "00:00"
+                            holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                            holder.recordProgress.progress = 0
+                        } else {
+                            mediaPlayer.reset()
+                            mediaPlayer.setDataSource(audio.path)
+                            mediaPlayer.prepareAsync()
+                        }
+                    }
+                    mediaPlayer.setOnPreparedListener {
+                        mediaPlayer.start()
+                        handler.removeCallbacks(runnable)
+                        handler.post(runnable)
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
+
+                    }
+                    mediaPlayer.setOnCompletionListener {
+                        holder.recordProgress.progress = 0
                         holder.recordDurationTextView.text = "00:00"
                         holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                        holder.recordProgress.progress = 0
-                    } else {
-                        mediaPlayer.reset()
-                        mediaPlayer.setDataSource(audio.path)
-                        mediaPlayer.prepareAsync()
+
                     }
                 }
-                mediaPlayer.setOnPreparedListener {
-                    mediaPlayer.start()
-                    handler.removeCallbacks(runnable)
-                    handler.post(runnable)
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
+                holder.playOrStopButton.isEnabled = question.value != null
 
-                }
-                mediaPlayer.setOnCompletionListener {
-                    holder.recordProgress.progress = 0
-                    holder.recordDurationTextView.text = "00:00"
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-
-                }
                 holder.recordAudioButton.text =
                     if (isAudioPermissionGranted(holder.context)
                     )
@@ -375,6 +373,7 @@ class QuestionAdapter(
                 if (file != null) {
                     videoView.show()
                     videoView.setVideoURI(file.toUri())
+
                 }
                 holder.playOrStopButton.setOnClickListener {
                     if (videoView.isPlaying) {
@@ -416,10 +415,7 @@ class QuestionAdapter(
     }
 
     fun validate(): Boolean {
-        list.filterIsInstance<InputQuestion>()
-            .forEach {
-                "V:${it.validate()} R:${it.required} v:${it.value}".log()
-            }
+
         notifyErrors()
         return list.all { it.validate() }
     }
@@ -520,12 +516,14 @@ class QuestionAdapter(
                 holder.recordProgress.progress = 0
                 mediaPlayer.stop()
                 mediaPlayer.release()
-                audioHandlers[adapterPosition]?.removeCallbacks(
-                    audioHandlersCallback[adapterPosition] ?: Runnable { })
-                audioHandlers.remove(adapterPosition)
-                audioHandlersCallback.remove(adapterPosition)
-                mediaPlayers.remove(adapterPosition)
+            } else {
+                mediaPlayer.release()
             }
+        audioHandlers[adapterPosition]?.removeCallbacks(
+            audioHandlersCallback[adapterPosition] ?: Runnable { })
+        audioHandlers.remove(adapterPosition)
+        audioHandlersCallback.remove(adapterPosition)
+        mediaPlayers.remove(adapterPosition)
     }
 
     fun addRecordFile(recordFile: Uri?, position: Int) {
