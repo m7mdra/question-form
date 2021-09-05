@@ -148,7 +148,8 @@ class QuestionAdapter(
 
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
-                holder.textInputEditText.setText(question.value ?: "")
+                if (question.value != null)
+                    holder.textInputEditText.setText(question.value)
                 val textWatcher =
                     object : TextInputEditTextWatcher(holder.textInputEditText) {
                         override fun beforeTextChanged(
@@ -170,7 +171,8 @@ class QuestionAdapter(
                         }
 
                         override fun afterTextChanged(s: Editable) {
-                            question.update(s.toString())
+                            if (s.isNotEmpty())
+                                question.update(s.toString())
                         }
 
                     }
@@ -186,7 +188,6 @@ class QuestionAdapter(
 
                 val autoCompleteTextView = holder.autoCompleteTextView
                 holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
-
                 autoCompleteTextView.setText(question.value, false)
                 autoCompleteTextView.setAdapter(
                     ArrayAdapter<String>(
@@ -460,9 +461,11 @@ class QuestionAdapter(
             }
         }
     }
-    fun post(block:()->Unit){
+
+    private fun post(block: () -> Unit) {
         attachedRecyclerView?.post(block)
     }
+
     private fun visibleRange(linearLayoutManager: LinearLayoutManager): IntRange {
         val firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition()
         val lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition()
@@ -497,6 +500,7 @@ class QuestionAdapter(
             holder.radioGroup.removeAllViews()
         }
         if (holder is InputViewHolder) {
+            holder.textInputEditText.text = null
             holder.textInputEditText.removeTextChangedListener(textWatchers[adapterPosition])
         }
         if (holder is DropdownViewHolder) {
@@ -553,7 +557,7 @@ class QuestionAdapter(
     ): CharSequence {
         return if (!isRequired) {
             val builder = SpannableStringBuilder()
-            builder.append(SpannableString("${position+1}")
+            builder.append(SpannableString("${position + 1}")
                 .apply {
                     setSpan(
                         ForegroundColorSpan(Color.BLACK),
@@ -575,7 +579,7 @@ class QuestionAdapter(
 
         } else {
             val builder = SpannableStringBuilder()
-            builder.append(SpannableString("${position+1}")
+            builder.append(SpannableString("${position + 1}")
                 .apply {
                     setSpan(
                         ForegroundColorSpan(Color.BLACK),
@@ -613,9 +617,8 @@ class QuestionAdapter(
     }
 
 
-
     private fun RecyclerView.smoothSnapToPosition(position: Int) {
-         val smoothScroller = object : LinearSmoothScroller(context) {
+        val smoothScroller = object : LinearSmoothScroller(context) {
             override fun getVerticalSnapPreference(): Int = SNAP_TO_START
             override fun getHorizontalSnapPreference(): Int = SNAP_TO_START
         }

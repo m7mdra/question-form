@@ -14,5 +14,20 @@ abstract class Question<T>(
     abstract fun validate(): Boolean
     abstract fun collect(): Pair<String,T>
     abstract fun update(value: T)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Question<*>
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
 
 }
