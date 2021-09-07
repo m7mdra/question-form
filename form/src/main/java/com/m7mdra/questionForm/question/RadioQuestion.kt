@@ -5,12 +5,20 @@ class RadioQuestion(
     val mandatory: Boolean
 ) :
     Question<String?>(title, QuestionType.Radio, id = id, required = mandatory) {
-    override var hasError: Boolean = false
     override var value: String? = null
+    override var hasError: Boolean = false
 
     override fun validate(): Boolean {
-        hasError = value == null && mandatory
-        return value != null
+        val valid = isValid()
+        hasError = !valid
+        return valid
+
+    }
+
+    private fun isValid() = if (required) {
+        value != null
+    } else {
+        true
     }
 
     override fun collect(): Pair<String, String?> {

@@ -144,7 +144,7 @@ class QuestionAdapter(
                 val question = list[position] as InputQuestion
 
                 val holder = holder as InputViewHolder
-                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+                holder.errorTextView.visibility = shouldShowError(question.hasError)
 
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
@@ -152,29 +152,10 @@ class QuestionAdapter(
                     holder.textInputEditText.setText(question.value)
                 val textWatcher =
                     object : TextInputEditTextWatcher(holder.textInputEditText) {
-                        override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            count: Int,
-                            after: Int
-                        ) {
-
-                        }
-
-                        override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            before: Int,
-                            count: Int
-                        ) {
-
-                        }
-
                         override fun afterTextChanged(s: Editable) {
                             if (s.isNotEmpty())
                                 question.update(s.toString())
                         }
-
                     }
                 textWatchers[position] = textWatcher
 
@@ -187,7 +168,8 @@ class QuestionAdapter(
                     titleWithRedAsterisk(question.required, question.title, position)
 
                 val autoCompleteTextView = holder.autoCompleteTextView
-                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+                holder.errorTextView.visibility =
+                    shouldShowError(question.hasError)
                 autoCompleteTextView.setText(question.value, false)
                 autoCompleteTextView.setAdapter(
                     ArrayAdapter<String>(
@@ -207,7 +189,7 @@ class QuestionAdapter(
             Radio.ordinal -> {
                 val holder = holder as RadioViewHolder
                 val question = list[position] as RadioQuestion
-                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+                holder.errorTextView.visibility = shouldShowError(question.hasError)
 
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
@@ -222,8 +204,9 @@ class QuestionAdapter(
                         question.value.hashCode() == it.hashCode()
                     radioGroup.addView(radioButton)
                     radioButton.setOnCheckedChangeListener { _, isChecked ->
-                        if (isChecked)
+                        if (isChecked) {
                             question.update(it)
+                        }
                     }
                 }
 
@@ -234,7 +217,7 @@ class QuestionAdapter(
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
 
-                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+                holder.errorTextView.visibility = shouldShowError(question.hasError)
                 question.entries.forEachIndexed { index, s ->
                     val checkBox = CheckBox(holder.context)
                     checkBox.isChecked = question.selectionMap.containsKey(index)
@@ -256,8 +239,7 @@ class QuestionAdapter(
                 val holder = holder as AudioViewHolder
                 val question = list[position] as AudioQuestion
                 audioViewHolderIndexes.add(position)
-                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
-                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+                holder.errorTextView.visibility = shouldShowError(question.hasError)
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
                 if (question.value != null) {
@@ -330,7 +312,7 @@ class QuestionAdapter(
                 val question = list[position] as ImageQuestion
                 val adapterPosition = holder.adapterPosition
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
-                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+                holder.errorTextView.visibility = shouldShowError(question.hasError)
 
                 holder.imageButton.text =
                     if (cameraPermissionGranted) "Capture image" else "Grant permission"
@@ -356,7 +338,7 @@ class QuestionAdapter(
                 val holder = holder as VideoViewHolder
                 val question = list[position] as VideoQuestion
                 val videoView = holder.videoView
-                holder.errorTextView.visibility = if (question.hasError) View.VISIBLE else View.GONE
+                holder.errorTextView.visibility = shouldShowError(question.hasError)
 
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
                 holder.titleTextView.text =
@@ -397,6 +379,9 @@ class QuestionAdapter(
         }
     }
 
+    private fun shouldShowError(predicate:Boolean) =
+        if (predicate) View.VISIBLE else View.GONE
+
     private fun isAudioPermissionGranted(context: Context) =
         ContextCompat.checkSelfPermission(
             context,
@@ -434,28 +419,16 @@ class QuestionAdapter(
     private fun notifyErrors() {
 
         post {
-            val first = list.firstOrNull { !it.validate() && it.required } ?: return@post
+            val first = list.firstOrNull { !it.validate() } ?: return@post
             val indexOfFirstError = list.indexOf(first)
             "$indexOfFirstError first error index".log()
             if (indexOfFirstError != -1) {
                 attachedRecyclerView?.smoothSnapToPosition(indexOfFirstError)
+                notifyItemChanged(indexOfFirstError)
             }
         }
-/*        val linearLayoutManager = attachedRecyclerView?.layoutManager as LinearLayoutManager
-        val range = visibleRange(linearLayoutManager)
-        "visible children range: $range".log()
-        attachedRecyclerView?.post{
-            range.forEach {
-                if(!list[it].validate() && list[it].required){
-                    notifyItemChanged(it)
-                }
-            }
-        }*/
-        post {
-            list.filter { !it.validate() && it.required }.forEachIndexed { index, _ ->
-                notifyItemChanged(index)
-            }
-        }
+
+
     }
 
     private fun post(block: () -> Unit) {
@@ -480,7 +453,6 @@ class QuestionAdapter(
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
-
         val adapterPosition = holder.adapterPosition
         if (holder is VideoViewHolder) {
             val videoView = holder.videoView
@@ -623,6 +595,7 @@ class QuestionAdapter(
         smoothScroller.targetPosition = position
         layoutManager?.startSmoothScroll(smoothScroller)
     }
+
 
 }
 

@@ -8,14 +8,22 @@ class DropdownQuestion(
 ) :
     Question<String?>(title, QuestionType.Dropdown, id = id, required = mandatory) {
     override var hasError: Boolean = false
-
     override var value: String? = null
 
     override fun validate(): Boolean {
-        hasError = value == null && mandatory
-
-        return value != null
+        val valid = isValid()
+        hasError = !valid
+        return valid
     }
+
+    private fun isValid(): Boolean {
+        return if (required) {
+            value != null
+        } else {
+            true
+        }
+    }
+
 
     override fun collect(): Pair<String, String?> {
         return id to value

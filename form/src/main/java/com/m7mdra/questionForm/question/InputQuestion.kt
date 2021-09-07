@@ -15,9 +15,17 @@ class InputQuestion(
 
     override var value: String? = null
     override fun validate(): Boolean {
-        hasError = value == null && mandatory
 
-        return value != null
+        val valid = isValid()
+        hasError = !valid
+        return valid
+
+    }
+
+    private fun isValid() = if (required) {
+        value != null
+    } else {
+        true
     }
 
     override fun collect(): Pair<String, String?> {

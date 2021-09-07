@@ -10,9 +10,16 @@ class VideoQuestion(
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {
-        hasError = value == null && mandatory
+        val valid = isValid()
+        hasError = !valid
+        return valid
 
-        return value != null
+    }
+
+    private fun isValid() = if (required) {
+        value != null
+    } else {
+        true
     }
 
     override fun collect(): Pair<String, File?> {

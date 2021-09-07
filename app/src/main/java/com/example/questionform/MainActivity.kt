@@ -298,10 +298,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
+    fun randomString(): String {
+        return Random(0).nextInt().toString()
+    }
 }
 
-fun randomString(): String {
-    return Random(0).nextInt().toString()
-}
+
 

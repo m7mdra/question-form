@@ -13,8 +13,16 @@ class CheckQuestion(
     var selectionMap = mutableMapOf<Int, String>()
 
     override fun validate(): Boolean {
-        hasError = selectionMap.isEmpty() && mandatory
-        return selectionMap.isNotEmpty()
+        val valid = isValid()
+        hasError = !valid
+        return valid
+
+    }
+
+    private fun isValid() = if (required) {
+        selectionMap.isNotEmpty()
+    } else {
+        true
     }
 
     override fun collect(): Pair<String, List<String>> {
