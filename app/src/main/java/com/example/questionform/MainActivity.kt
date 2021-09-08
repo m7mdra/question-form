@@ -101,6 +101,7 @@ class MainActivity : AppCompatActivity() {
         val list = mutableListOf<Question<*>>()
         val faker = Faker()
         repeat((0..100).count()) {
+            list.add(TitleQuestion(title= faker.book().title()))
                list.add(
                    CheckQuestion(
                        title = faker.elderScrolls().quote(),
@@ -165,7 +166,6 @@ class MainActivity : AppCompatActivity() {
                 )
             )
         }
-        list.shuffle()
         return list
     }
 
