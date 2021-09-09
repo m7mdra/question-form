@@ -152,6 +152,7 @@ class QuestionAdapter(
 
                 val holder = viewHolder as InputViewHolder
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
+                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
 
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
@@ -175,8 +176,11 @@ class QuestionAdapter(
                     titleWithRedAsterisk(question.required, question.title, position)
 
                 val autoCompleteTextView = holder.autoCompleteTextView
+
                 holder.errorTextView.visibility =
                     shouldShowError(question.hasError)
+                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+
                 autoCompleteTextView.setText(question.value, false)
                 autoCompleteTextView.setAdapter(
                     ArrayAdapter<String>(
@@ -196,7 +200,9 @@ class QuestionAdapter(
             Radio.ordinal -> {
                 val holder = viewHolder as RadioViewHolder
                 val question = list[position] as RadioQuestion
+
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
+                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
 
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
@@ -225,6 +231,10 @@ class QuestionAdapter(
                     titleWithRedAsterisk(question.required, question.title, position)
 
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
+                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+
+
+
                 question.entries.forEachIndexed { index, s ->
                     val checkBox = CheckBox(holder.context)
                     checkBox.isChecked = question.selectionMap.containsKey(index)
@@ -246,7 +256,12 @@ class QuestionAdapter(
                 val holder = viewHolder as AudioViewHolder
                 val question = list[position] as AudioQuestion
                 audioViewHolderIndexes.append(position, position)
+
+
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
+                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+
+
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
                 if (question.value != null) {
@@ -320,7 +335,11 @@ class QuestionAdapter(
                 val question = list[position] as ImageQuestion
                 val adapterPosition = holder.adapterPosition
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
+
+
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
+                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+
 
                 holder.imageButton.text =
                     if (cameraPermissionGranted) "Capture image" else "Grant permission"
@@ -346,7 +365,11 @@ class QuestionAdapter(
                 val holder = viewHolder as VideoViewHolder
                 val question = list[position] as VideoQuestion
                 val videoView = holder.videoView
+
+
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
+                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+
 
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
                 holder.titleTextView.text =
