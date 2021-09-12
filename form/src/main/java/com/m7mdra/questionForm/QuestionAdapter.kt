@@ -425,7 +425,6 @@ class QuestionAdapter(
         val imageQuestion = list[lastImagePickIndex] as ImageQuestion
         imageQuestion.update(mutableListOf(uri))
         adapter.add(uri)
-        imageQuestion.validate()
         notifyItemChanged(lastImagePickIndex)
     }
 
@@ -460,6 +459,9 @@ class QuestionAdapter(
             if (indexOfFirstError != -1) {
                 attachedRecyclerView?.smoothSnapToPosition(indexOfFirstError)
                 notifyItemChanged(indexOfFirstError)
+            }
+            list.filter { !it.validate() }.forEachIndexed { index, _ ->
+                notifyItemChanged(index)
             }
         }
 
