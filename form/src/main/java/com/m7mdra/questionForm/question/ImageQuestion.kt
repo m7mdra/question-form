@@ -1,5 +1,7 @@
 package com.m7mdra.questionForm.question
 
+import com.m7mdra.questionForm.log
+
 class ImageQuestion(
     title: String,
     private val maxInput: Int = 1,
@@ -33,6 +35,7 @@ class ImageQuestion(
 
     override fun update(value: MutableList<String>) {
         this.value.addAll(value)
+        "UPDATED LIST WITH VALUE: $value ${isValid()} error: $hasError".log()
     }
 
 

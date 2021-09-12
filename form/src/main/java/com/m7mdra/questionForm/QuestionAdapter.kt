@@ -344,7 +344,7 @@ class QuestionAdapter(
                 holder.imageButton.text =
                     if (cameraPermissionGranted) "Capture image" else "Grant permission"
                 holder.imageButton.setOnClickListener {
-                    lastImagePickIndex = adapterPosition
+                    lastImagePickIndex = position
                     imagePickListener.invoke()
                 }
 
@@ -420,10 +420,13 @@ class QuestionAdapter(
         ) == PackageManager.PERMISSION_GRANTED
 
     fun updateImageAdapterAtPosition(uri: String) {
-        val adapter: ImageAdapter = imageAdapters[lastImagePickIndex] ?: return
-        (list[lastImagePickIndex] as ImageQuestion).update(mutableListOf(uri))
-        adapter.add(uri)
 
+        val adapter: ImageAdapter = imageAdapters[lastImagePickIndex] ?: return
+        val imageQuestion = list[lastImagePickIndex] as ImageQuestion
+        imageQuestion.update(mutableListOf(uri))
+        adapter.add(uri)
+        imageQuestion.validate()
+        notifyItemChanged(lastImagePickIndex)
     }
 
     override fun getItemCount(): Int {
@@ -433,6 +436,7 @@ class QuestionAdapter(
     fun validate(): Boolean {
 
         notifyErrors()
+
         return list.all { it.validate() }
     }
 
@@ -452,7 +456,7 @@ class QuestionAdapter(
         post {
             val first = list.firstOrNull { !it.validate() } ?: return@post
             val indexOfFirstError = list.indexOf(first)
-            "$indexOfFirstError first error index".log()
+
             if (indexOfFirstError != -1) {
                 attachedRecyclerView?.smoothSnapToPosition(indexOfFirstError)
                 notifyItemChanged(indexOfFirstError)

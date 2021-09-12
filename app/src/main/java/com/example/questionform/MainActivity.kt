@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
                          mandatory = faker.bool().bool()
                      )
                  )
-                 list.add(
+/*                 list.add(
                      VideoQuestion(
                          faker.backToTheFuture().quote(), id = faker.crypto().md5(),
                          mandatory = faker.bool().bool()
@@ -164,7 +164,7 @@ class MainActivity : AppCompatActivity() {
                     mandatory = faker.bool().bool()
 
                 )
-            )
+            )*/
         }
         return list
     }
