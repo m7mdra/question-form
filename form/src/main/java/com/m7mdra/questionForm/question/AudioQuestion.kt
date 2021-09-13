@@ -15,7 +15,7 @@ class AudioQuestion(title: String, val id: String, private val mandatory: Boolea
         return valid
     }
 
-    private fun isValid(): Boolean {
+    override fun isValid(): Boolean {
         return if (required) {
             value != null
         } else {

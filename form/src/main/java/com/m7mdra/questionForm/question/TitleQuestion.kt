@@ -18,4 +18,8 @@ class TitleQuestion(title: String) :
         //never called
     }
 
+    override fun isValid(): Boolean {
+        return true
+    }
+
 }

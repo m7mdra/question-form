@@ -27,6 +27,7 @@ import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.core.util.forEach
 import androidx.core.util.set
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.m7mdra.questionForm.question.*
@@ -152,7 +153,7 @@ class QuestionAdapter(
 
                 val holder = viewHolder as InputViewHolder
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
-                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+                holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
 
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
@@ -179,7 +180,7 @@ class QuestionAdapter(
 
                 holder.errorTextView.visibility =
                     shouldShowError(question.hasError)
-                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+                holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
 
                 autoCompleteTextView.setText(question.value, false)
                 autoCompleteTextView.setAdapter(
@@ -202,7 +203,7 @@ class QuestionAdapter(
                 val question = list[position] as RadioQuestion
 
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
-                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+                holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
 
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.required, question.title, position)
@@ -231,7 +232,7 @@ class QuestionAdapter(
                     titleWithRedAsterisk(question.required, question.title, position)
 
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
-                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+                holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
 
 
 
@@ -259,7 +260,7 @@ class QuestionAdapter(
 
 
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
-                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+                holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
 
 
                 holder.titleTextView.text =
@@ -338,7 +339,7 @@ class QuestionAdapter(
 
 
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
-                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+                holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
 
 
                 holder.imageButton.text =
@@ -368,7 +369,7 @@ class QuestionAdapter(
 
 
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
-                holder.itemView.setBackgroundResource(if(question.hasError) R.drawable.error_stroke else 0)
+                holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
 
 
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
@@ -452,6 +453,7 @@ class QuestionAdapter(
 
     private fun notifyErrors() {
 
+
         post {
             val first = list.firstOrNull { !it.validate() } ?: return@post
             val indexOfFirstError = list.indexOf(first)
@@ -460,7 +462,7 @@ class QuestionAdapter(
                 attachedRecyclerView?.smoothSnapToPosition(indexOfFirstError)
                 notifyItemChanged(indexOfFirstError)
             }
-            list.filter { !it.validate() }.forEachIndexed { index, _ ->
+            list.filter { !it.isValid() }.forEachIndexed { index, _ ->
                 notifyItemChanged(index)
             }
         }
@@ -481,6 +483,12 @@ class QuestionAdapter(
         audioViewHolderIndexes.forEach { key, _ ->
             notifyItemChanged(key)
         }
+    }
+
+    private fun LinearLayoutManager.visibleRange(): IntRange {
+        val firstVisibleItemPosition = findFirstVisibleItemPosition()
+        val lastVisibleItemPosition = findLastVisibleItemPosition()
+        return IntRange(firstVisibleItemPosition, lastVisibleItemPosition)
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
@@ -587,8 +595,8 @@ class QuestionAdapter(
 
     private fun RecyclerView.smoothSnapToPosition(position: Int) {
         val smoothScroller = object : LinearSmoothScroller(context) {
-            override fun getVerticalSnapPreference(): Int = SNAP_TO_START
-            override fun getHorizontalSnapPreference(): Int = SNAP_TO_START
+            override fun getVerticalSnapPreference(): Int = SNAP_TO_ANY
+            override fun getHorizontalSnapPreference(): Int = SNAP_TO_ANY
         }
         smoothScroller.targetPosition = position
         layoutManager?.startSmoothScroll(smoothScroller)

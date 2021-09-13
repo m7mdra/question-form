@@ -21,7 +21,7 @@ class ImageQuestion(
 
     }
 
-    private fun isValid(): Boolean {
+    override fun isValid(): Boolean {
         return if (required) {
             value.isNotEmpty()
         } else {

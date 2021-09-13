@@ -19,7 +19,7 @@ class CheckQuestion(
 
     }
 
-    private fun isValid() = if (required) {
+    override fun isValid() = if (required) {
         selectionMap.isNotEmpty()
     } else {
         true

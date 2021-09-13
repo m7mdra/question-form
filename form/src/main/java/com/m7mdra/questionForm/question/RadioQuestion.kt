@@ -15,7 +15,7 @@ class RadioQuestion(
 
     }
 
-    private fun isValid() = if (required) {
+    override fun isValid() = if (required) {
         value != null
     } else {
         true
