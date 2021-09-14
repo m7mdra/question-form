@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import android.media.ThumbnailUtils
 import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
@@ -89,6 +90,8 @@ class RecordAudioActivity : AppCompatActivity() {
         if (mediaPlayer.isPlaying) {
             mediaPlayer.stop()
             recordProgress.progress = 0
+            deleteButton.enable()
+
             playButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
         } else {
             mediaPlayer.reset()

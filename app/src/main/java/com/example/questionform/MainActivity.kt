@@ -101,7 +101,6 @@ class MainActivity : AppCompatActivity() {
         val list = mutableListOf<Question<*>>()
         val faker = Faker()
         repeat((0..100).count()) {
-            list.add(TitleQuestion(title= faker.book().title()))
                list.add(
                    CheckQuestion(
                        title = faker.elderScrolls().quote(),
@@ -134,7 +133,7 @@ class MainActivity : AppCompatActivity() {
                          mandatory = faker.bool().bool()
                      )
                  )
-/*                 list.add(
+                 list.add(
                      VideoQuestion(
                          faker.backToTheFuture().quote(), id = faker.crypto().md5(),
                          mandatory = faker.bool().bool()
@@ -164,7 +163,7 @@ class MainActivity : AppCompatActivity() {
                     mandatory = faker.bool().bool()
 
                 )
-            )*/
+            )
         }
         return list
     }
