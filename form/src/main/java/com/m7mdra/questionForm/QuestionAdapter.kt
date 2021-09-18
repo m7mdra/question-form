@@ -362,15 +362,16 @@ class QuestionAdapter(
 
             }
             Video.ordinal -> {
+
                 mediaViewHolderIndexes.append(position, position)
                 val holder = viewHolder as VideoViewHolder
                 val question = list[position] as VideoQuestion
+                question.log()
                 val videoView = holder.videoView
 
 
                 holder.errorTextView.visibility = shouldShowError(question.hasError)
                 holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-
 
                 val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
                 holder.titleTextView.text =
@@ -382,14 +383,25 @@ class QuestionAdapter(
                     videoPickListener.invoke(position)
                 }
 
-
-                val file = question.collect().second
+                val file = question.value
                 if (file != null) {
                     videoView.show()
                     videoView.setVideoURI(file.toUri())
+                    videoView.setOnPreparedListener {
+                        holder.playOrStopButton.show()
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+                    }
+                    videoView.setOnCompletionListener {
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
 
+                    }
+
+                }else{
+                    holder.playOrStopButton.gone()
+                    videoView.gone()
                 }
                 holder.playOrStopButton.setOnClickListener {
+
                     if (videoView.isPlaying) {
                         holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
                         videoView.pause()
@@ -398,14 +410,8 @@ class QuestionAdapter(
                         videoView.start()
                     }
                 }
-                videoView.setOnCompletionListener {
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
 
-                }
-                videoView.setOnPreparedListener {
-                    holder.playOrStopButton.show()
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                }
+
             }
 
         }
@@ -567,12 +573,12 @@ class QuestionAdapter(
     ): CharSequence {
         return if (!isRequired) {
             val builder = SpannableStringBuilder()
-            builder.append(SpannableString("${position + 1}").boldAndColor(Color.BLACK))
+//            builder.append(SpannableString("${position + 1}").boldAndColor(Color.BLACK))
             builder.append(SpannableString(" $title"))
         } else {
             val builder = SpannableStringBuilder()
-            builder.append(SpannableString("${position + 1}").boldAndColor(Color.BLACK))
-            builder.append(SpannableString(" $title"))
+//            builder.append(SpannableString("${position + 1}").boldAndColor(Color.BLACK))
+            builder.append(SpannableString("$title"))
             builder.append("  ")
             builder.append(SpannableString("*").boldAndColor(Color.RED))
         }

@@ -29,4 +29,9 @@ class VideoQuestion(
     override fun update(value: File?) {
         this.value = value
     }
+
+    override fun toString(): String {
+        return "VideoQuestion(title = '$title', id='$id', mandatory=$mandatory, value=$value, hasError=$hasError)"
+    }
+
 }
