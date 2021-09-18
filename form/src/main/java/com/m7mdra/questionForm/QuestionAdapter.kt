@@ -443,7 +443,7 @@ class QuestionAdapter(
 
         notifyErrors()
 
-        return list.all { it.validate() }
+        return list.all { it.isValid() }
     }
 
     private var attachedRecyclerView: RecyclerView? = null
