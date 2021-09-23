@@ -30,11 +30,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var arrayAdapter: ArrayAdapter<String>
 
 
-    private val audioRecordListener = { position: Int ->
+    private val audioRecordListener: (AudioQuestion, Int) -> Unit = { _, _ ->
         if (isAudioPermissionGranted()) {
-            val intent = Intent(this, RecordAudioActivity::class.java)
-            intent.putExtra("position", position)
-            startActivityForResult(intent, 321)
+
         } else {
             if (shouldShowRequestPermissionRationale(RECORD_AUDIO_PERMISSION)) {
                 MaterialAlertDialogBuilder(this)
@@ -50,14 +48,14 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private val imagePickListener = {
+    private val imagePickListener: (ImageQuestion,Int) -> Unit = {_,_->
         if (isCameraPermissionGranted()) {
             dispatchImageCaptureIntent()
         } else {
             askForCameraPermission()
         }
     }
-    private val videoPickListener: (Int) -> Unit = {
+    private val videoPickListener: (VideoQuestion, Int) -> Unit = { _, _ ->
         if (isCameraPermissionGranted()) {
             dispatchVideoCaptureIntent()
         } else {
@@ -101,50 +99,50 @@ class MainActivity : AppCompatActivity() {
         val list = mutableListOf<Question<*>>()
         val faker = Faker()
         repeat((0..100).count()) {
-               list.add(
-                   CheckQuestion(
-                       title = faker.elderScrolls().quote(),
-                       entries = listOf(
-                           faker.elderScrolls().creature(),
-                           faker.elderScrolls().creature(),
-                           faker.elderScrolls().creature(),
-                           faker.elderScrolls().creature()
-                       ),
-                       id = faker.crypto().md5(),
-                       mandatory = faker.bool().bool()
-                   )
-               )
-               list.add(
-                   RadioQuestion(
-                       title = faker.howIMetYourMother().quote(),
-                       entries = listOf(
-                           faker.howIMetYourMother().character(),
-                           faker.howIMetYourMother().character(),
-                           faker.howIMetYourMother().character(),
-                           faker.howIMetYourMother().character()
-                       ),
-                       id = faker.crypto().md5(),
-                       mandatory = faker.bool().bool()
-                   )
-               )
-                 list.add(
-                     ImageQuestion(
-                         faker.hobbit().quote(), id = faker.crypto().md5(),
-                         mandatory = faker.bool().bool()
-                     )
-                 )
-                 list.add(
-                     VideoQuestion(
-                         faker.backToTheFuture().quote(), id = faker.crypto().md5(),
-                         mandatory = faker.bool().bool()
-                     )
-                 )
-                 list.add(
-                     AudioQuestion(
-                         title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
-                         mandatory = faker.bool().bool()
-                     )
-                 )
+            list.add(
+                CheckQuestion(
+                    title = faker.elderScrolls().quote(),
+                    entries = listOf(
+                        faker.elderScrolls().creature(),
+                        faker.elderScrolls().creature(),
+                        faker.elderScrolls().creature(),
+                        faker.elderScrolls().creature()
+                    ),
+                    id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )
+            list.add(
+                RadioQuestion(
+                    title = faker.howIMetYourMother().quote(),
+                    entries = listOf(
+                        faker.howIMetYourMother().character(),
+                        faker.howIMetYourMother().character(),
+                        faker.howIMetYourMother().character(),
+                        faker.howIMetYourMother().character()
+                    ),
+                    id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )
+            list.add(
+                ImageQuestion(
+                    faker.hobbit().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )
+            list.add(
+                VideoQuestion(
+                    faker.backToTheFuture().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )
+            list.add(
+                AudioQuestion(
+                    title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool()
+                )
+            )
             list.add(
                 DropdownQuestion(
                     faker.friends().quote(), id = faker.crypto().md5(),
@@ -297,6 +295,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
     fun randomString(): String {
         return Random(0).nextInt().toString()
     }

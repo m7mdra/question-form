@@ -39,10 +39,10 @@ import java.io.File
 class QuestionAdapter(
     private val context: Context,
     private val list: List<Question<*>>,
-    private val imagePickListener: () -> Unit = {},
-    private val audioRecordListener: (Int) -> Unit = {},
-    private val videoPickListener: (Int) -> Unit = {},
-    private val imageClickListener: (Int, Int, String) -> Unit = { _, _, _ -> }
+    private val imagePickListener: ((ImageQuestion,Int) -> Unit)? = null,
+    private val audioRecordListener: ((AudioQuestion, Int) -> Unit)? = null,
+    private val videoPickListener: ((VideoQuestion, Int) -> Unit)? = null,
+    private val imageClickListener: ((Int, Int, String) -> Unit)? = null
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -325,7 +325,7 @@ class QuestionAdapter(
                         "Record" else "grant permission"
                 holder.recordAudioButton.setOnClickListener {
 
-                    audioRecordListener.invoke(position)
+                    audioRecordListener?.invoke(question, position)
 
                 }
             }
@@ -344,17 +344,17 @@ class QuestionAdapter(
 
                 holder.imageButton.text =
                     if (cameraPermissionGranted) "Capture image" else "Grant permission"
-                holder.imageButton.setOnClickListener {
-                    lastImagePickIndex = position
-                    imagePickListener.invoke()
-                }
+
 
                 holder.titleTextView.text =
                     titleWithRedAsterisk(question.mandatory, question.title, position)
                 val imageAdapter = ImageAdapter { childPosition, image ->
-                    imageClickListener.invoke(position, childPosition, image)
+                    imageClickListener?.invoke(position, childPosition, image)
                 }
-
+                holder.imageButton.setOnClickListener {
+                    lastImagePickIndex = position
+                    imagePickListener?.invoke(question,position)
+                }
                 imageAdapters[adapterPosition] = imageAdapter
                 if (question.value.isNotEmpty())
                     imageAdapter.addAll(question.value)
@@ -380,7 +380,7 @@ class QuestionAdapter(
                     if (cameraPermissionGranted) "Record video" else "Grant permission"
                 holder.captureOrPickVideoButton.setOnClickListener {
                     lastImageVideoIndex = position
-                    videoPickListener.invoke(position)
+                    videoPickListener?.invoke(question, position)
                 }
 
                 val file = question.value
@@ -396,7 +396,7 @@ class QuestionAdapter(
 
                     }
 
-                }else{
+                } else {
                     holder.playOrStopButton.gone()
                     videoView.gone()
                 }
