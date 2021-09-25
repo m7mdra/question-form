@@ -4,8 +4,16 @@ import java.io.File
 
 class VideoQuestion(
     title: String, val id: String,
-    val mandatory: Boolean = false
-) : Question<File?>(title, questionType = QuestionType.Video, id = id, required = mandatory) {
+    val mandatory: Boolean = false,
+    private val params: Map<String, String> = mapOf()
+
+) : Question<File?>(
+    title,
+    questionType = QuestionType.Video,
+    id = id,
+    required = mandatory,
+    extraParams = params
+) {
     override var value: File? = null
     override var hasError: Boolean = false
 
@@ -22,9 +30,6 @@ class VideoQuestion(
         true
     }
 
-    override fun collect(): Pair<String, File?> {
-        return id to value
-    }
 
     override fun update(value: File?) {
         this.value = value

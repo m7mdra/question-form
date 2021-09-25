@@ -4,9 +4,11 @@ class DropdownQuestion(
     title: String,
     val entries: List<String>,
     val id: String,
-    private val mandatory: Boolean = false
+    private val mandatory: Boolean = false,
+    private val params: Map<String, String> = mapOf()
+
 ) :
-    Question<String?>(title, QuestionType.Dropdown, id = id, required = mandatory) {
+    Question<String?>(title, QuestionType.Dropdown, id = id, required = mandatory,extraParams = params) {
     override var hasError: Boolean = false
     override var value: String? = null
 
@@ -25,9 +27,6 @@ class DropdownQuestion(
     }
 
 
-    override fun collect(): Pair<String, String?> {
-        return id to value
-    }
 
     override fun update(value: String?) {
         this.value = value

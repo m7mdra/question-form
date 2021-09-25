@@ -2,9 +2,11 @@ package com.m7mdra.questionForm.question
 
 class RadioQuestion(
     title: String, val entries: List<String>, val id: String,
-    val mandatory: Boolean
+    val mandatory: Boolean,
+    private val params: Map<String, String> = mapOf()
+
 ) :
-    Question<String?>(title, QuestionType.Radio, id = id, required = mandatory) {
+    Question<String?>(title, QuestionType.Radio, id = id, required = mandatory,extraParams = params) {
     override var value: String? = null
     override var hasError: Boolean = false
 
@@ -21,9 +23,7 @@ class RadioQuestion(
         true
     }
 
-    override fun collect(): Pair<String, String?> {
-        return id to value
-    }
+
 
     override fun update(value: String?) {
         this.value = value

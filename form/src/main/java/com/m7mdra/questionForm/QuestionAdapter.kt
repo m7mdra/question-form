@@ -290,7 +290,7 @@ class QuestionAdapter(
                     audioHandlers[position] = handler
                     audioHandlersCallback[position] = runnable
                     holder.playOrStopButton.setOnClickListener {
-                        val audio = question.collect().second ?: return@setOnClickListener
+                        val audio = question.value ?: return@setOnClickListener
                         if (mediaPlayer.isPlaying) {
                             mediaPlayer.stop()
                             holder.recordDurationTextView.text =
@@ -478,10 +478,11 @@ class QuestionAdapter(
 
     private fun post(block: () -> Unit) {
         attachedRecyclerView?.post(block)
+
     }
 
 
-    fun collect(): List<Pair<String, *>> {
+    fun collect(): List<Map<String,Any?>> {
         return list.map { it.collect() }
     }
 

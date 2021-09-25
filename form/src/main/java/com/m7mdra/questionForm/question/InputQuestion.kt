@@ -7,10 +7,12 @@ class InputQuestion(
     val id: String,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     hint: String = "",
-    val mandatory: Boolean = false
+    val mandatory: Boolean = false,
+    private val params: Map<String, String> = mapOf()
+
 
 ) :
-    Question<String?>(title, QuestionType.Input, id = id, required = mandatory) {
+    Question<String?>(title, QuestionType.Input, id = id, required = mandatory,extraParams = params) {
     override var hasError: Boolean = false
 
     override var value: String? = null
@@ -28,9 +30,6 @@ class InputQuestion(
         true
     }
 
-    override fun collect(): Pair<String, String?> {
-        return id to value
-    }
 
     override fun update(value: String?) {
 

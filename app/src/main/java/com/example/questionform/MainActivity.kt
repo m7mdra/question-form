@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private val imagePickListener: (ImageQuestion,Int) -> Unit = {_,_->
+    private val imagePickListener: (ImageQuestion, Int) -> Unit = { _, _ ->
         if (isCameraPermissionGranted()) {
             dispatchImageCaptureIntent()
         } else {
@@ -67,7 +67,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         validateButton.setOnClickListener {
-            questionAdapter.validate().log()
+            questionAdapter.collect().forEach(::println)
+
         }
         arrayAdapter = ArrayAdapter(
             this, android.R.layout.simple_list_item_1

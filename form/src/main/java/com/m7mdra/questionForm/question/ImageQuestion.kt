@@ -7,9 +7,11 @@ class ImageQuestion(
     private val maxInput: Int = 1,
     private val minInput: Int = 1,
     val id: String,
-    val mandatory: Boolean = false
+    val mandatory: Boolean = false,
+    private val params: Map<String, String> = mapOf()
+
 ) :
-    Question<MutableList<String>>(title, QuestionType.Image, id = id, required = mandatory) {
+    Question<MutableList<String>>(title, QuestionType.Image, id = id, required = mandatory,extraParams = params) {
     override var value: MutableList<String> = mutableListOf()
 
     override var hasError: Boolean = false
@@ -29,9 +31,6 @@ class ImageQuestion(
         }
     }
 
-    override fun collect(): Pair<String, MutableList<String>> {
-        return id to value
-    }
 
     override fun update(value: MutableList<String>) {
         this.value.addAll(value)
