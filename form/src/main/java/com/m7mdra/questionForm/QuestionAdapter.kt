@@ -39,7 +39,7 @@ import java.io.File
 class QuestionAdapter(
     private val context: Context,
     private val list: List<Question<*>>,
-    private val imagePickListener: ((ImageQuestion,Int) -> Unit)? = null,
+    private val imagePickListener: ((ImageQuestion, Int) -> Unit)? = null,
     private val audioRecordListener: ((AudioQuestion, Int) -> Unit)? = null,
     private val videoPickListener: ((VideoQuestion, Int) -> Unit)? = null,
     private val imageClickListener: ((Int, Int, String) -> Unit)? = null
@@ -353,7 +353,7 @@ class QuestionAdapter(
                 }
                 holder.imageButton.setOnClickListener {
                     lastImagePickIndex = position
-                    imagePickListener?.invoke(question,position)
+                    imagePickListener?.invoke(question, position)
                 }
                 imageAdapters[adapterPosition] = imageAdapter
                 if (question.value.isNotEmpty())
@@ -482,8 +482,9 @@ class QuestionAdapter(
     }
 
 
-    fun collect(): List<Map<String,Any?>> {
-        return list.map { it.collect() }
+    fun collect(): List<Map<String, Any?>> {
+        return list.filter { it.questionType != Title }
+            .map { it.collect() }
     }
 
     fun updateRecordAudioButtons() {
