@@ -482,9 +482,9 @@ class QuestionAdapter(
     }
 
 
-    fun collect(): List<Map<String, Any?>> {
-        return list.filter { it.questionType != Title }
-            .map { it.collect() }
+    fun collect(): List<Question<*>> {
+        return list.filter { it !is TitleQuestion }
+            .map { it }
     }
 
     fun updateRecordAudioButtons() {

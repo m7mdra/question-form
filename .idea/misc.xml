@@ -4,6 +4,17 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.5322916666666667" />
+        <entry key="form/src/main/res/drawable/ic_baseline_calendar_today_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_camera_alt_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_check_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_delete_forever_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_high_quality_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_mic_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_pause_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_play_arrow_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_play_circle_filled_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_stop_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/drawable/ic_baseline_videocam_24.xml" value="0.53125" />
       </map>
     </option>
   </component>
