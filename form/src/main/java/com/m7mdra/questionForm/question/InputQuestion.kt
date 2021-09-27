@@ -4,7 +4,7 @@ import android.text.InputType
 
 class InputQuestion(
     title: String,
-    val id: String,
+    id: String,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     hint: String = "",
     val mandatory: Boolean = false,
@@ -12,7 +12,13 @@ class InputQuestion(
 
 
 ) :
-    Question<String?>(title, QuestionType.Input, id = id, required = mandatory,extraParams = params) {
+    Question<String?>(
+        title,
+        QuestionType.Input,
+        id = id,
+        required = mandatory,
+        extraParams = params
+    ) {
     override var hasError: Boolean = false
 
     override var value: String? = null

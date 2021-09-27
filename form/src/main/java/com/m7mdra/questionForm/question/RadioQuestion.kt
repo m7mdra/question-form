@@ -1,7 +1,7 @@
 package com.m7mdra.questionForm.question
 
 class RadioQuestion(
-    title: String, val entries: List<String>, val id: String,
+    title: String, val entries: List<String>,  id: String,
     val mandatory: Boolean,
     private val params: Map<String, String> = mapOf()
 

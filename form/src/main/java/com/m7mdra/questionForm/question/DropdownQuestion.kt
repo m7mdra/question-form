@@ -3,7 +3,7 @@ package com.m7mdra.questionForm.question
 class DropdownQuestion(
     title: String,
     val entries: List<String>,
-    val id: String,
+     id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf()
 

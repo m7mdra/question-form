@@ -5,7 +5,7 @@ abstract class Question<T>(
     val title: String = "",
     val questionType: QuestionType,
     val required: Boolean = false,
-    private val id: String,
+    open val id: String,
     val extraParams: Map<String, Any?>
 ) {
     abstract var value: T

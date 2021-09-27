@@ -3,7 +3,7 @@ package com.m7mdra.questionForm.question
 import java.io.File
 
 class VideoQuestion(
-    title: String, val id: String,
+    title: String,  id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf()
 
