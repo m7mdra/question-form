@@ -9,8 +9,7 @@ class InputQuestion(
     hint: String = "",
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false
-
+    done: Boolean = false, override var value: String? = null
 
 
 ) :
@@ -24,7 +23,6 @@ class InputQuestion(
     ) {
     override var hasError: Boolean = false
 
-    override var value: String? = null
     override fun validate(): Boolean {
 
         val valid = isValid()

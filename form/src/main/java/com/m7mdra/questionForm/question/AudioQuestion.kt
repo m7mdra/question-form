@@ -3,8 +3,9 @@ package com.m7mdra.questionForm.question
 import java.io.File
 
 class AudioQuestion(
+    override var value: File? = null,
     title: String,
-     id: String,
+    id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
     done: Boolean = false
@@ -18,7 +19,6 @@ class AudioQuestion(
         extraParams = params,
         done = done
     ) {
-    override var value: File? = null
 
     override var hasError: Boolean = false
 
@@ -36,7 +36,6 @@ class AudioQuestion(
             true
         }
     }
-
 
 
     override fun update(value: File?) {

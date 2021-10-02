@@ -6,15 +6,14 @@ class ImageQuestion(
     title: String,
     private val maxInput: Int = 1,
     private val minInput: Int = 1,
-     id: String,
+    id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false
+    done: Boolean = false, override var value: MutableList<String> = mutableListOf()
 
 
 ) :
     Question<MutableList<String>>(title, QuestionType.Image, id = id, required = mandatory,extraParams = params,done = done) {
-    override var value: MutableList<String> = mutableListOf()
 
     override var hasError: Boolean = false
 

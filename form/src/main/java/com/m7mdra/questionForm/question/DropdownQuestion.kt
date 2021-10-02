@@ -3,15 +3,14 @@ package com.m7mdra.questionForm.question
 class DropdownQuestion(
     title: String,
     val entries: List<String>,
-     id: String,
+    id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done:Boolean = false
+    done:Boolean = false, override var value: String? = null
 
 ) :
     Question<String?>(title, QuestionType.Dropdown, id = id, required = mandatory,extraParams = params,done = done) {
     override var hasError: Boolean = false
-    override var value: String? = null
 
     override fun validate(): Boolean {
         val valid = isValid()

@@ -3,10 +3,10 @@ package com.m7mdra.questionForm.question
 import java.io.File
 
 class VideoQuestion(
-    title: String,  id: String,
+    title: String, id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false
+    done: Boolean = false, override var value: File? = null
 
 
 ) : Question<File?>(
@@ -17,7 +17,6 @@ class VideoQuestion(
     extraParams = params,
     done = done
 ) {
-    override var value: File? = null
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {

@@ -6,7 +6,7 @@ class CheckQuestion(
     id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false
+    done: Boolean = false, override var value: List<String> = listOf()
 
 
 ) :
@@ -15,7 +15,6 @@ class CheckQuestion(
     ) {
     override var hasError: Boolean = false
 
-    override var value: List<String> = listOf()
     var selectionMap = mutableMapOf<Int, String>()
 
     override fun validate(): Boolean {

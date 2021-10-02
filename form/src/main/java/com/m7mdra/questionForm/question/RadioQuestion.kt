@@ -4,7 +4,7 @@ class RadioQuestion(
     title: String, val entries: List<String>, id: String,
     val mandatory: Boolean,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false
+    done: Boolean = false, override var value: String? = null
 
 ) :
     Question<String?>(
@@ -15,7 +15,6 @@ class RadioQuestion(
         extraParams = params,
         done = done
     ) {
-    override var value: String? = null
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {
