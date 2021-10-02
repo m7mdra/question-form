@@ -31,10 +31,12 @@ class InputQuestion(
 
     }
 
-    override fun isValid() = if (required) {
-        value != null
-    } else {
-        true
+    override fun isValid(): Boolean {
+        return if (required && !done) {
+            value != null
+        } else {
+            true
+        }
     }
 
 

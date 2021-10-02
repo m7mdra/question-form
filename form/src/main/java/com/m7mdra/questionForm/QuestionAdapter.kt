@@ -27,6 +27,9 @@ import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.core.util.forEach
 import androidx.core.util.set
+import androidx.core.view.allViews
+import androidx.core.view.children
+import androidx.core.view.descendants
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -152,6 +155,18 @@ class QuestionAdapter(
         textWatchers[position] = textWatcher
 
         holder.textInputEditText.addTextChangedListener(textWatcher)
+        if (question.done) {
+            holder.rootView.disable()
+            holder.itemView.disable()
+            holder.rootView.disableChildren()
+            holder.submittedTextView.show()
+        } else {
+            holder.rootView.enable()
+            holder.itemView.enable()
+            holder.rootView.enableChildren()
+            holder.submittedTextView.gone()
+        }
+
     }
 
     private fun bindDropQuestion(
@@ -514,9 +529,10 @@ class QuestionAdapter(
 
         return list.all { it.isValid() }
     }
+
     private fun notifyErrors() {
         post {
-            val first = list.firstOrNull { !it.validate()  } ?: return@post
+            val first = list.firstOrNull { !it.validate() } ?: return@post
             val indexOfFirstError = list.indexOf(first)
 
             if (indexOfFirstError != -1) {

@@ -1,6 +1,7 @@
 package com.m7mdra.questionForm
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -26,16 +27,23 @@ fun Any?.log() {
     Log.d("MEGA", "${this ?: "null"}")
 }
 
+@SuppressLint("NewApi")
+
 fun Context.isAudioPermissionGranted() =
     checkSelfPermission(RECORD_AUDIO_PERMISSION) == PackageManager.PERMISSION_GRANTED
 
+@SuppressLint("NewApi")
+
 fun Context.isCameraPermissionGranted() =
     checkSelfPermission(CAMERA_PERMISSION) == PackageManager.PERMISSION_GRANTED
+
+@SuppressLint("NewApi")
 
 fun Activity.askForAudioPermission() {
     requestPermissions(arrayOf(RECORD_AUDIO_PERMISSION), RECORD_AUDIO_REQUEST_CODE)
 }
 
+@SuppressLint("NewApi")
 fun Activity.askForCameraPermission() {
     requestPermissions(arrayOf(CAMERA_PERMISSION), CAMERA_REQUEST_CODE)
 }
@@ -64,6 +72,12 @@ fun View.disable() {
     isEnabled = false
 }
 
+fun ViewGroup.dimAllBut(predicate: () -> View) {
+    children.dropWhile { it == predicate.invoke() }
+        .forEach {
+            it.alpha = 0.5f
+        }
+}
 
 fun ViewGroup.disableChildren() {
     children.forEach {
