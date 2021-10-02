@@ -6,7 +6,8 @@ abstract class Question<T>(
     val questionType: QuestionType,
     val required: Boolean = false,
     open val id: String,
-    val extraParams: Map<String, Any?>
+    val extraParams: Map<String, Any?>,
+    val done: Boolean = false
 ) {
     abstract var value: T
     abstract fun isValid(): Boolean

@@ -3,12 +3,16 @@ package com.m7mdra.questionForm.question
 class CheckQuestion(
     title: String,
     val entries: List<String>,
-     id: String,
+    id: String,
     private val mandatory: Boolean = false,
-    private val params: Map<String, String> = mapOf()
+    private val params: Map<String, String> = mapOf(),
+    done: Boolean = false
+
 
 ) :
-    Question<List<String>>(title, QuestionType.Check, id = id, required = mandatory,extraParams = params) {
+    Question<List<String>>(
+        title, QuestionType.Check, id = id, required = mandatory, extraParams = params, done = done
+    ) {
     override var hasError: Boolean = false
 
     override var value: List<String> = listOf()
@@ -21,10 +25,12 @@ class CheckQuestion(
 
     }
 
-    override fun isValid() = if (required) {
-        selectionMap.isNotEmpty()
-    } else {
-        true
+    override fun isValid(): Boolean {
+        return if (required && !done) {
+            selectionMap.isNotEmpty()
+        } else {
+            true
+        }
     }
 
 

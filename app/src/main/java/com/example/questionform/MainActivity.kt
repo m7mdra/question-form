@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         validateButton.setOnClickListener {
-            questionAdapter.collect().forEach(::println)
+            questionAdapter.validate()
 
         }
         arrayAdapter = ArrayAdapter(
@@ -110,7 +110,8 @@ class MainActivity : AppCompatActivity() {
                         faker.elderScrolls().creature()
                     ),
                     id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
+                    mandatory = faker.bool().bool(),
+                    done = faker.bool().bool()
                 )
             )
             list.add(
@@ -123,25 +124,33 @@ class MainActivity : AppCompatActivity() {
                         faker.howIMetYourMother().character()
                     ),
                     id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
+                    mandatory = faker.bool().bool(),
+                    done = faker.bool().bool()
+
                 )
             )
             list.add(
                 ImageQuestion(
                     faker.hobbit().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
+                    mandatory = faker.bool().bool(),
+                    done = faker.bool().bool()
+
                 )
             )
             list.add(
                 VideoQuestion(
                     faker.backToTheFuture().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
+                    mandatory = faker.bool().bool(),
+                    done = faker.bool().bool()
+
                 )
             )
             list.add(
                 AudioQuestion(
                     title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
+                    mandatory = faker.bool().bool(),
+                    done = faker.bool().bool()
+
                 )
             )
             list.add(
@@ -153,13 +162,16 @@ class MainActivity : AppCompatActivity() {
                         faker.friends().character(),
                         faker.friends().character(),
                         faker.friends().character()
-                    )
+                    ),
+                    done = faker.bool().bool()
+
                 )
             )
             list.add(
                 InputQuestion(
                     faker.harryPotter().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool()
+                    mandatory = faker.bool().bool(),
+                    done = faker.bool().bool()
 
                 )
             )

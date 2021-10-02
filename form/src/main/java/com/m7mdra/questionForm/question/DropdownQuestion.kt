@@ -5,10 +5,11 @@ class DropdownQuestion(
     val entries: List<String>,
      id: String,
     private val mandatory: Boolean = false,
-    private val params: Map<String, String> = mapOf()
+    private val params: Map<String, String> = mapOf(),
+    done:Boolean = false
 
 ) :
-    Question<String?>(title, QuestionType.Dropdown, id = id, required = mandatory,extraParams = params) {
+    Question<String?>(title, QuestionType.Dropdown, id = id, required = mandatory,extraParams = params,done = done) {
     override var hasError: Boolean = false
     override var value: String? = null
 
@@ -19,7 +20,7 @@ class DropdownQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required) {
+        return if (required && !done) {
             value != null
         } else {
             true

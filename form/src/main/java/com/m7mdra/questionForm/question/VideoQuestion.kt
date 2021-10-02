@@ -5,14 +5,17 @@ import java.io.File
 class VideoQuestion(
     title: String,  id: String,
     val mandatory: Boolean = false,
-    private val params: Map<String, String> = mapOf()
+    private val params: Map<String, String> = mapOf(),
+    done: Boolean = false
+
 
 ) : Question<File?>(
     title,
     questionType = QuestionType.Video,
     id = id,
     required = mandatory,
-    extraParams = params
+    extraParams = params,
+    done = done
 ) {
     override var value: File? = null
     override var hasError: Boolean = false
@@ -24,10 +27,12 @@ class VideoQuestion(
 
     }
 
-    override fun isValid() = if (required) {
-        value != null
-    } else {
-        true
+    override fun isValid(): Boolean {
+        return if (required && !done) {
+            value != null
+        } else {
+            true
+        }
     }
 
 

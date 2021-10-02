@@ -15,6 +15,13 @@
         <entry key="form/src/main/res/drawable/ic_baseline_play_circle_filled_24.xml" value="0.53125" />
         <entry key="form/src/main/res/drawable/ic_baseline_stop_24.xml" value="0.53125" />
         <entry key="form/src/main/res/drawable/ic_baseline_videocam_24.xml" value="0.53125" />
+        <entry key="form/src/main/res/layout/row_audio.xml" value="0.29981884057971014" />
+        <entry key="form/src/main/res/layout/row_check.xml" value="0.33" />
+        <entry key="form/src/main/res/layout/row_dropdown.xml" value="0.29981884057971014" />
+        <entry key="form/src/main/res/layout/row_image.xml" value="0.29981884057971014" />
+        <entry key="form/src/main/res/layout/row_input.xml" value="0.29981884057971014" />
+        <entry key="form/src/main/res/layout/row_radio.xml" value="0.29981884057971014" />
+        <entry key="form/src/main/res/layout/row_video.xml" value="0.29981884057971014" />
       </map>
     </option>
   </component>

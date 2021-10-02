@@ -69,17 +69,20 @@ fun ViewGroup.disableChildren() {
     children.forEach {
         if (it is ViewGroup) {
             it.disableChildren()
+        } else {
+            it.disable()
         }
-        it.disable()
     }
+
 }
 
 fun ViewGroup.enableChildren() {
     children.forEach {
-        if(it is ViewGroup){
+        if (it is ViewGroup) {
             it.enableChildren()
+        } else {
+            it.enable()
         }
-        it.enable()
     }
 }
 

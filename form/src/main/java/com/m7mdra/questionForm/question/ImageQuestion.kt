@@ -8,10 +8,12 @@ class ImageQuestion(
     private val minInput: Int = 1,
      id: String,
     val mandatory: Boolean = false,
-    private val params: Map<String, String> = mapOf()
+    private val params: Map<String, String> = mapOf(),
+    done: Boolean = false
+
 
 ) :
-    Question<MutableList<String>>(title, QuestionType.Image, id = id, required = mandatory,extraParams = params) {
+    Question<MutableList<String>>(title, QuestionType.Image, id = id, required = mandatory,extraParams = params,done = done) {
     override var value: MutableList<String> = mutableListOf()
 
     override var hasError: Boolean = false
@@ -24,7 +26,7 @@ class ImageQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required) {
+        return if (required && !done) {
             value.isNotEmpty()
         } else {
             true

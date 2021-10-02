@@ -8,7 +8,9 @@ class InputQuestion(
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     hint: String = "",
     val mandatory: Boolean = false,
-    private val params: Map<String, String> = mapOf()
+    private val params: Map<String, String> = mapOf(),
+    done: Boolean = false
+
 
 
 ) :
@@ -17,7 +19,8 @@ class InputQuestion(
         QuestionType.Input,
         id = id,
         required = mandatory,
-        extraParams = params
+        extraParams = params,
+        done = done
     ) {
     override var hasError: Boolean = false
 
