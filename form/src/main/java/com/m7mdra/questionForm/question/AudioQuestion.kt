@@ -40,7 +40,6 @@ class AudioQuestion(
 
     override fun update(value: File?) {
         this.value = value
-        validate()
     }
 
 }
