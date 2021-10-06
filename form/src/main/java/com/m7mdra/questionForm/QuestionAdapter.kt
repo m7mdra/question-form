@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
@@ -23,13 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.core.util.forEach
 import androidx.core.util.set
-import androidx.core.view.allViews
-import androidx.core.view.children
-import androidx.core.view.descendants
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -65,11 +60,15 @@ class QuestionAdapter(
 
     fun clear() {
         mediaPlayers.forEach { _, value ->
-            if (value.isPlaying) {
-                value.stop()
-            }
+            try {
+                if (value.isPlaying) {
+                    value.stop()
+                }
 
-            value.release()
+                value.release()
+            } catch (error: Exception) {
+
+            }
         }
         audioHandlers.forEach { key, value ->
             val runnable = audioHandlersCallback[key]
@@ -406,16 +405,20 @@ class QuestionAdapter(
             audioHandlersCallback[position] = runnable
             holder.playOrStopButton.setOnClickListener {
                 val audio = question.value ?: return@setOnClickListener
-                if (mediaPlayer.isPlaying) {
-                    mediaPlayer.stop()
-                    holder.recordDurationTextView.text =
-                        context.getString(R.string.zero_zero)
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                    holder.recordProgress.progress = 0
-                } else {
-                    mediaPlayer.reset()
-                    mediaPlayer.setDataSource(audio.path)
-                    mediaPlayer.prepareAsync()
+                try {
+                    if (mediaPlayer.isPlaying) {
+                        mediaPlayer.stop()
+                        holder.recordDurationTextView.text =
+                            context.getString(R.string.zero_zero)
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                        holder.recordProgress.progress = 0
+                    } else {
+                        mediaPlayer.reset()
+                        mediaPlayer.setDataSource(audio.path)
+                        mediaPlayer.prepareAsync()
+                    }
+                } catch (error: Exception) {
+
                 }
             }
             mediaPlayer.setOnPreparedListener {
@@ -628,13 +631,13 @@ class QuestionAdapter(
         mediaPlayers.remove(adapterPosition)
     }
 
-    fun addRecordFile(recordFile: Uri?, position: Int) {
+    fun addRecordFile(recordFile: File?, position: Int) {
         if (recordFile == null)
             return
         if (position == -1)
             return
         val audioQuestion = list[position] as AudioQuestion
-        audioQuestion.update(recordFile.toFile())
+        audioQuestion.update(recordFile)
         notifyItemChanged(position)
     }
 
