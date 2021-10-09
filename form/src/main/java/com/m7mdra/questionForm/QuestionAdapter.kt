@@ -301,7 +301,6 @@ class QuestionAdapter(
             holder.submittedTextView.show()
         } else {
             holder.captureOrPickVideoButton.enable()
-
             holder.submittedTextView.gone()
         }
 
@@ -434,10 +433,6 @@ class QuestionAdapter(
             holder.submittedTextView.show()
         } else {
             holder.recordAudioButton.disable()
-
-            holder.rootView.enable()
-            holder.itemView.enable()
-            holder.rootView.enableChildren()
             holder.submittedTextView.gone()
         }
 

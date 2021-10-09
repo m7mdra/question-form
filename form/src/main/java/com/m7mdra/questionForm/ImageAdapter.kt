@@ -52,23 +52,23 @@ class ImageAdapter(
         holder.view.setOnClickListener {
             clickListener.invoke(position, imageSource)
         }
-        if (URLUtil.isHttpUrl(imageSource) || URLUtil.isHttpsUrl(imageSource)) {
-            picasso.load(imageSource)
-                .fit()
-                .centerInside()
-                .error(R.drawable.placeholder_image)
-                .placeholder(R.drawable.placeholder_image)
-                .into(holder.selectedImageView)
-        } else if(URLUtil.isFileUrl(imageSource)) {
-            picasso
-                .load(File(imageSource))
-                .fit()
-                .error(R.drawable.placeholder_image)
-                .placeholder(R.drawable.placeholder_image)
-                .centerInside()
-                .into(holder.selectedImageView)
-        }else{
-            return
+        if(imageSource.isNotEmpty()) {
+            if (URLUtil.isHttpUrl(imageSource) || URLUtil.isHttpsUrl(imageSource)) {
+                picasso.load(imageSource)
+                    .fit()
+                    .centerInside()
+                    .error(R.drawable.placeholder_image)
+                    .placeholder(R.drawable.placeholder_image)
+                    .into(holder.selectedImageView)
+            } else  {
+                picasso
+                    .load(File(imageSource))
+                    .fit()
+                    .error(R.drawable.placeholder_image)
+                    .placeholder(R.drawable.placeholder_image)
+                    .centerInside()
+                    .into(holder.selectedImageView)
+            }
         }
 
 
