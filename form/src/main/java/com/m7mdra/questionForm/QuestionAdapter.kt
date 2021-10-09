@@ -344,7 +344,7 @@ class QuestionAdapter(
             holder.imageButton.disable()
             holder.submittedTextView.show()
         } else {
-            holder.imageButton.disable()
+            holder.imageButton.enable()
             holder.submittedTextView.gone()
         }
 
