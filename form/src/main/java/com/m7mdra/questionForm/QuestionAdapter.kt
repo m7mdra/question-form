@@ -404,9 +404,9 @@ class QuestionAdapter(
 
             }
             mediaPlayer.setOnPreparedListener {
-                mediaPlayer.start()
                 handler.removeCallbacks(runnable)
                 handler.post(runnable)
+                holder.playOrStopButton.enable()
                 holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_stop_24)
 
             }
@@ -417,7 +417,6 @@ class QuestionAdapter(
 
             }
         }
-        holder.playOrStopButton.isEnabled = audio != null
 
         holder.recordAudioButton.text =
             if (isAudioPermissionGranted(holder.context)
