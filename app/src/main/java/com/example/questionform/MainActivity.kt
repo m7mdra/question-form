@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider.getUriForFile
+import androidx.core.net.toFile
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.canhub.cropper.CropImage
@@ -133,7 +134,13 @@ class MainActivity : AppCompatActivity() {
                 ImageQuestion(
                     faker.hobbit().quote(), id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool()
+                    done = faker.bool().bool(),
+                    value = if (faker.bool().bool()) listOf(
+                        faker.avatar().image(),
+                        faker.avatar().image(),
+                        "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Chrome__logo.max-500x500.png",
+                        ""
+                    ).toMutableList() else mutableListOf<String>()
 
                 )
             )
@@ -141,7 +148,8 @@ class MainActivity : AppCompatActivity() {
                 VideoQuestion(
                     faker.backToTheFuture().quote(), id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool()
+                    done = faker.bool().bool(),
+                    value = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"
 
                 )
             )
@@ -149,7 +157,8 @@ class MainActivity : AppCompatActivity() {
                 AudioQuestion(
                     title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool()
+                    done = faker.bool().bool(),
+                    value = "https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_2MG.mp3"
 
                 )
             )
@@ -247,7 +256,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 43) {
             if (resultCode == RESULT_OK) {
-                questionAdapter.updatePickedVideo(videoFile)
+                questionAdapter.updatePickedVideo(videoFile.path)
             }
         }
         if (requestCode == 42) {
@@ -259,24 +268,11 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == RESULT_OK) {
                 val recordFile: Uri? = data?.getParcelableExtra<Uri>("recordPath")
                 val position = data?.getIntExtra("position", -1) ?: -1
-                recordFile.log()
-                position.log()
-                questionAdapter.addRecordFile(recordFile, position)
+                questionAdapter.addRecordFile(recordFile?.path, position)
 
             }
         }
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            val result = CropImage.getActivityResult(data)
-            if (resultCode == Activity.RESULT_OK) {
-                result?.also {
-                    questionAdapter.updateImageAdapterAtPosition(
-                        it.originalUri.toString()
-                    )
-                }
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                val error = result!!.error
-            }
-        }
+
     }
 
     override fun onRequestPermissionsResult(

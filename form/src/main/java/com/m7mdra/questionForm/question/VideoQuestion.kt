@@ -6,10 +6,10 @@ class VideoQuestion(
     title: String, id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false, override var value: File? = null
+    done: Boolean = false, override var value: String? = null
 
 
-) : Question<File?>(
+) : Question<String?>(
     title,
     questionType = QuestionType.Video,
     id = id,
@@ -35,7 +35,7 @@ class VideoQuestion(
     }
 
 
-    override fun update(value: File?) {
+    override fun update(value: String?) {
         this.value = value
     }
 

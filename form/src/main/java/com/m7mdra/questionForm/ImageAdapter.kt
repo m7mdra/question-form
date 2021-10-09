@@ -1,13 +1,22 @@
 package com.m7mdra.questionForm
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.webkit.URLUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.m7mdra.questionForm.viewholder.RowImageViewHolder
+import com.squareup.picasso.Cache
+import com.squareup.picasso.LruCache
+import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
 import java.io.File
 
-class ImageAdapter(private val clickListener: (Int, String) -> Unit = { _, _ -> }) :
+class ImageAdapter(
+    private val context: Context,
+    private val clickListener: (Int, String) -> Unit = { _, _ -> }
+) :
     RecyclerView.Adapter<RowImageViewHolder>() {
 
     private val list = mutableListOf<String>()
@@ -29,16 +38,39 @@ class ImageAdapter(private val clickListener: (Int, String) -> Unit = { _, _ -> 
         return RowImageViewHolder(view)
     }
 
+    private val picasso: Picasso by lazy {
+        Picasso.Builder(context)
+            .memoryCache(LruCache(context))
+            .loggingEnabled(BuildConfig.DEBUG)
+            .downloader(OkHttp3Downloader(context))
+            .build()
+    }
+
+
     override fun onBindViewHolder(holder: RowImageViewHolder, position: Int) {
         val imageSource: String = list[position]
         holder.view.setOnClickListener {
             clickListener.invoke(position, imageSource)
         }
-        Picasso.get()
-            .load(File(imageSource))
-            .fit()
-            .centerInside()
-            .into(holder.selectedImageView)
+        if (URLUtil.isHttpUrl(imageSource) || URLUtil.isHttpsUrl(imageSource)) {
+            picasso.load(imageSource)
+                .fit()
+                .centerInside()
+                .error(R.drawable.placeholder_image)
+                .placeholder(R.drawable.placeholder_image)
+                .into(holder.selectedImageView)
+        } else if(URLUtil.isFileUrl(imageSource)) {
+            picasso
+                .load(File(imageSource))
+                .fit()
+                .error(R.drawable.placeholder_image)
+                .placeholder(R.drawable.placeholder_image)
+                .centerInside()
+                .into(holder.selectedImageView)
+        }else{
+            return
+        }
+
 
     }
 

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
@@ -22,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.core.util.forEach
 import androidx.core.util.set
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.m7mdra.questionForm.question.*
 import com.m7mdra.questionForm.question.QuestionType.*
 import com.m7mdra.questionForm.viewholder.*
-import java.io.File
 
 
 class QuestionAdapter(
@@ -155,14 +154,12 @@ class QuestionAdapter(
 
         holder.textInputEditText.addTextChangedListener(textWatcher)
         if (question.done) {
-            holder.rootView.disable()
-            holder.itemView.disable()
-            holder.rootView.disableChildren()
+            holder.textInputEditText.disable()
             holder.submittedTextView.show()
         } else {
-            holder.rootView.enable()
-            holder.itemView.enable()
-            holder.rootView.enableChildren()
+
+            holder.textInputEditText.enable()
+
             holder.submittedTextView.gone()
         }
 
@@ -199,14 +196,11 @@ class QuestionAdapter(
         autoCompleteTextView.onItemClickListener = onItemClickListener
         dropDownListener[position] = onItemClickListener
         if (question.done) {
-            holder.rootView.disable()
-            holder.itemView.disable()
-            holder.rootView.disableChildren()
+            holder.autoCompleteTextView.disable()
             holder.submittedTextView.show()
         } else {
-            holder.rootView.enable()
-            holder.itemView.enable()
-            holder.rootView.enableChildren()
+            holder.autoCompleteTextView.enable()
+
             holder.submittedTextView.gone()
         }
     }
@@ -259,7 +253,6 @@ class QuestionAdapter(
         mediaViewHolderIndexes.append(position, position)
         val holder = viewHolder as VideoViewHolder
         val question = list[position] as VideoQuestion
-        question.log()
         val videoView = holder.videoView
 
 
@@ -276,10 +269,10 @@ class QuestionAdapter(
             videoPickListener?.invoke(question, position)
         }
 
-        val file = question.value
-        if (file != null) {
+        val video = question.value
+        if (video != null && video.isNotEmpty()) {
             videoView.show()
-            videoView.setVideoURI(file.toUri())
+            videoView.setVideoURI(Uri.parse(video))
             videoView.setOnPreparedListener {
                 holder.playOrStopButton.show()
                 holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
@@ -304,14 +297,11 @@ class QuestionAdapter(
             }
         }
         if (question.done) {
-            holder.rootView.disable()
-            holder.itemView.disable()
-            holder.rootView.disableChildren()
+            holder.captureOrPickVideoButton.disable()
             holder.submittedTextView.show()
         } else {
-            holder.rootView.enable()
-            holder.itemView.enable()
-            holder.rootView.enableChildren()
+            holder.captureOrPickVideoButton.enable()
+
             holder.submittedTextView.gone()
         }
 
@@ -339,7 +329,7 @@ class QuestionAdapter(
 
         holder.titleTextView.text =
             titleWithRedAsterisk(question.mandatory, question.title, position)
-        val imageAdapter = ImageAdapter { childPosition, image ->
+        val imageAdapter = ImageAdapter(context) { childPosition, image ->
             imageClickListener?.invoke(position, childPosition, image)
         }
         holder.imageButton.setOnClickListener {
@@ -351,14 +341,10 @@ class QuestionAdapter(
             imageAdapter.addAll(question.value)
         holder.imagesRecyclerView.adapter = imageAdapter
         if (question.done) {
-            holder.rootView.disable()
-            holder.itemView.disable()
-            holder.rootView.disableChildren()
+            holder.imageButton.disable()
             holder.submittedTextView.show()
         } else {
-            holder.rootView.enable()
-            holder.itemView.enable()
-            holder.rootView.enableChildren()
+            holder.imageButton.disable()
             holder.submittedTextView.gone()
         }
 
@@ -379,7 +365,8 @@ class QuestionAdapter(
 
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title, position)
-        if (question.value != null) {
+        val audio = question.value
+        if (audio != null && audio.isNotEmpty()) {
             val mediaPlayer = MediaPlayer()
             val handler = Handler(Looper.getMainLooper())
 
@@ -404,22 +391,18 @@ class QuestionAdapter(
             audioHandlers[position] = handler
             audioHandlersCallback[position] = runnable
             holder.playOrStopButton.setOnClickListener {
-                val audio = question.value ?: return@setOnClickListener
-                try {
-                    if (mediaPlayer.isPlaying) {
-                        mediaPlayer.stop()
-                        holder.recordDurationTextView.text =
-                            context.getString(R.string.zero_zero)
-                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                        holder.recordProgress.progress = 0
-                    } else {
-                        mediaPlayer.reset()
-                        mediaPlayer.setDataSource(audio.path)
-                        mediaPlayer.prepareAsync()
-                    }
-                } catch (error: Exception) {
-
+                if (mediaPlayer.isPlaying) {
+                    mediaPlayer.stop()
+                    holder.recordDurationTextView.text =
+                        context.getString(R.string.zero_zero)
+                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                    holder.recordProgress.progress = 0
+                } else {
+                    mediaPlayer.reset()
+                    mediaPlayer.setDataSource(audio)
+                    mediaPlayer.prepareAsync()
                 }
+
             }
             mediaPlayer.setOnPreparedListener {
                 mediaPlayer.start()
@@ -435,7 +418,7 @@ class QuestionAdapter(
 
             }
         }
-        holder.playOrStopButton.isEnabled = question.value != null
+        holder.playOrStopButton.isEnabled = audio != null
 
         holder.recordAudioButton.text =
             if (isAudioPermissionGranted(holder.context)
@@ -447,11 +430,11 @@ class QuestionAdapter(
 
         }
         if (question.done) {
-            holder.rootView.disable()
-            holder.itemView.disable()
-            holder.rootView.disableChildren()
+            holder.recordAudioButton.disable()
             holder.submittedTextView.show()
         } else {
+            holder.recordAudioButton.disable()
+
             holder.rootView.enable()
             holder.itemView.enable()
             holder.rootView.enableChildren()
@@ -498,7 +481,6 @@ class QuestionAdapter(
         } else {
             holder.rootView.enable()
             holder.itemView.enable()
-
             holder.rootView.enableChildren()
             holder.submittedTextView.gone()
         }
@@ -631,7 +613,7 @@ class QuestionAdapter(
         mediaPlayers.remove(adapterPosition)
     }
 
-    fun addRecordFile(recordFile: File?, position: Int) {
+    fun addRecordFile(recordFile: String?, position: Int) {
         if (recordFile == null)
             return
         if (position == -1)
@@ -641,7 +623,7 @@ class QuestionAdapter(
         notifyItemChanged(position)
     }
 
-    fun updatePickedVideo(uri: File) {
+    fun updatePickedVideo(uri: String) {
         val question = list[lastImageVideoIndex] as VideoQuestion
         question.update(uri)
         notifyItemChanged(lastImageVideoIndex)

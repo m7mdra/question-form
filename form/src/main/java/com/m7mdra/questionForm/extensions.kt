@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.webkit.URLUtil
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
@@ -88,6 +89,14 @@ fun ViewGroup.disableChildren() {
         }
     }
 
+}
+
+fun String.isUrl(): Boolean {
+    return this.isNotEmpty() && URLUtil.isHttpUrl(this) || URLUtil.isHttpsUrl(this)
+}
+
+fun String.isFile(): Boolean {
+    return this.isNotEmpty() && URLUtil.isFileUrl(this)
 }
 
 fun ViewGroup.enableChildren() {
