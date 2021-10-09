@@ -17,6 +17,6 @@ allprojects {
 
 ```
 	dependencies {
-	        implementation 'com.github.m7mdra:question-form:0.11'
+	        implementation 'com.github.m7mdra:question-form:0.16'
 	}
 ```
