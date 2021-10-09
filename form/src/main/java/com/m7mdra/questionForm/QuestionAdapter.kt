@@ -432,7 +432,7 @@ class QuestionAdapter(
             holder.recordAudioButton.disable()
             holder.submittedTextView.show()
         } else {
-            holder.recordAudioButton.disable()
+            holder.recordAudioButton.enable()
             holder.submittedTextView.gone()
         }
 
