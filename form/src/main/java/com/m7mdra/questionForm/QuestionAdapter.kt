@@ -1,13 +1,13 @@
 package com.m7mdra.questionForm
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.m7mdra.questionForm.question.*
 import com.m7mdra.questionForm.question.QuestionType.*
 import com.m7mdra.questionForm.viewholder.*
+import java.io.File
 
 
 class QuestionAdapter(
@@ -252,11 +253,12 @@ class QuestionAdapter(
         viewHolder: RecyclerView.ViewHolder,
         position: Int
     ) {
-
         val holder = viewHolder as AudioViewHolder
         val question = list[position] as AudioQuestion
-        "Preparing audio @$position".log()
+        val audio = question.value
+        "binding audio question $question $position $audio".log()
         audioViewHolderIndexes.append(position, position)
+
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
@@ -264,10 +266,9 @@ class QuestionAdapter(
 
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title, position)
-        val audio = question.value
-        if (audio != null && audio.isNotEmpty()) {
+        if (audio != null) {
             val mediaPlayer = MediaPlayer()
-            mediaPlayer.setDataSource(audio)
+            mediaPlayer.setDataSource(audio.path)
             mediaPlayer.prepareAsync()
             val handler = Handler(Looper.getMainLooper())
 
@@ -279,11 +280,7 @@ class QuestionAdapter(
 
                         if (duration > 0) {
                             val pos = 1000L * playPosition / duration
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                holder.recordProgress.setProgress(pos.toInt(), true)
-                            } else {
-                                holder.recordProgress.progress = pos.toInt()
-                            }
+                            holder.recordProgress.progress = pos.toInt()
                             holder.recordDurationTextView.text =
                                 (playPosition / 1000L).formatDuration()
                         }
@@ -297,35 +294,36 @@ class QuestionAdapter(
             audioHandlersCallback[position] = runnable
 
             holder.playOrStopButton.setOnClickListener {
-
-                if (mediaPlayer.isPlaying) {
-                    mediaPlayer.pause()
-                    handler.removeCallbacks(runnable)
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                } else {
-                    mediaPlayer.start()
-                    handler.removeCallbacks(runnable)
-                    handler.post(runnable)
-                    holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_pause_24)
+                try {
+                    if (mediaPlayer.isPlaying) {
+                        mediaPlayer.pause()
+                        handler.removeCallbacks(runnable)
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                    } else {
+                        mediaPlayer.start()
+                        handler.removeCallbacks(runnable)
+                        handler.post(runnable)
+                        holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_pause_24)
+                    }
+                } catch (error: Exception) {
                 }
             }
 
-
-            mediaPlayer.setOnPreparedListener {
-                "Prepared audio @$position".log()
-                audioPreparedPosition.append(position, true)
-                holder.playOrStopButton.enable()
-                holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-            }
             mediaPlayer.setOnCompletionListener {
                 holder.recordProgress.progress = 0
                 holder.recordDurationTextView.text = context.getString(R.string.zero_zero)
                 holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
             }
         }
+        if (audio == null) {
+            holder.playOrStopButton.disable()
+        } else {
+            holder.playOrStopButton.enable()
+        }
 
         holder.recordAudioButton.text =
-            if (isAudioPermissionGranted(holder.context))
+            if (isAudioPermissionGranted(holder.context)
+            )
                 "Record" else "grant permission"
         holder.recordAudioButton.setOnClickListener {
 
@@ -333,10 +331,14 @@ class QuestionAdapter(
 
         }
         if (question.done) {
-            holder.recordAudioButton.disable()
+            holder.rootView.disable()
+            holder.itemView.disable()
+            holder.rootView.disableChildren()
             holder.submittedTextView.show()
         } else {
-            holder.recordAudioButton.enable()
+            holder.rootView.enable()
+            holder.itemView.enable()
+            holder.rootView.enableChildren()
             holder.submittedTextView.gone()
         }
 
@@ -457,10 +459,6 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-
-
-
-
         question.entries.forEachIndexed { index, s ->
             val checkBox = CheckBox(holder.context)
             checkBox.isChecked = question.selectionMap.containsKey(index)
@@ -574,6 +572,7 @@ class QuestionAdapter(
         val adapterPosition = holder.adapterPosition
         if (holder is VideoViewHolder) {
             val videoView = holder.videoView
+            holder.playOrStopButton.gone()
             videoView.stopPlayback()
         }
         if (holder is AudioViewHolder) {
@@ -620,7 +619,8 @@ class QuestionAdapter(
         mediaPlayers.remove(adapterPosition)
     }
 
-    fun addRecordFile(recordFile: String?, position: Int) {
+    @SuppressLint("NotifyDataSetChanged")
+    fun addRecordFile(recordFile: File?, position: Int) {
         if (recordFile == null)
             return
         if (position == -1)
@@ -629,7 +629,10 @@ class QuestionAdapter(
         position.log()
         val audioQuestion = list[position] as AudioQuestion
         audioQuestion.update(recordFile)
-        notifyItemChanged(position)
+        //TODO: for some reasons the audio question dose not
+        // rebuild when called RecyclerView.Adapter#notifyItemChanged
+        // as a last resort notifyDataSetChanged is used
+        notifyDataSetChanged()
     }
 
     fun updatePickedVideo(uri: String) {

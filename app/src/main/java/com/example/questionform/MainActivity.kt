@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider.getUriForFile
+import androidx.core.net.toFile
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.javafaker.Faker
@@ -266,7 +267,7 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == RESULT_OK) {
                 val recordFile: Uri? = data?.getParcelableExtra<Uri>("recordPath")
                 val position = data?.getIntExtra("position", -1) ?: -1
-                questionAdapter.addRecordFile(recordFile?.path, position)
+                questionAdapter.addRecordFile(recordFile?.toFile(), position)
 
             }
         }

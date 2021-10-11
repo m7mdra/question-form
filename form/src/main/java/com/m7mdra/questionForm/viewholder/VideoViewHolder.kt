@@ -16,7 +16,7 @@ class VideoViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
     val titleTextView: TextView = view.titleTextView
     val errorTextView: TextView = view.errorTextView
 
-    val playOrStopButton: ImageView = view.playOrStopButton
+    val playOrStopButton: ImageView = view.playButton
     val submittedTextView: MaterialTextView =view.submittedTextView
     val rootView: FrameLayout = view.rootLayout
 
