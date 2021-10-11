@@ -1,8 +1,10 @@
 package com.m7mdra.questionForm.question
 
+import java.io.File
+
 
 class AudioQuestion(
-    override var value: String? = null,
+    override var value: File? = null,
     title: String,
     id: String,
     private val mandatory: Boolean = false,
@@ -10,7 +12,7 @@ class AudioQuestion(
     done: Boolean = false
 
 ) :
-    Question<String?>(
+    Question<File?>(
         title,
         questionType = QuestionType.Audio,
         id = id,
@@ -37,7 +39,7 @@ class AudioQuestion(
     }
 
 
-    override fun update(value: String?) {
+    override fun update(value: File?) {
         this.value = value
     }
 

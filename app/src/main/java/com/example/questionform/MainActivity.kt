@@ -1,6 +1,5 @@
 package com.example.questionform
 
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -13,7 +12,6 @@ import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.net.toFile
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.canhub.cropper.CropImage
 import com.github.javafaker.Faker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.m7mdra.questionForm.*
@@ -31,9 +29,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var arrayAdapter: ArrayAdapter<String>
 
 
-    private val audioRecordListener: (AudioQuestion, Int) -> Unit = { _, _ ->
+    private val audioRecordListener: (AudioQuestion, Int) -> Unit = { _, position ->
         if (isAudioPermissionGranted()) {
-
+            val intent = Intent(this, RecordAudioActivity::class.java)
+            intent.putExtra("position", position)
+            startActivityForResult(intent, 321)
         } else {
             if (shouldShowRequestPermissionRationale(RECORD_AUDIO_PERMISSION)) {
                 MaterialAlertDialogBuilder(this)
@@ -157,8 +157,7 @@ class MainActivity : AppCompatActivity() {
                 AudioQuestion(
                     title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    value = "https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_2MG.mp3"
+                    done = faker.bool().bool()
 
                 )
             )
@@ -268,7 +267,7 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == RESULT_OK) {
                 val recordFile: Uri? = data?.getParcelableExtra<Uri>("recordPath")
                 val position = data?.getIntExtra("position", -1) ?: -1
-                questionAdapter.addRecordFile(recordFile?.path, position)
+                questionAdapter.addRecordFile(recordFile?.toFile(), position)
 
             }
         }

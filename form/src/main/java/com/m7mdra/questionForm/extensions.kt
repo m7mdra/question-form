@@ -67,10 +67,14 @@ fun View.hideKeyboard() {
 
 fun View.enable() {
     isEnabled = true
+    isClickable = true
+    isFocusable = true
 }
 
 fun View.disable() {
     isEnabled = false
+    isClickable = false
+    isFocusable = false
 }
 
 fun ViewGroup.dimAllBut(predicate: () -> View) {

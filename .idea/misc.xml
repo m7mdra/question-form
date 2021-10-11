@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.5322916666666667" />
+        <entry key="app/src/main/res/layout/activity_record_audio.xml" value="0.327445652173913" />
         <entry key="form/src/main/res/drawable/ic_baseline_calendar_today_24.xml" value="0.53125" />
         <entry key="form/src/main/res/drawable/ic_baseline_camera_alt_24.xml" value="0.53125" />
         <entry key="form/src/main/res/drawable/ic_baseline_check_24.xml" value="0.53125" />
