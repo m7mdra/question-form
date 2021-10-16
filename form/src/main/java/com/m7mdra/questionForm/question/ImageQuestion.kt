@@ -46,5 +46,4 @@ class ImageQuestion(
         "UPDATED LIST WITH VALUE: $value ${isValid()} error: $hasError".log()
     }
 
-
 }

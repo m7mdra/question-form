@@ -19,7 +19,7 @@ class ImageAdapter(
 ) :
     RecyclerView.Adapter<RowImageViewHolder>() {
 
-    private val list = mutableListOf<String>()
+    private val list = mutableSetOf<String>()
 
     fun add(url: String) {
         list.add(url)
@@ -48,7 +48,7 @@ class ImageAdapter(
 
 
     override fun onBindViewHolder(holder: RowImageViewHolder, position: Int) {
-        val imageSource: String = list[position]
+        val imageSource: String = list.elementAt(position)
         holder.view.setOnClickListener {
             clickListener.invoke(position, imageSource)
         }
