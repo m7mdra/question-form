@@ -5,20 +5,22 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class RadioQuestion(
-    title: String, val entries: List<String>, id: String,
+    val title: String,
+    val entries: List<String>,
+    val id: String,
     val mandatory: Boolean,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false, override var value: String? = null
+    val done: Boolean = false,
+    override var value: String? = null
 
 ) :
     Question<String?>(
-        title,
         QuestionType.Radio,
-        id = id,
+        identifier = id,
         required = mandatory,
         extraParams = params,
-        done = done
-    ) , Parcelable {
+        completed = done
+    ), Parcelable {
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {
@@ -29,7 +31,7 @@ class RadioQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !done) {
+        return if (required && !completed) {
             value != null
         } else {
             true

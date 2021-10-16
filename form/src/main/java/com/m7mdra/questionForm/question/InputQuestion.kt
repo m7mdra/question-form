@@ -1,28 +1,24 @@
 package com.m7mdra.questionForm.question
 
 import android.os.Parcelable
-import android.text.InputType
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class InputQuestion(
-    title: String,
-    id: String,
-    inputType: Int = InputType.TYPE_CLASS_TEXT,
-    hint: String = "",
+    val title: String,
+    val id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false, override var value: String? = null
+    val done: Boolean = false, override var value: String? = null
 
 
 ) :
     Question<String?>(
-        title,
         QuestionType.Input,
-        id = id,
+        identifier = id,
         required = mandatory,
         extraParams = params,
-        done = done
+        completed = done
     ), Parcelable {
     override var hasError: Boolean = false
 
@@ -35,7 +31,7 @@ class InputQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !done) {
+        return if (required && !completed) {
             value != null
         } else {
             true

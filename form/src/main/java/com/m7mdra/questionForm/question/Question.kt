@@ -1,13 +1,14 @@
 package com.m7mdra.questionForm.question
 
+import android.service.carrier.CarrierIdentifier
+
 
 abstract class Question<T>(
-    val title: String = "",
     val questionType: QuestionType,
     val required: Boolean = false,
-    open val id: String,
+    open val identifier: String,
     val extraParams: Map<String, Any?>,
-    val done: Boolean = false
+    val completed: Boolean = false
 ) {
     abstract var value: T
     abstract fun isValid(): Boolean
@@ -15,7 +16,7 @@ abstract class Question<T>(
     abstract fun validate(): Boolean
     fun collect(): Map<String, Any?> {
         val map = mutableMapOf(
-            "id" to id,
+            "id" to identifier,
             "value" to value,
             "type" to questionType.name
         )
@@ -30,13 +31,13 @@ abstract class Question<T>(
 
         other as Question<*>
 
-        if (id != other.id) return false
+        if (identifier != other.identifier) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return id.hashCode()
+        return identifier.hashCode()
     }
 
 

@@ -6,17 +6,22 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class ImageQuestion(
-    title: String,
-    private val maxInput: Int = 1,
-    private val minInput: Int = 1,
-    id: String,
+    val title: String,
+    val id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false, override var value: MutableList<String> = mutableListOf()
+    val done: Boolean = false,
+    override var value: MutableList<String> = mutableListOf()
 
 
 ) :
-    Question<MutableList<String>>(title, QuestionType.Image, id = id, required = mandatory,extraParams = params,done = done),Parcelable {
+    Question<MutableList<String>>(
+        QuestionType.Image,
+        identifier = id,
+        required = mandatory,
+        extraParams = params,
+        completed = done
+    ), Parcelable {
 
     override var hasError: Boolean = false
 
@@ -28,7 +33,7 @@ class ImageQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !done) {
+        return if (required && !completed) {
             value.isNotEmpty()
         } else {
             true

@@ -129,7 +129,7 @@ class QuestionAdapter(
         position: Int
     ) {
         val holder = viewHolder as TitleViewHolder
-        holder.titleTextView.text = list[position].title
+        holder.titleTextView.text = (list[position] as TitleQuestion).title
     }
 
     private fun bindInputQuestion(
@@ -156,7 +156,7 @@ class QuestionAdapter(
         textWatchers[position] = textWatcher
 
         holder.textInputEditText.addTextChangedListener(textWatcher)
-        if (question.done) {
+        if (question.completed) {
             holder.textInputEditText.disable()
             holder.submittedTextView.show()
         } else {
@@ -198,7 +198,7 @@ class QuestionAdapter(
         }
         autoCompleteTextView.onItemClickListener = onItemClickListener
         dropDownListener[position] = onItemClickListener
-        if (question.done) {
+        if (question.completed) {
             holder.autoCompleteTextView.disable()
             holder.submittedTextView.show()
         } else {
@@ -236,7 +236,7 @@ class QuestionAdapter(
                 }
             }
         }
-        if (question.done) {
+        if (question.completed) {
             holder.rootView.disable()
             holder.itemView.disable()
             holder.rootView.disableChildren()
@@ -394,7 +394,7 @@ class QuestionAdapter(
                 videoView.start()
             }
         }
-        if (question.done) {
+        if (question.completed) {
             holder.captureOrPickVideoButton.disable()
             holder.submittedTextView.show()
         } else {
@@ -437,7 +437,7 @@ class QuestionAdapter(
         if (question.value.isNotEmpty())
             imageAdapter.addAll(question.value)
         holder.imagesRecyclerView.adapter = imageAdapter
-        if (question.done) {
+        if (question.completed) {
             holder.imageButton.disable()
             holder.submittedTextView.show()
         } else {

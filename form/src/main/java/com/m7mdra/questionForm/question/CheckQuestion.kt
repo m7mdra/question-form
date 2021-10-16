@@ -5,18 +5,19 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class CheckQuestion(
-    title: String,
+    val title: String,
     val entries: List<String>,
-    id: String,
+    val id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false, override var value: List<String> = listOf()
+   val done: Boolean = false,
+    override var value: List<String> = listOf()
 
 
 ) :
     Question<List<String>>(
-        title, QuestionType.Check, id = id, required = mandatory, extraParams = params, done = done
-    ),Parcelable {
+        QuestionType.Check, identifier = id, required = mandatory, extraParams = params, completed = done
+    ), Parcelable {
     override var hasError: Boolean = false
 
     var selectionMap = mutableMapOf<Int, String>()

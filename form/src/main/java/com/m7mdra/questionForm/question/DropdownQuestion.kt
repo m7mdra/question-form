@@ -5,21 +5,22 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class DropdownQuestion(
-    title: String,
+    val title: String,
     val entries: List<String>,
-    id: String,
+    val id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false, override var value: String? = null
+    val done: Boolean = false,
+    override var value: String? = null
 
 ) :
     Question<String?>(
-        title,
+
         QuestionType.Dropdown,
-        id = id,
+        identifier = id,
         required = mandatory,
         extraParams = params,
-        done = done
+        completed = done
     ), Parcelable {
     override var hasError: Boolean = false
 
@@ -30,7 +31,7 @@ class DropdownQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !done) {
+        return if (required && !completed) {
             value != null
         } else {
             true

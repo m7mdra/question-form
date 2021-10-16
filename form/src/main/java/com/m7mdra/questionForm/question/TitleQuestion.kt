@@ -4,12 +4,11 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-class TitleQuestion(title: String) :
+class TitleQuestion(val title: String) :
     Question<Unit>(
-        title = title,
         questionType = QuestionType.Title,
         required = false,
-        id = "",
+        identifier = "",
         extraParams = mapOf()
     ),
     Parcelable {

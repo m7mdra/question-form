@@ -1,24 +1,21 @@
 package com.m7mdra.questionForm.question
 
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
-import java.io.File
-@Parcelize
 class VideoQuestion(
-    title: String, id: String,
+    val title: String,
+    val id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false, override var value: String? = null
+    val done: Boolean = false,
+    override var value: String? = null
 
 
 ) : Question<String?>(
-    title,
     questionType = QuestionType.Video,
-    id = id,
+    identifier = id,
     required = mandatory,
     extraParams = params,
-    done = done
-) , Parcelable {
+    completed = done
+) {
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {
@@ -29,7 +26,7 @@ class VideoQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !done) {
+        return if (required && !completed) {
             value != null
         } else {
             true
@@ -41,8 +38,5 @@ class VideoQuestion(
         this.value = value
     }
 
-    override fun toString(): String {
-        return "VideoQuestion(title = '$title', id='$id', mandatory=$mandatory, value=$value, hasError=$hasError)"
-    }
 
 }

@@ -7,20 +7,19 @@ import java.io.File
 @Parcelize
 class AudioQuestion(
     override var value: File? = null,
-    title: String,
-    id: String,
+    val title: String,
+    val id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done: Boolean = false
+    val done: Boolean = false
 
 ) :
     Question<File?>(
-        title,
         questionType = QuestionType.Audio,
-        id = id,
+        identifier = id,
         required = mandatory,
         extraParams = params,
-        done = done
+        completed = done
     ), Parcelable {
 
     override var hasError: Boolean = false
