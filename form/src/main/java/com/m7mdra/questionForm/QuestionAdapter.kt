@@ -38,17 +38,45 @@ import java.io.File
 
 class QuestionAdapter(
     private val context: Context,
-    private val list: List<Question<*>>,
     private val imagePickListener: ((ImageQuestion, Int) -> Unit)? = null,
     private val audioRecordListener: ((AudioQuestion, Int) -> Unit)? = null,
     private val videoPickListener: ((VideoQuestion, Int) -> Unit)? = null,
     private val imageClickListener: ((Int, Int, String) -> Unit)? = null
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val list = mutableListOf<Question<*>>()
+
+    fun addQuestions(questions: List<Question<*>>) {
+        list.clear()
+        list.addAll(questions)
+        notifyItemRangeInserted(0, list.size - 1)
+    }
+
+    fun clear() {
+        list.clear()
+        notifyItemRangeRemoved(0, list.size - 1)
+    }
+
+    fun addQuestion(question: Question<*>) {
+        list.add(question)
+        notifyItemInserted(list.size - 1)
+    }
+
+    fun updateQuestion(position: Int, question: Question<*>) {
+        list[position] = question
+        notifyItemChanged(position)
+    }
+
+    fun updateQuestion(question: Question<*>) {
+        val indexOfQuestion = list.indexOf(question)
+        if (indexOfQuestion == -1)
+            return
+        list[indexOfQuestion] = question
+        notifyItemChanged(indexOfQuestion)
+    }
+
     private var attachedRecyclerView: RecyclerView? = null
 
-    private var lastImagePickIndex = -1
-    private var lastImageVideoIndex = -1
 
     private val textWatchers = SparseArray<TextInputEditTextWatcher>()
     private val dropDownListener = SparseArray<AdapterView.OnItemClickListener>()
@@ -60,7 +88,7 @@ class QuestionAdapter(
     private val audioHandlersCallback = SparseArray<Runnable>()
     private val mediaPlayers = SparseArray<MediaPlayer>()
 
-    fun clear() {
+    fun dispose() {
         mediaPlayers.forEach { _, value ->
             try {
                 if (value.isPlaying) {
@@ -143,7 +171,7 @@ class QuestionAdapter(
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
 
         holder.titleTextView.text =
-            titleWithRedAsterisk(question.required, question.title, position)
+            titleWithRedAsterisk(question.required, question.title)
         if (question.value != null)
             holder.textInputEditText.setText(question.value)
         val textWatcher =
@@ -175,7 +203,7 @@ class QuestionAdapter(
         val holder = viewHolder as DropdownViewHolder
         val question = list[position] as DropdownQuestion
         holder.titleTextView.text =
-            titleWithRedAsterisk(question.required, question.title, position)
+            titleWithRedAsterisk(question.required, question.title)
 
         val autoCompleteTextView = holder.autoCompleteTextView
 
@@ -219,7 +247,7 @@ class QuestionAdapter(
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
 
         holder.titleTextView.text =
-            titleWithRedAsterisk(question.required, question.title, position)
+            titleWithRedAsterisk(question.required, question.title)
 
         val radioGroup = holder.radioGroup
         val entries = question.entries
@@ -265,7 +293,7 @@ class QuestionAdapter(
 
 
         holder.titleTextView.text =
-            titleWithRedAsterisk(question.required, question.title, position)
+            titleWithRedAsterisk(question.required, question.title)
         if (audio != null) {
             val mediaPlayer = MediaPlayer()
             mediaPlayer.setDataSource(audio.path)
@@ -359,11 +387,11 @@ class QuestionAdapter(
 
         val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
         holder.titleTextView.text =
-            titleWithRedAsterisk(question.mandatory, question.title, position)
+            titleWithRedAsterisk(question.mandatory, question.title)
         holder.captureOrPickVideoButton.text =
             if (cameraPermissionGranted) "Record video" else "Grant permission"
         holder.captureOrPickVideoButton.setOnClickListener {
-            lastImageVideoIndex = position
+
             videoPickListener?.invoke(question, position)
         }
 
@@ -425,12 +453,12 @@ class QuestionAdapter(
 
 
         holder.titleTextView.text =
-            titleWithRedAsterisk(question.mandatory, question.title, position)
+            titleWithRedAsterisk(question.mandatory, question.title)
         val imageAdapter = ImageAdapter(context) { childPosition, image ->
             imageClickListener?.invoke(position, childPosition, image)
         }
         holder.imageButton.setOnClickListener {
-            lastImagePickIndex = position
+
             imagePickListener?.invoke(question, position)
         }
         imageAdapters[adapterPosition] = imageAdapter
@@ -455,7 +483,7 @@ class QuestionAdapter(
         val holder = viewHolder as CheckViewHolder
         val question = list[position] as CheckQuestion
         holder.titleTextView.text =
-            titleWithRedAsterisk(question.required, question.title, position)
+            titleWithRedAsterisk(question.required, question.title)
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
@@ -496,14 +524,6 @@ class QuestionAdapter(
             Manifest.permission.RECORD_AUDIO
         ) == PackageManager.PERMISSION_GRANTED
 
-    fun updateImageAdapterAtPosition(uri: String) {
-
-        val adapter: ImageAdapter = imageAdapters[lastImagePickIndex] ?: return
-        val imageQuestion = list[lastImagePickIndex] as ImageQuestion
-        imageQuestion.update(mutableListOf(uri))
-        adapter.add(uri)
-        notifyItemChanged(lastImagePickIndex)
-    }
 
     override fun getItemCount(): Int {
         return list.size
@@ -635,10 +655,21 @@ class QuestionAdapter(
         notifyDataSetChanged()
     }
 
-    fun updatePickedVideo(uri: String) {
-        val question = list[lastImageVideoIndex] as VideoQuestion
+    fun updatePickedVideo(uri: String, position: Int) {
+        if (position == -1) return
+        val question = list[position] as VideoQuestion
         question.update(uri)
-        notifyItemChanged(lastImageVideoIndex)
+        notifyItemChanged(position)
+    }
+
+
+    fun updateImageAdapterAtPosition(uri: String, position: Int) {
+        if (position == -1) return
+        val adapter: ImageAdapter = imageAdapters[position] ?: return
+        val imageQuestion = list[position] as ImageQuestion
+        imageQuestion.update(mutableListOf(uri))
+        adapter.add(uri)
+        notifyItemChanged(position)
     }
 
     fun updateCameraAndVideoButton() {
@@ -649,8 +680,7 @@ class QuestionAdapter(
 
     private fun titleWithRedAsterisk(
         isRequired: Boolean,
-        title: String,
-        position: Int
+        title: String
     ): CharSequence {
         return if (!isRequired) {
             val builder = SpannableStringBuilder()
@@ -659,7 +689,7 @@ class QuestionAdapter(
         } else {
             val builder = SpannableStringBuilder()
 //            builder.append(SpannableString("${position + 1}").boldAndColor(Color.BLACK))
-            builder.append(SpannableString("$title"))
+            builder.append(SpannableString(title))
             builder.append("  ")
             builder.append(SpannableString("*").boldAndColor(Color.RED))
         }

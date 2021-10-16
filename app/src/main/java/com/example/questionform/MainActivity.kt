@@ -48,17 +48,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private val imagePickListener: (ImageQuestion, Int) -> Unit = { _, _ ->
+    private var lastImagePosition = -1
+    private var lastVideoPosition = -1
+    private val imagePickListener: (ImageQuestion, Int) -> Unit = { _, position ->
         if (isCameraPermissionGranted()) {
+            this.lastImagePosition = position
             dispatchImageCaptureIntent()
         } else {
             askForCameraPermission()
         }
     }
-    private val videoPickListener: (VideoQuestion, Int) -> Unit = { _, _ ->
+    private val videoPickListener: (VideoQuestion, Int) -> Unit = { _, position ->
         if (isCameraPermissionGranted()) {
+            lastVideoPosition = position
             dispatchVideoCaptureIntent()
+
         } else {
             askForCameraPermission()
         }
@@ -80,7 +84,6 @@ class MainActivity : AppCompatActivity() {
         questionAdapter =
             QuestionAdapter(
                 this,
-                list,
                 imagePickListener,
                 audioRecordListener,
                 videoPickListener,
@@ -88,8 +91,8 @@ class MainActivity : AppCompatActivity() {
 
                     image.log()
                 })
-
         recyclerView.adapter = questionAdapter
+        questionAdapter.addQuestions(list)
 
         val linearLayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = linearLayoutManager
@@ -255,12 +258,12 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 43) {
             if (resultCode == RESULT_OK) {
-                questionAdapter.updatePickedVideo(videoFile.path)
+                questionAdapter.updatePickedVideo(videoFile.path, lastVideoPosition)
             }
         }
         if (requestCode == 42) {
             if (resultCode == RESULT_OK) {
-                questionAdapter.updateImageAdapterAtPosition(imageFile.path)
+                questionAdapter.updateImageAdapterAtPosition(imageFile.path, lastImagePosition)
             }
         }
         if (requestCode == 321) {
@@ -271,7 +274,6 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-
     }
 
     override fun onRequestPermissionsResult(
