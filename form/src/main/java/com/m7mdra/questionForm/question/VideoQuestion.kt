@@ -1,5 +1,9 @@
 package com.m7mdra.questionForm.question
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 class VideoQuestion(
     val title: String,
     val id: String,
@@ -15,7 +19,7 @@ class VideoQuestion(
     required = mandatory,
     extraParams = params,
     completed = done
-) {
+),Parcelable {
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {
