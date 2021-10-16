@@ -1,7 +1,10 @@
 package com.m7mdra.questionForm.question
 
+import android.os.Parcelable
 import android.text.InputType
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 class InputQuestion(
     title: String,
     id: String,
@@ -20,7 +23,7 @@ class InputQuestion(
         required = mandatory,
         extraParams = params,
         done = done
-    ) {
+    ), Parcelable {
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {

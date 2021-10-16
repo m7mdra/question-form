@@ -1,7 +1,9 @@
 package com.m7mdra.questionForm.question
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import java.io.File
-
+@Parcelize
 class VideoQuestion(
     title: String, id: String,
     val mandatory: Boolean = false,
@@ -16,7 +18,7 @@ class VideoQuestion(
     required = mandatory,
     extraParams = params,
     done = done
-) {
+) , Parcelable {
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {

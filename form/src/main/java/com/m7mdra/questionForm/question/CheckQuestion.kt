@@ -1,5 +1,9 @@
 package com.m7mdra.questionForm.question
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 class CheckQuestion(
     title: String,
     val entries: List<String>,
@@ -12,7 +16,7 @@ class CheckQuestion(
 ) :
     Question<List<String>>(
         title, QuestionType.Check, id = id, required = mandatory, extraParams = params, done = done
-    ) {
+    ),Parcelable {
     override var hasError: Boolean = false
 
     var selectionMap = mutableMapOf<Int, String>()

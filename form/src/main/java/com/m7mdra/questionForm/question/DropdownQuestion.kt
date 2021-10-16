@@ -1,15 +1,26 @@
 package com.m7mdra.questionForm.question
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 class DropdownQuestion(
     title: String,
     val entries: List<String>,
     id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    done:Boolean = false, override var value: String? = null
+    done: Boolean = false, override var value: String? = null
 
 ) :
-    Question<String?>(title, QuestionType.Dropdown, id = id, required = mandatory,extraParams = params,done = done) {
+    Question<String?>(
+        title,
+        QuestionType.Dropdown,
+        id = id,
+        required = mandatory,
+        extraParams = params,
+        done = done
+    ), Parcelable {
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {
@@ -25,7 +36,6 @@ class DropdownQuestion(
             true
         }
     }
-
 
 
     override fun update(value: String?) {

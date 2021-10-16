@@ -1,5 +1,9 @@
 package com.m7mdra.questionForm.question
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 class RadioQuestion(
     title: String, val entries: List<String>, id: String,
     val mandatory: Boolean,
@@ -14,7 +18,7 @@ class RadioQuestion(
         required = mandatory,
         extraParams = params,
         done = done
-    ) {
+    ) , Parcelable {
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {

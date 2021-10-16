@@ -1,8 +1,10 @@
 package com.m7mdra.questionForm.question
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import java.io.File
 
-
+@Parcelize
 class AudioQuestion(
     override var value: File? = null,
     title: String,
@@ -19,7 +21,7 @@ class AudioQuestion(
         required = mandatory,
         extraParams = params,
         done = done
-    ) {
+    ), Parcelable {
 
     override var hasError: Boolean = false
 

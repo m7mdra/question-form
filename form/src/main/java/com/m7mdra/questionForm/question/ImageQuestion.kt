@@ -1,7 +1,10 @@
 package com.m7mdra.questionForm.question
 
+import android.os.Parcelable
 import com.m7mdra.questionForm.log
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 class ImageQuestion(
     title: String,
     private val maxInput: Int = 1,
@@ -13,7 +16,7 @@ class ImageQuestion(
 
 
 ) :
-    Question<MutableList<String>>(title, QuestionType.Image, id = id, required = mandatory,extraParams = params,done = done) {
+    Question<MutableList<String>>(title, QuestionType.Image, id = id, required = mandatory,extraParams = params,done = done),Parcelable {
 
     override var hasError: Boolean = false
 
