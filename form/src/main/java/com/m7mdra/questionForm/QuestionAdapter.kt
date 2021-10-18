@@ -49,12 +49,12 @@ class QuestionAdapter(
     fun addQuestions(questions: List<Question<*>>) {
         list.clear()
         list.addAll(questions)
-        notifyItemRangeInserted(0, list.size - 1)
+        notifyDataSetChanged()
     }
 
     fun clear() {
         list.clear()
-        notifyItemRangeRemoved(0, list.size - 1)
+        notifyDataSetChanged()
     }
 
     fun addQuestion(question: Question<*>) {
