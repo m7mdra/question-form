@@ -2,6 +2,7 @@ package com.m7mdra.questionForm.question
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 
 @Parcelize
 class CheckQuestion(
@@ -10,13 +11,19 @@ class CheckQuestion(
     val id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-   val done: Boolean = false,
-    override var value: List<String> = listOf()
+    val done: Boolean = false,
+    override var value: List<String> = listOf(),
+    private val callback: @RawValue QuestionCallback? = null
 
 
 ) :
     Question<List<String>>(
-        QuestionType.Check, identifier = id, required = mandatory, extraParams = params, completed = done
+        QuestionType.Check,
+        identifier = id,
+        required = mandatory,
+        extraParams = params,
+        completed = done,
+        callback = callback
     ), Parcelable {
     override var hasError: Boolean = false
 
@@ -39,6 +46,9 @@ class CheckQuestion(
 
 
     override fun update(value: List<String>) {
-        this.value = value
+        val toList = selectionMap.values.toList()
+        super.update(toList)
+        this.value = toList
+
     }
 }

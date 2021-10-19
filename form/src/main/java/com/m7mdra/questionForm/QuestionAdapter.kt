@@ -10,7 +10,6 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -30,12 +29,18 @@ import androidx.core.util.set
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
+import com.jakewharton.rxbinding4.widget.textChanges
 import com.m7mdra.questionForm.question.*
 import com.m7mdra.questionForm.question.QuestionType.*
 import com.m7mdra.questionForm.viewholder.*
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 
+@Suppress("unused")
 class QuestionAdapter(
     private val context: Context,
     private val imagePickListener: ((ImageQuestion, Int) -> Unit)? = null,
@@ -46,12 +51,14 @@ class QuestionAdapter(
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val list = mutableListOf<Question<*>>()
 
+    @SuppressLint("NotifyDataSetChanged")
     fun addQuestions(questions: List<Question<*>>) {
         list.clear()
         list.addAll(questions)
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun clear() {
         list.clear()
         notifyDataSetChanged()
@@ -78,7 +85,7 @@ class QuestionAdapter(
     private var attachedRecyclerView: RecyclerView? = null
 
 
-    private val textWatchers = SparseArray<TextInputEditTextWatcher>()
+    private val textWatcherDisposables = SparseArray<Disposable?>()
     private val dropDownListener = SparseArray<AdapterView.OnItemClickListener>()
     private val imageAdapters = SparseArray<ImageAdapter>()
     private val audioPreparedPosition = SparseBooleanArray()
@@ -107,8 +114,11 @@ class QuestionAdapter(
         }
         dropDownListener.clear()
 
-        textWatchers.forEach { _, value ->
-            value.removeWatcher()
+        textWatcherDisposables.forEach { _, value ->
+            if (value != null) {
+                if (!value.isDisposed)
+                    value.dispose()
+            }
         }
     }
 
@@ -174,23 +184,20 @@ class QuestionAdapter(
             titleWithRedAsterisk(question.required, question.title)
         if (question.value != null)
             holder.textInputEditText.setText(question.value)
-        val textWatcher =
-            object : TextInputEditTextWatcher(holder.textInputEditText) {
-                override fun afterTextChanged(s: Editable) {
-                    if (s.isNotEmpty())
-                        question.update(s.toString())
-                }
-            }
-        textWatchers[position] = textWatcher
 
-        holder.textInputEditText.addTextChangedListener(textWatcher)
+        val disposable = holder.textInputEditText.textChanges()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .filter { it.isNotEmpty() && it.isNotBlank() }
+            .debounce(500, TimeUnit.MILLISECONDS)
+            .subscribe { question.update( it.toString()) }
+        textWatcherDisposables[position] = disposable
+
         if (question.completed) {
             holder.textInputEditText.disable()
             holder.submittedTextView.show()
         } else {
-
             holder.textInputEditText.enable()
-
             holder.submittedTextView.gone()
         }
 
@@ -213,7 +220,7 @@ class QuestionAdapter(
 
         autoCompleteTextView.setText(question.value, false)
         autoCompleteTextView.setAdapter(
-            ArrayAdapter<String>(
+            ArrayAdapter(
                 holder.itemView.context,
                 android.R.layout.simple_dropdown_item_1line,
                 question.entries
@@ -284,7 +291,6 @@ class QuestionAdapter(
         val holder = viewHolder as AudioViewHolder
         val question = list[position] as AudioQuestion
         val audio = question.value
-        "binding audio question $question $position $audio".log()
         audioViewHolderIndexes.append(position, position)
 
 
@@ -359,16 +365,15 @@ class QuestionAdapter(
 
         }
         if (question.done) {
-            holder.rootView.disable()
-            holder.itemView.disable()
-            holder.rootView.disableChildren()
+            holder.recordAudioButton.disable()
             holder.submittedTextView.show()
+
         } else {
-            holder.rootView.enable()
-            holder.itemView.enable()
-            holder.rootView.enableChildren()
+            holder.recordAudioButton.enable()
             holder.submittedTextView.gone()
+
         }
+
 
     }
 
@@ -496,7 +501,7 @@ class QuestionAdapter(
                 } else {
                     question.selectionMap.remove(index)
                 }
-
+                question.update(listOf())
             }
             checkBox.text = s
             checkBox.id = s.hashCode()
@@ -606,7 +611,11 @@ class QuestionAdapter(
         }
         if (holder is InputViewHolder) {
             holder.textInputEditText.text = null
-            holder.textInputEditText.removeTextChangedListener(textWatchers[adapterPosition])
+            val disposable = textWatcherDisposables[adapterPosition]
+            if (disposable != null) {
+                if (!disposable.isDisposed)
+                    disposable.dispose()
+            }
         }
         if (holder is DropdownViewHolder) {
             holder.autoCompleteTextView.onItemClickListener = null

@@ -2,6 +2,7 @@ package com.m7mdra.questionForm.question
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 
 @Parcelize
 class VideoQuestion(
@@ -10,7 +11,8 @@ class VideoQuestion(
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
     val done: Boolean = false,
-    override var value: String? = null
+    override var value: String? = null,
+    private val callback:  @RawValue QuestionCallback? = null
 
 
 ) : Question<String?>(
@@ -18,8 +20,9 @@ class VideoQuestion(
     identifier = id,
     required = mandatory,
     extraParams = params,
-    completed = done
-),Parcelable {
+    completed = done,
+    callback = callback
+), Parcelable {
     override var hasError: Boolean = false
 
     override fun validate(): Boolean {
@@ -39,6 +42,7 @@ class VideoQuestion(
 
 
     override fun update(value: String?) {
+        super.update(value)
         this.value = value
     }
 

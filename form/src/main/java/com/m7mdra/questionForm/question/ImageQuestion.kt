@@ -3,6 +3,7 @@ package com.m7mdra.questionForm.question
 import android.os.Parcelable
 import com.m7mdra.questionForm.log
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 
 @Parcelize
 class ImageQuestion(
@@ -11,7 +12,8 @@ class ImageQuestion(
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
     val done: Boolean = false,
-    override var value: MutableList<String> = mutableListOf()
+    override var value: MutableList<String> = mutableListOf(),
+    private val callback:  @RawValue QuestionCallback? = null
 
 
 ) :
@@ -20,7 +22,8 @@ class ImageQuestion(
         identifier = id,
         required = mandatory,
         extraParams = params,
-        completed = done
+        completed = done,
+        callback = callback
     ), Parcelable {
 
     override var hasError: Boolean = false
@@ -43,6 +46,7 @@ class ImageQuestion(
 
     override fun update(value: MutableList<String>) {
         this.value.addAll(value)
+        super.update(this.value)
         "UPDATED LIST WITH VALUE: $value ${isValid()} error: $hasError".log()
     }
 

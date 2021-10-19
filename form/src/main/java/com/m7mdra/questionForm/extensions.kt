@@ -25,7 +25,8 @@ const val CAMERA_PERMISSION = Manifest.permission.CAMERA
 const val RECORD_AUDIO_REQUEST_CODE = 123
 const val CAMERA_REQUEST_CODE = 124
 fun Any?.log() {
-    Log.d("MEGA", "${this ?: "null"}")
+    if (BuildConfig.DEBUG)
+        Log.d("MEGA", "${this ?: "null"}")
 }
 
 @SuppressLint("NewApi")

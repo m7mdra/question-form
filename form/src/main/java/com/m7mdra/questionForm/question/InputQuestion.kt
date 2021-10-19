@@ -2,6 +2,7 @@ package com.m7mdra.questionForm.question
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 
 @Parcelize
 class InputQuestion(
@@ -9,16 +10,16 @@ class InputQuestion(
     val id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    val done: Boolean = false, override var value: String? = null
-
-
+    val done: Boolean = false, override var value: String? = null,
+    private val callback: @RawValue QuestionCallback? = null
 ) :
     Question<String?>(
         QuestionType.Input,
         identifier = id,
         required = mandatory,
         extraParams = params,
-        completed = done
+        completed = done,
+        callback = callback
     ), Parcelable {
     override var hasError: Boolean = false
 
@@ -40,8 +41,12 @@ class InputQuestion(
 
 
     override fun update(value: String?) {
-
+        if (ensureValuesAreTheSame(value))
+            return
+        super.update(value)
         this.value = value
     }
+
+    private fun ensureValuesAreTheSame(newValue: String?): Boolean = newValue == this.value
 
 }

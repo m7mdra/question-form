@@ -2,6 +2,7 @@ package com.m7mdra.questionForm.question
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 
 @Parcelize
 class RadioQuestion(
@@ -11,7 +12,9 @@ class RadioQuestion(
     val mandatory: Boolean,
     private val params: Map<String, String> = mapOf(),
     val done: Boolean = false,
-    override var value: String? = null
+    override var value: String? = null,
+    private val callback:  @RawValue QuestionCallback? = null
+
 
 ) :
     Question<String?>(
@@ -19,7 +22,8 @@ class RadioQuestion(
         identifier = id,
         required = mandatory,
         extraParams = params,
-        completed = done
+        completed = done,
+        callback = callback
     ), Parcelable {
     override var hasError: Boolean = false
 
@@ -40,6 +44,7 @@ class RadioQuestion(
 
 
     override fun update(value: String?) {
+        super.update(value)
         this.value = value
 
     }

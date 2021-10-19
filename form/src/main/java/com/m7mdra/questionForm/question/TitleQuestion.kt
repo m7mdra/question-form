@@ -9,7 +9,8 @@ class TitleQuestion(val title: String) :
         questionType = QuestionType.Title,
         required = false,
         identifier = "",
-        extraParams = mapOf()
+        extraParams = mapOf(),
+        callback = null
     ),
     Parcelable {
     override var value: Unit = Unit

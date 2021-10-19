@@ -24,7 +24,7 @@ import kotlin.random.Random
 
 
 @Suppress("DEPRECATION")
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() ,QuestionCallback{
     private lateinit var questionAdapter: QuestionAdapter
     private lateinit var arrayAdapter: ArrayAdapter<String>
 
@@ -115,7 +115,8 @@ class MainActivity : AppCompatActivity() {
                     ),
                     id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool()
+                    done = faker.bool().bool(),
+                    callback = this
                 )
             )
             list.add(
@@ -129,7 +130,8 @@ class MainActivity : AppCompatActivity() {
                     ),
                     id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool()
+                    done = faker.bool().bool(),
+                    callback = this
 
                 )
             )
@@ -143,7 +145,8 @@ class MainActivity : AppCompatActivity() {
                         faker.avatar().image(),
                         "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Chrome__logo.max-500x500.png",
                         ""
-                    ).toMutableList() else mutableListOf<String>()
+                    ).toMutableList() else mutableListOf<String>(),
+                    callback = this
 
                 )
             )
@@ -152,7 +155,8 @@ class MainActivity : AppCompatActivity() {
                     faker.backToTheFuture().quote(), id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
                     done = faker.bool().bool(),
-                    value = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"
+                    value = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
+                    callback = this
 
                 )
             )
@@ -160,7 +164,8 @@ class MainActivity : AppCompatActivity() {
                 AudioQuestion(
                     title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool()
+                    done = faker.bool().bool(),
+                    callback = this
 
                 )
             )
@@ -174,7 +179,8 @@ class MainActivity : AppCompatActivity() {
                         faker.friends().character(),
                         faker.friends().character()
                     ),
-                    done = faker.bool().bool()
+                    done = faker.bool().bool(),
+                    callback = this
 
                 )
             )
@@ -182,7 +188,8 @@ class MainActivity : AppCompatActivity() {
                 InputQuestion(
                     faker.harryPotter().quote(), id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool()
+                    done = faker.bool().bool(),
+                    callback = this
 
                 )
             )
@@ -308,6 +315,10 @@ class MainActivity : AppCompatActivity() {
 
     fun randomString(): String {
         return Random(0).nextInt().toString()
+    }
+
+    override fun onChange(question: Question<*>) {
+        "Question#onChange($question)".log()
     }
 }
 
