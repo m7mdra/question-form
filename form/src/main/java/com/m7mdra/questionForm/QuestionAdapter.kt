@@ -83,6 +83,7 @@ class QuestionAdapter(
     }
 
     private var attachedRecyclerView: RecyclerView? = null
+    private var layoutManager: LinearLayoutManager? = null
 
 
     private val textWatcherDisposables = SparseArray<Disposable?>()
@@ -190,7 +191,7 @@ class QuestionAdapter(
             .observeOn(AndroidSchedulers.mainThread())
             .filter { it.isNotEmpty() && it.isNotBlank() }
             .debounce(500, TimeUnit.MILLISECONDS)
-            .subscribe { question.update( it.toString()) }
+            .subscribe { question.update(it.toString()) }
         textWatcherDisposables[position] = disposable
 
         if (question.completed) {
@@ -260,14 +261,20 @@ class QuestionAdapter(
         val entries = question.entries
         entries.forEach {
             val radioButton = RadioButton(holder.context)
-            radioButton.id = it.hashCode()
+            radioButton.layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            val radioId = it.hashCode() + position
+            radioButton.id = radioId
             radioButton.text = it
             radioButton.isChecked =
-                question.value.hashCode() == it.hashCode()
+                question.value.hashCode() + position == radioId
             radioGroup.addView(radioButton)
             radioButton.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     question.update(it)
+
                 }
             }
         }
@@ -494,6 +501,7 @@ class QuestionAdapter(
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
         question.entries.forEachIndexed { index, s ->
             val checkBox = CheckBox(holder.context)
+            checkBox.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
             checkBox.isChecked = question.selectionMap.containsKey(index)
             checkBox.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
@@ -507,6 +515,7 @@ class QuestionAdapter(
             checkBox.id = s.hashCode()
             holder.checkboxLayout.addView(checkBox)
         }
+
         if (question.done) {
             holder.rootView.disable()
             holder.itemView.disable()
@@ -541,17 +550,26 @@ class QuestionAdapter(
         return list.all { it.isValid() }
     }
 
+    private var previousErrorIndex = -1
+
     private fun notifyErrors() {
         post {
             val first = list.firstOrNull { !it.validate() } ?: return@post
             val indexOfFirstError = list.indexOf(first)
 
+
+            val visibleRange = layoutManager.visibleRange()
+            "previousErrorIndex:${previousErrorIndex} is in visible range $visibleRange ? ${previousErrorIndex in visibleRange} ".log()
             if (indexOfFirstError != -1) {
+                if (previousErrorIndex != -1 &&
+                    previousErrorIndex != indexOfFirstError
+                ) {
+                    notifyItemChanged(previousErrorIndex)
+                }
                 attachedRecyclerView?.smoothSnapToPosition(indexOfFirstError)
+                previousErrorIndex = indexOfFirstError
                 notifyItemChanged(indexOfFirstError)
-            }
-            list.filter { !it.isValid() }.forEachIndexed { index, _ ->
-                notifyItemChanged(index)
+
             }
         }
 
@@ -561,11 +579,14 @@ class QuestionAdapter(
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         attachedRecyclerView = recyclerView
+        layoutManager = recyclerView.layoutManager as? LinearLayoutManager
+        layoutManager.visibleRange().log()
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
         attachedRecyclerView = null
+        layoutManager = null
     }
 
 
@@ -586,10 +607,21 @@ class QuestionAdapter(
         }
     }
 
-    private fun LinearLayoutManager.visibleRange(): IntRange {
-        val firstVisibleItemPosition = findFirstVisibleItemPosition()
-        val lastVisibleItemPosition = findLastVisibleItemPosition()
+    private fun LinearLayoutManager?.visibleRange(): IntRange {
+        val firstVisibleItemPosition = this?.findFirstVisibleItemPosition() ?: 0
+        val lastVisibleItemPosition = this?.findLastVisibleItemPosition() ?: 0
         return IntRange(firstVisibleItemPosition, lastVisibleItemPosition)
+    }
+
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        "onViewAttachedToWindow: $holder".log()
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        "onViewDetachedFromWindow: $holder".log()
+
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {

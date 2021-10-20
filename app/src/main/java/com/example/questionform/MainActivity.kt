@@ -12,6 +12,7 @@ import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.net.toFile
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.javafaker.Faker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.m7mdra.questionForm.*
@@ -24,7 +25,7 @@ import kotlin.random.Random
 
 
 @Suppress("DEPRECATION")
-class MainActivity : AppCompatActivity() ,QuestionCallback{
+class MainActivity : AppCompatActivity(), QuestionCallback {
     private lateinit var questionAdapter: QuestionAdapter
     private lateinit var arrayAdapter: ArrayAdapter<String>
 
@@ -92,6 +93,43 @@ class MainActivity : AppCompatActivity() ,QuestionCallback{
                     image.log()
                 })
         recyclerView.adapter = questionAdapter
+        questionAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver(){
+            override fun onChanged() {
+                super.onChanged()
+                "onChanged".log()
+            }
+
+            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+                super.onItemRangeChanged(positionStart, itemCount)
+                "onItemRangeChanged(positionStart:${positionStart},itemCount:${itemCount})".log()
+
+            }
+
+            override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
+                super.onItemRangeChanged(positionStart, itemCount, payload)
+                "onItemRangeChanged(positionStart:${positionStart},itemCount:${itemCount}, payload: ${payload?.javaClass?.simpleName})".log()
+
+            }
+
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                "onItemRangeInserted(positionStart:${positionStart},itemCount:${itemCount})".log()
+
+            }
+
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                super.onItemRangeRemoved(positionStart, itemCount)
+                "onItemRangeRemoved(positionStart:${positionStart},itemCount:${itemCount})".log()
+
+            }
+
+            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+                super.onItemRangeMoved(fromPosition, toPosition, itemCount)
+                "onItemRangeRemoved(fromPosition: ${fromPosition}, toPosition: ${toPosition}, itemCount: ${itemCount})".log()
+
+            }
+        })
+
         questionAdapter.addQuestions(list)
 
         val linearLayoutManager = LinearLayoutManager(this)
@@ -119,19 +157,21 @@ class MainActivity : AppCompatActivity() ,QuestionCallback{
                     callback = this
                 )
             )
+            val value = faker.howIMetYourMother().character()
+
             list.add(
                 RadioQuestion(
-                    title = faker.howIMetYourMother().quote(),
+                    title = faker.gameOfThrones().character(),
                     entries = listOf(
+                        faker.hobbit().character(),
                         faker.howIMetYourMother().character(),
-                        faker.howIMetYourMother().character(),
-                        faker.howIMetYourMother().character(),
-                        faker.howIMetYourMother().character()
-                    ),
+                        faker.lordOfTheRings().character(),
+                        value
+                    ).shuffled(),
                     id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    callback = this
+                    callback = this,
+                    value = value
 
                 )
             )
@@ -194,7 +234,7 @@ class MainActivity : AppCompatActivity() ,QuestionCallback{
                 )
             )
         }
-        return list
+        return list.shuffled()
     }
 
     private lateinit var videoFile: File
