@@ -13,6 +13,6 @@ class ImageViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
     val imageButton: MaterialButton = view.captureImageButton
     val imagesRecyclerView: RecyclerView = view.imagesRecyclerView
     val errorTextView: TextView = view.errorTextView
-    val submittedTextView: MaterialTextView =view.submittedTextView
+    val submittedTextView: MaterialTextView =view.stateTextView
     val rootView: FrameLayout = view.rootLayout
 }

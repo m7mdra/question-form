@@ -12,6 +12,6 @@ class RadioViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
     val titleTextView: TextView = view.titleTextView
     val radioGroup: RadioGroup = view.radioGroup
     val errorTextView: TextView = view.errorTextView
-    val submittedTextView: MaterialTextView =view.submittedTextView
+    val submittedTextView: MaterialTextView =view.stateTextView
     val rootView: FrameLayout = view.rootLayout
 }

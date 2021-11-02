@@ -7,7 +7,8 @@ abstract class Question<T>(
     open val identifier: String,
     val extraParams: Map<String, Any?>,
     val completed: Boolean = false,
-    private val callback: QuestionCallback?
+    private val callback: QuestionCallback?,
+    val status:QuestionStatus = QuestionStatus.Default
 ) {
     abstract var value: T
     abstract fun isValid(): Boolean

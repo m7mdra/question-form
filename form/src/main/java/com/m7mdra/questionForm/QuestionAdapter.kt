@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.media.MediaPlayer
@@ -29,6 +30,7 @@ import androidx.core.util.set
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textview.MaterialTextView
 import com.jakewharton.rxbinding4.widget.textChanges
 import com.m7mdra.questionForm.question.*
 import com.m7mdra.questionForm.question.QuestionType.*
@@ -202,6 +204,16 @@ class QuestionAdapter(
             holder.submittedTextView.gone()
         }
 
+    }
+
+    private fun MaterialTextView.statusForText(status: QuestionStatus) {
+        when (status) {
+            QuestionStatus.Accepted -> {
+            }
+            QuestionStatus.Pending -> TODO()
+            QuestionStatus.Rejected -> TODO()
+            QuestionStatus.Default -> TODO()
+        }
     }
 
     private fun bindDropQuestion(
@@ -501,7 +513,10 @@ class QuestionAdapter(
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
         question.entries.forEachIndexed { index, s ->
             val checkBox = CheckBox(holder.context)
-            checkBox.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+            checkBox.layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
             checkBox.isChecked = question.selectionMap.containsKey(index)
             checkBox.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
@@ -516,7 +531,7 @@ class QuestionAdapter(
             holder.checkboxLayout.addView(checkBox)
         }
 
-        if (question.done) {
+/*        if (question.done) {
             holder.rootView.disable()
             holder.itemView.disable()
             holder.rootView.disableChildren()
@@ -526,7 +541,23 @@ class QuestionAdapter(
             holder.itemView.enable()
             holder.rootView.enableChildren()
             holder.submittedTextView.gone()
+        }*/
+
+        holder.stateLayout.inflateViewForStatus(question.status)
+    }
+
+    private fun FrameLayout.inflateViewForStatus(status: QuestionStatus) {
+        val layoutId = when (status) {
+            QuestionStatus.Accepted -> R.layout.layout_accepted_status
+            QuestionStatus.Pending -> R.layout.layout_pending_status
+            QuestionStatus.Rejected -> R.layout.layout_rejected_status
+            QuestionStatus.Default -> R.layout.layout_default_status
         }
+        layoutInflater.inflate(layoutId, this, false)
+    }
+
+    private val layoutInflater by lazy {
+        LayoutInflater.from(context)
     }
 
     private fun shouldShowError(predicate: Boolean) =

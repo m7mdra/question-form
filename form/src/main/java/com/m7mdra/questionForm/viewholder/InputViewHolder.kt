@@ -12,6 +12,6 @@ class InputViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
     val titleTextView: TextView = view.titleTextView
     val textInputEditText: TextInputEditText = view.textInputEditText
     val errorTextView: TextView = view.errorTextView
-    val submittedTextView: MaterialTextView =view.submittedTextView
+    val submittedTextView: MaterialTextView =view.stateTextView
     val rootView: FrameLayout = view.rootLayout
 }

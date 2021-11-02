@@ -19,6 +19,6 @@ class AudioViewHolder(val view:View)  : RecyclerView.ViewHolder(view){
     val recordAudioButton: MaterialButton = view.recordAudioButton
     val playOrStopButton: ImageButton = view.playOrStopButton
     val errorTextView: TextView = view.errorTextView
-    val submittedTextView: MaterialTextView =view.submittedTextView
+    val submittedTextView: MaterialTextView =view.stateTextView
     val rootView: FrameLayout = view.rootLayout
 }

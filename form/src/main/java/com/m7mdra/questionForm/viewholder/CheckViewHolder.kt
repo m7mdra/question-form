@@ -12,6 +12,6 @@ class CheckViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
     val titleTextView: TextView = view.titleTextView
     val checkboxLayout: LinearLayout = view.checkboxLayout
     val errorTextView: TextView = view.errorTextView
-    val submittedTextView: MaterialTextView =view.submittedTextView
+    val stateLayout: FrameLayout =view.stateLayout
     val rootView: FrameLayout = view.rootLayout
 }
