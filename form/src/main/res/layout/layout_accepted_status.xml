@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textview.MaterialTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:drawableStart="@drawable/ic_baseline_check_circle_outline_24"
+    android:drawablePadding="8dp"
+    android:gravity="center"
+    android:text="Accepted"
+    android:textColor="@android:color/holo_green_dark"
+    app:drawableTint="@android:color/holo_green_dark" />
+

@@ -10,9 +10,9 @@ class VideoQuestion(
     val id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    val done: Boolean = false,
     override var value: String? = null,
-    private val callback:  @RawValue QuestionCallback? = null
+    private val callback: @RawValue QuestionCallback? = null,
+    override var status: QuestionStatus = QuestionStatus.Default
 
 
 ) : Question<String?>(
@@ -20,8 +20,8 @@ class VideoQuestion(
     identifier = id,
     required = mandatory,
     extraParams = params,
-    completed = done,
-    callback = callback
+    callback = callback,
+    status = status
 ), Parcelable {
     override var hasError: Boolean = false
 
@@ -33,7 +33,7 @@ class VideoQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !completed) {
+        return if (required && status.isNotPendingNorAccepted()) {
             value != null
         } else {
             true

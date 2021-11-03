@@ -11,18 +11,18 @@ class CheckQuestion(
     val id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    val done: Boolean = false,
     override var value: List<String> = listOf(),
-    private val callback: @RawValue QuestionCallback? = null
+    private val callback: @RawValue QuestionCallback? = null,
+    override var status: QuestionStatus = QuestionStatus.Default
 
 
 ) :
     Question<List<String>>(
         QuestionType.Check,
         identifier = id,
+        status = status,
         required = mandatory,
         extraParams = params,
-        completed = done,
         callback = callback
     ), Parcelable {
     override var hasError: Boolean = false
@@ -37,7 +37,7 @@ class CheckQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !done) {
+        return if (required && status.isNotPendingNorAccepted()) {
             selectionMap.isNotEmpty()
         } else {
             true

@@ -12,7 +12,6 @@ import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.net.toFile
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.github.javafaker.Faker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.m7mdra.questionForm.*
@@ -28,6 +27,7 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity(), QuestionCallback {
     private lateinit var questionAdapter: QuestionAdapter
     private lateinit var arrayAdapter: ArrayAdapter<String>
+    val faker = Faker()
 
 
     private val audioRecordListener: (AudioQuestion, Int) -> Unit = { _, position ->
@@ -68,13 +68,18 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
             askForCameraPermission()
         }
     }
+    val id = faker.crypto().md5()
+  val value=  faker.hobbit().character()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        validateButton.setOnClickListener {
-            questionAdapter.validate()
 
+        validateButton.setOnClickListener {
+            questionAdapter.updateQuestionStatus(id, QuestionStatus.random(), value)
+        }
+        collectButton.setOnClickListener {
+            questionAdapter.collect().log()
         }
         arrayAdapter = ArrayAdapter(
             this, android.R.layout.simple_list_item_1
@@ -93,43 +98,6 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                     image.log()
                 })
         recyclerView.adapter = questionAdapter
-        questionAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver(){
-            override fun onChanged() {
-                super.onChanged()
-                "onChanged".log()
-            }
-
-            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
-                super.onItemRangeChanged(positionStart, itemCount)
-                "onItemRangeChanged(positionStart:${positionStart},itemCount:${itemCount})".log()
-
-            }
-
-            override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
-                super.onItemRangeChanged(positionStart, itemCount, payload)
-                "onItemRangeChanged(positionStart:${positionStart},itemCount:${itemCount}, payload: ${payload?.javaClass?.simpleName})".log()
-
-            }
-
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                super.onItemRangeInserted(positionStart, itemCount)
-                "onItemRangeInserted(positionStart:${positionStart},itemCount:${itemCount})".log()
-
-            }
-
-            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-                super.onItemRangeRemoved(positionStart, itemCount)
-                "onItemRangeRemoved(positionStart:${positionStart},itemCount:${itemCount})".log()
-
-            }
-
-            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
-                super.onItemRangeMoved(fromPosition, toPosition, itemCount)
-                "onItemRangeRemoved(fromPosition: ${fromPosition}, toPosition: ${toPosition}, itemCount: ${itemCount})".log()
-
-            }
-        })
-
         questionAdapter.addQuestions(list)
 
         val linearLayoutManager = LinearLayoutManager(this)
@@ -140,8 +108,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
 
     private fun generateList(): List<Question<*>> {
         val list = mutableListOf<Question<*>>()
-        val faker = Faker()
-        repeat((0..100).count()) {
+        repeat((0..10).count()) {
             list.add(
                 CheckQuestion(
                     title = faker.elderScrolls().quote(),
@@ -151,61 +118,27 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                         faker.elderScrolls().creature(),
                         faker.elderScrolls().creature()
                     ),
+                    status = QuestionStatus.random(),
                     id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
                     callback = this
                 )
             )
-            val value = faker.howIMetYourMother().character()
+            val localValue = faker.howIMetYourMother().character()
 
             list.add(
                 RadioQuestion(
                     title = faker.gameOfThrones().character(),
                     entries = listOf(
-                        faker.hobbit().character(),
-                        faker.howIMetYourMother().character(),
+                        value,
                         faker.lordOfTheRings().character(),
-                        value
+                        localValue
                     ).shuffled(),
-                    id = faker.crypto().md5(),
+                    id = id,
                     mandatory = faker.bool().bool(),
                     callback = this,
-                    value = value
-
-                )
-            )
-            list.add(
-                ImageQuestion(
-                    faker.hobbit().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    value = if (faker.bool().bool()) listOf(
-                        faker.avatar().image(),
-                        faker.avatar().image(),
-                        "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Chrome__logo.max-500x500.png",
-                        ""
-                    ).toMutableList() else mutableListOf<String>(),
-                    callback = this
-
-                )
-            )
-            list.add(
-                VideoQuestion(
-                    faker.backToTheFuture().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    value = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
-                    callback = this
-
-                )
-            )
-            list.add(
-                AudioQuestion(
-                    title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    callback = this
+                    value = localValue,
+                    status = QuestionStatus.random()
 
                 )
             )
@@ -219,17 +152,51 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                         faker.friends().character(),
                         faker.friends().character()
                     ),
-                    done = faker.bool().bool(),
-                    callback = this
+                    callback = this,
+                    status = QuestionStatus.random()
 
                 )
             )
             list.add(
-                InputQuestion(
-                    faker.harryPotter().quote(), id = faker.crypto().md5(),
+                ImageQuestion(
+                    faker.hobbit().quote(), id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    callback = this
+
+                    callback = this,
+                    status = QuestionStatus.random()
+
+
+                )
+            )
+            list.add(
+                VideoQuestion(
+                    faker.backToTheFuture().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool(),
+                    callback = this,
+                    status = QuestionStatus.random()
+
+
+                )
+            )
+            list.add(
+                AudioQuestion(
+                    title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool(),
+                    callback = this,
+                    status = QuestionStatus.random()
+
+
+                )
+            )
+
+            list.add(
+                InputQuestion(
+                    faker.harryPotter().quote(),
+                    id = faker.crypto().md5(),
+                    mandatory = faker.bool().bool(),
+                    callback = this,
+                    status = QuestionStatus.random()
+
 
                 )
             )
@@ -317,7 +284,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
             if (resultCode == RESULT_OK) {
                 val recordFile: Uri? = data?.getParcelableExtra<Uri>("recordPath")
                 val position = data?.getIntExtra("position", -1) ?: -1
-                questionAdapter.addRecordFile(recordFile?.toFile(), position)
+                questionAdapter.addRecordFile(recordFile?.path, position)
 
             }
         }

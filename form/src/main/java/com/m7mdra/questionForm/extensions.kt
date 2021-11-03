@@ -25,12 +25,15 @@ const val CAMERA_PERMISSION = Manifest.permission.CAMERA
 const val RECORD_AUDIO_REQUEST_CODE = 123
 const val CAMERA_REQUEST_CODE = 124
 fun Any?.log() {
-    if (BuildConfig.DEBUG)
         Log.d("MEGA", "${this ?: "null"}")
 }
 
-@SuppressLint("NewApi")
+fun View.post(block: () -> Unit) {
+    post(block)
 
+}
+
+@SuppressLint("NewApi")
 fun Context.isAudioPermissionGranted() =
     checkSelfPermission(RECORD_AUDIO_PERMISSION) == PackageManager.PERMISSION_GRANTED
 

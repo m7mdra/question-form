@@ -16,6 +16,7 @@ import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.util.SparseArray
 import android.util.SparseBooleanArray
 import android.util.SparseIntArray
@@ -79,6 +80,41 @@ class QuestionAdapter(
         if (indexOfQuestion == -1)
             return
         list[indexOfQuestion] = question
+        notifyItemChanged(indexOfQuestion)
+    }
+
+    fun updateQuestionStatus(id: String, status: QuestionStatus, value: Any? = null) {
+        "updateQuestionStatus: $id,$status,$value".log()
+        val question = list.firstOrNull { it.identifier == id } ?: return
+        val indexOfQuestion = list.indexOf(question)
+        if (indexOfQuestion == -1)
+            return
+        question.status = status
+        if (question.value != null && value != null) {
+            when (question) {
+                is AudioQuestion -> {
+                    question.update(value as? String)
+                }
+                is ImageQuestion -> {
+                    question.update(mutableListOf(value as String))
+                }
+                is CheckQuestion -> {
+                    question.update(value as List<String>)
+                }
+                is DropdownQuestion -> {
+                    question.update(value as? String)
+                }
+                is InputQuestion -> {
+                    question.update(value as? String)
+                }
+                is VideoQuestion -> {
+                    question.update(value as? String)
+                }
+                is RadioQuestion->{
+                    question.update(value as? String)
+                }
+            }
+        }
         notifyItemChanged(indexOfQuestion)
     }
 
@@ -194,15 +230,14 @@ class QuestionAdapter(
             .subscribe { question.update(it.toString()) }
         textWatcherDisposables[position] = disposable
 
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.textInputEditText.disable()
-            holder.submittedTextView.show()
         } else {
             holder.textInputEditText.enable()
-            holder.submittedTextView.gone()
         }
-
+        holder.stateLayout.inflateViewForStatus(question.status)
     }
+
 
     private fun bindDropQuestion(
         viewHolder: RecyclerView.ViewHolder,
@@ -234,14 +269,14 @@ class QuestionAdapter(
         }
         autoCompleteTextView.onItemClickListener = onItemClickListener
         dropDownListener[position] = onItemClickListener
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.autoCompleteTextView.disable()
-            holder.submittedTextView.show()
+            holder.autoCompleteTextViewLayout.disable()
         } else {
+            holder.autoCompleteTextViewLayout.enable()
             holder.autoCompleteTextView.enable()
-
-            holder.submittedTextView.gone()
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
     }
 
     private fun bindRadioQuestion(
@@ -274,21 +309,19 @@ class QuestionAdapter(
             radioButton.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     question.update(it)
-
                 }
             }
         }
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.rootView.disable()
             holder.itemView.disable()
             holder.rootView.disableChildren()
-            holder.submittedTextView.show()
         } else {
             holder.rootView.enable()
             holder.itemView.enable()
             holder.rootView.enableChildren()
-            holder.submittedTextView.gone()
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
     }
 
     private fun bindAudioQuestion(
@@ -307,9 +340,9 @@ class QuestionAdapter(
 
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title)
-        if (audio != null) {
+        if (audio != null && audio.isNotEmpty()) {
             val mediaPlayer = MediaPlayer()
-            mediaPlayer.setDataSource(audio.path)
+            mediaPlayer.setDataSource(audio)
             mediaPlayer.prepareAsync()
             val handler = Handler(Looper.getMainLooper())
 
@@ -371,15 +404,14 @@ class QuestionAdapter(
             audioRecordListener?.invoke(question, position)
 
         }
-        if (question.done) {
+        if (question.status.isPendingOrAccepted()) {
             holder.recordAudioButton.disable()
-            holder.submittedTextView.show()
 
         } else {
             holder.recordAudioButton.enable()
-            holder.submittedTextView.gone()
 
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
 
 
     }
@@ -434,13 +466,12 @@ class QuestionAdapter(
                 videoView.start()
             }
         }
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.captureOrPickVideoButton.disable()
-            holder.submittedTextView.show()
         } else {
             holder.captureOrPickVideoButton.enable()
-            holder.submittedTextView.gone()
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
 
     }
 
@@ -474,16 +505,16 @@ class QuestionAdapter(
             imagePickListener?.invoke(question, position)
         }
         imageAdapters[adapterPosition] = imageAdapter
-        if (question.value.isNotEmpty())
+        if (question.value.isNotEmpty()) {
             imageAdapter.addAll(question.value)
+        }
         holder.imagesRecyclerView.adapter = imageAdapter
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.imageButton.disable()
-            holder.submittedTextView.show()
         } else {
             holder.imageButton.enable()
-            holder.submittedTextView.gone()
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
 
     }
 
@@ -501,7 +532,10 @@ class QuestionAdapter(
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
         question.entries.forEachIndexed { index, s ->
             val checkBox = CheckBox(holder.context)
-            checkBox.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+            checkBox.layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
             checkBox.isChecked = question.selectionMap.containsKey(index)
             checkBox.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
@@ -516,17 +550,33 @@ class QuestionAdapter(
             holder.checkboxLayout.addView(checkBox)
         }
 
-        if (question.done) {
+        if (question.status.isPendingOrAccepted()) {
             holder.rootView.disable()
             holder.itemView.disable()
             holder.rootView.disableChildren()
-            holder.submittedTextView.show()
         } else {
             holder.rootView.enable()
             holder.itemView.enable()
             holder.rootView.enableChildren()
-            holder.submittedTextView.gone()
         }
+
+        holder.stateLayout.inflateViewForStatus(question.status)
+    }
+
+    private fun FrameLayout.inflateViewForStatus(status: QuestionStatus) {
+        val layoutId = when (status) {
+            QuestionStatus.Accepted -> R.layout.layout_accepted_status
+            QuestionStatus.Pending -> R.layout.layout_pending_status
+            QuestionStatus.Rejected -> R.layout.layout_rejected_status
+            QuestionStatus.Default -> R.layout.layout_default_status
+        }
+        val view = layoutInflater.inflate(layoutId, null, false)
+        removeAllViews()
+        addView(view)
+    }
+
+    private val layoutInflater by lazy {
+        LayoutInflater.from(context)
     }
 
     private fun shouldShowError(predicate: Boolean) =
@@ -553,13 +603,9 @@ class QuestionAdapter(
     private var previousErrorIndex = -1
 
     private fun notifyErrors() {
-        post {
+        attachedRecyclerView?.post {
             val first = list.firstOrNull { !it.validate() } ?: return@post
             val indexOfFirstError = list.indexOf(first)
-
-
-            val visibleRange = layoutManager.visibleRange()
-            "previousErrorIndex:${previousErrorIndex} is in visible range $visibleRange ? ${previousErrorIndex in visibleRange} ".log()
             if (indexOfFirstError != -1) {
                 if (previousErrorIndex != -1 &&
                     previousErrorIndex != indexOfFirstError
@@ -569,7 +615,6 @@ class QuestionAdapter(
                 attachedRecyclerView?.smoothSnapToPosition(indexOfFirstError)
                 previousErrorIndex = indexOfFirstError
                 notifyItemChanged(indexOfFirstError)
-
             }
         }
 
@@ -580,7 +625,6 @@ class QuestionAdapter(
         super.onAttachedToRecyclerView(recyclerView)
         attachedRecyclerView = recyclerView
         layoutManager = recyclerView.layoutManager as? LinearLayoutManager
-        layoutManager.visibleRange().log()
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
@@ -590,14 +634,9 @@ class QuestionAdapter(
     }
 
 
-    private fun post(block: () -> Unit) {
-        attachedRecyclerView?.post(block)
-
-    }
-
-
     fun collect(): List<Question<*>> {
         return list.filter { it !is TitleQuestion }
+            .filter { it.status.isNotPendingNorAccepted() }
             .map { it }
     }
 
@@ -611,17 +650,6 @@ class QuestionAdapter(
         val firstVisibleItemPosition = this?.findFirstVisibleItemPosition() ?: 0
         val lastVisibleItemPosition = this?.findLastVisibleItemPosition() ?: 0
         return IntRange(firstVisibleItemPosition, lastVisibleItemPosition)
-    }
-
-    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
-        super.onViewAttachedToWindow(holder)
-        "onViewAttachedToWindow: $holder".log()
-    }
-
-    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
-        super.onViewDetachedFromWindow(holder)
-        "onViewDetachedFromWindow: $holder".log()
-
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
@@ -681,13 +709,11 @@ class QuestionAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun addRecordFile(recordFile: File?, position: Int) {
+    fun addRecordFile(recordFile: String?, position: Int) {
         if (recordFile == null)
             return
         if (position == -1)
             return
-        recordFile.log()
-        position.log()
         val audioQuestion = list[position] as AudioQuestion
         audioQuestion.update(recordFile)
         //TODO: for some reasons the audio question dose not
