@@ -11,7 +11,6 @@ class DropdownQuestion(
     val id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    private val done: Boolean = false,
     override var value: String? = null,
     private val callback: @RawValue QuestionCallback? = null,
     override var status: QuestionStatus = QuestionStatus.Default
@@ -22,7 +21,6 @@ class DropdownQuestion(
         identifier = id,
         required = mandatory,
         extraParams = params,
-        completed = done,
         status = status,
         callback = callback
     ), Parcelable {

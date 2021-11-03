@@ -10,9 +10,9 @@ class InputQuestion(
     val id: String,
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    val done: Boolean = false, override var value: String? = null,
+    override var value: String? = null,
     private val callback: @RawValue QuestionCallback? = null,
-    override val status: QuestionStatus = QuestionStatus.Default
+    override var status: QuestionStatus = QuestionStatus.Default
 
 ) :
     Question<String?>(
@@ -20,7 +20,6 @@ class InputQuestion(
         identifier = id,
         required = mandatory,
         extraParams = params,
-        completed = done,
         callback = callback,
         status = status
     ), Parcelable {

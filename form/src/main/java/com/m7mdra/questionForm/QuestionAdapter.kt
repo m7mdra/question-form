@@ -16,6 +16,7 @@ import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.util.SparseArray
 import android.util.SparseBooleanArray
 import android.util.SparseIntArray
@@ -79,6 +80,41 @@ class QuestionAdapter(
         if (indexOfQuestion == -1)
             return
         list[indexOfQuestion] = question
+        notifyItemChanged(indexOfQuestion)
+    }
+
+    fun updateQuestionStatus(id: String, status: QuestionStatus, value: Any? = null) {
+        "updateQuestionStatus: $id,$status,$value".log()
+        val question = list.firstOrNull { it.identifier == id } ?: return
+        val indexOfQuestion = list.indexOf(question)
+        if (indexOfQuestion == -1)
+            return
+        question.status = status
+        if (question.value != null && value != null) {
+            when (question) {
+                is AudioQuestion -> {
+                    question.update(value as? String)
+                }
+                is ImageQuestion -> {
+                    question.update(mutableListOf(value as String))
+                }
+                is CheckQuestion -> {
+                    question.update(value as List<String>)
+                }
+                is DropdownQuestion -> {
+                    question.update(value as? String)
+                }
+                is InputQuestion -> {
+                    question.update(value as? String)
+                }
+                is VideoQuestion -> {
+                    question.update(value as? String)
+                }
+                is RadioQuestion->{
+                    question.update(value as? String)
+                }
+            }
+        }
         notifyItemChanged(indexOfQuestion)
     }
 
@@ -304,9 +340,9 @@ class QuestionAdapter(
 
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title)
-        if (audio != null) {
+        if (audio != null && audio.isNotEmpty()) {
             val mediaPlayer = MediaPlayer()
-            mediaPlayer.setDataSource(audio.path)
+            mediaPlayer.setDataSource(audio)
             mediaPlayer.prepareAsync()
             val handler = Handler(Looper.getMainLooper())
 
@@ -567,13 +603,9 @@ class QuestionAdapter(
     private var previousErrorIndex = -1
 
     private fun notifyErrors() {
-        post {
+        attachedRecyclerView?.post {
             val first = list.firstOrNull { !it.validate() } ?: return@post
             val indexOfFirstError = list.indexOf(first)
-
-            "${first.identifier}/${first.questionType}: ${first.status} valid:${first.isValid()}".log()
-            val visibleRange = layoutManager.visibleRange()
-            "previousErrorIndex:${previousErrorIndex} is in visible range $visibleRange ? ${previousErrorIndex in visibleRange} ".log()
             if (indexOfFirstError != -1) {
                 if (previousErrorIndex != -1 &&
                     previousErrorIndex != indexOfFirstError
@@ -599,12 +631,6 @@ class QuestionAdapter(
         super.onDetachedFromRecyclerView(recyclerView)
         attachedRecyclerView = null
         layoutManager = null
-    }
-
-
-    private fun post(block: () -> Unit) {
-        attachedRecyclerView?.post(block)
-
     }
 
 
@@ -683,13 +709,11 @@ class QuestionAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun addRecordFile(recordFile: File?, position: Int) {
+    fun addRecordFile(recordFile: String?, position: Int) {
         if (recordFile == null)
             return
         if (position == -1)
             return
-        recordFile.log()
-        position.log()
         val audioQuestion = list[position] as AudioQuestion
         audioQuestion.update(recordFile)
         //TODO: for some reasons the audio question dose not

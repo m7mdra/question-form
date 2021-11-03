@@ -11,10 +11,9 @@ class CheckQuestion(
     val id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    val done: Boolean = false,
     override var value: List<String> = listOf(),
     private val callback: @RawValue QuestionCallback? = null,
-    override val status: QuestionStatus = QuestionStatus.Default
+    override var status: QuestionStatus = QuestionStatus.Default
 
 
 ) :
@@ -24,7 +23,6 @@ class CheckQuestion(
         status = status,
         required = mandatory,
         extraParams = params,
-        completed = done,
         callback = callback
     ), Parcelable {
     override var hasError: Boolean = false

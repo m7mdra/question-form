@@ -7,24 +7,22 @@ import java.io.File
 
 @Parcelize
 class AudioQuestion(
-    override var value: File? = null,
+    override var value: String? = null,
     val title: String,
     val id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-    val done: Boolean = false,
     private val callback: @RawValue QuestionCallback? = null,
-    override val status: QuestionStatus = QuestionStatus.Default
+    override var status: QuestionStatus = QuestionStatus.Default
 
 
 ) :
-    Question<File?>(
+    Question<String?>(
         questionType = QuestionType.Audio,
         identifier = id,
         required = mandatory,
         extraParams = params,
         status = status,
-        completed = done,
         callback = callback
     ), Parcelable {
 
@@ -46,7 +44,7 @@ class AudioQuestion(
     }
 
 
-    override fun update(value: File?) {
+    override fun update(value: String?) {
         super.update(value)
         this.value = value
     }
