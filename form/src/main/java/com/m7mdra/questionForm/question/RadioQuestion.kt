@@ -13,13 +13,14 @@ class RadioQuestion(
     private val params: Map<String, String> = mapOf(),
     val done: Boolean = false,
     override var value: String? = null,
-    private val callback:  @RawValue QuestionCallback? = null
-
+    private val callback: @RawValue QuestionCallback? = null,
+    override val status: QuestionStatus = QuestionStatus.Default
 
 ) :
     Question<String?>(
         QuestionType.Radio,
         identifier = id,
+        status = status,
         required = mandatory,
         extraParams = params,
         completed = done,
@@ -35,7 +36,7 @@ class RadioQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !completed) {
+        return if (required && status.isNotPendingNorAccepted()) {
             value != null
         } else {
             true

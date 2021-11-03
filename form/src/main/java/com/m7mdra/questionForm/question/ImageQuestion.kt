@@ -13,7 +13,8 @@ class ImageQuestion(
     private val params: Map<String, String> = mapOf(),
     val done: Boolean = false,
     override var value: MutableList<String> = mutableListOf(),
-    private val callback:  @RawValue QuestionCallback? = null
+    private val callback:  @RawValue QuestionCallback? = null,
+    override val status: QuestionStatus = QuestionStatus.Default
 
 
 ) :
@@ -22,6 +23,7 @@ class ImageQuestion(
         identifier = id,
         required = mandatory,
         extraParams = params,
+        status = status,
         completed = done,
         callback = callback
     ), Parcelable {
@@ -36,7 +38,7 @@ class ImageQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !completed) {
+        return if (required && status.isNotPendingNorAccepted()) {
             value.isNotEmpty()
         } else {
             true

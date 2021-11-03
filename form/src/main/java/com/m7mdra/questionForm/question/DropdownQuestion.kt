@@ -11,18 +11,19 @@ class DropdownQuestion(
     val id: String,
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
-   private val done: Boolean = false,
+    private val done: Boolean = false,
     override var value: String? = null,
-    private val callback:  @RawValue QuestionCallback? = null
+    private val callback: @RawValue QuestionCallback? = null,
+    override var status: QuestionStatus = QuestionStatus.Default
 
 ) :
     Question<String?>(
-
         QuestionType.Dropdown,
         identifier = id,
         required = mandatory,
         extraParams = params,
         completed = done,
+        status = status,
         callback = callback
     ), Parcelable {
     override var hasError: Boolean = false
@@ -34,7 +35,7 @@ class DropdownQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !completed) {
+        return if (required && status.isNotPendingNorAccepted()) {
             value != null
         } else {
             true

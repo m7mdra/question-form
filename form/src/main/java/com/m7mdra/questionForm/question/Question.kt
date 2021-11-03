@@ -8,7 +8,7 @@ abstract class Question<T>(
     val extraParams: Map<String, Any?>,
     val completed: Boolean = false,
     private val callback: QuestionCallback?,
-    val status:QuestionStatus = QuestionStatus.Default
+    open val status:QuestionStatus
 ) {
     abstract var value: T
     abstract fun isValid(): Boolean
@@ -46,7 +46,7 @@ abstract class Question<T>(
     }
 
     override fun toString(): String {
-        return "Question(questionType=$questionType, required=$required, identifier='$identifier', extraParams=$extraParams, completed=$completed, value=$value, hasError=$hasError)"
+        return "Question(questionType=$questionType, required=$required, identifier='$identifier', completed=$completed, status=$status, value=$value, hasError=$hasError)"
     }
 
 

@@ -1,7 +1,6 @@
 package com.m7mdra.questionForm.question
 
 import android.os.Parcelable
-import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 import java.io.File
@@ -14,7 +13,8 @@ class AudioQuestion(
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
     val done: Boolean = false,
-    private val callback: @RawValue QuestionCallback? = null
+    private val callback: @RawValue QuestionCallback? = null,
+    override val status: QuestionStatus = QuestionStatus.Default
 
 
 ) :
@@ -23,8 +23,9 @@ class AudioQuestion(
         identifier = id,
         required = mandatory,
         extraParams = params,
+        status = status,
         completed = done,
-        callback =callback
+        callback = callback
     ), Parcelable {
 
     override var hasError: Boolean = false
@@ -37,7 +38,7 @@ class AudioQuestion(
     }
 
     override fun isValid(): Boolean {
-        return if (required && !done) {
+        return if (required && status.isNotPendingNorAccepted()) {
             value != null
         } else {
             true

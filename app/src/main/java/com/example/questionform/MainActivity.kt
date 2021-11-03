@@ -74,7 +74,9 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
         setContentView(R.layout.activity_main)
         validateButton.setOnClickListener {
             questionAdapter.validate()
-
+        }
+        collectButton.setOnClickListener {
+            questionAdapter.collect().log()
         }
         arrayAdapter = ArrayAdapter(
             this, android.R.layout.simple_list_item_1
@@ -93,43 +95,6 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                     image.log()
                 })
         recyclerView.adapter = questionAdapter
-        questionAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver(){
-            override fun onChanged() {
-                super.onChanged()
-                "onChanged".log()
-            }
-
-            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
-                super.onItemRangeChanged(positionStart, itemCount)
-                "onItemRangeChanged(positionStart:${positionStart},itemCount:${itemCount})".log()
-
-            }
-
-            override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
-                super.onItemRangeChanged(positionStart, itemCount, payload)
-                "onItemRangeChanged(positionStart:${positionStart},itemCount:${itemCount}, payload: ${payload?.javaClass?.simpleName})".log()
-
-            }
-
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                super.onItemRangeInserted(positionStart, itemCount)
-                "onItemRangeInserted(positionStart:${positionStart},itemCount:${itemCount})".log()
-
-            }
-
-            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-                super.onItemRangeRemoved(positionStart, itemCount)
-                "onItemRangeRemoved(positionStart:${positionStart},itemCount:${itemCount})".log()
-
-            }
-
-            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
-                super.onItemRangeMoved(fromPosition, toPosition, itemCount)
-                "onItemRangeRemoved(fromPosition: ${fromPosition}, toPosition: ${toPosition}, itemCount: ${itemCount})".log()
-
-            }
-        })
-
         questionAdapter.addQuestions(list)
 
         val linearLayoutManager = LinearLayoutManager(this)
@@ -141,7 +106,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
     private fun generateList(): List<Question<*>> {
         val list = mutableListOf<Question<*>>()
         val faker = Faker()
-        repeat((0..100).count()) {
+        repeat((0..1).count()) {
             list.add(
                 CheckQuestion(
                     title = faker.elderScrolls().quote(),
@@ -151,6 +116,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                         faker.elderScrolls().creature(),
                         faker.elderScrolls().creature()
                     ),
+                    status = QuestionStatus.random(),
                     id = faker.crypto().md5(),
                     mandatory = faker.bool().bool(),
                     done = faker.bool().bool(),
@@ -159,56 +125,23 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
             )
             val value = faker.howIMetYourMother().character()
 
-            list.add(
-                RadioQuestion(
-                    title = faker.gameOfThrones().character(),
-                    entries = listOf(
-                        faker.hobbit().character(),
-                        faker.howIMetYourMother().character(),
-                        faker.lordOfTheRings().character(),
-                        value
-                    ).shuffled(),
-                    id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    callback = this,
-                    value = value
+                 list.add(
+                     RadioQuestion(
+                         title = faker.gameOfThrones().character(),
+                         entries = listOf(
+                             faker.hobbit().character(),
+                             faker.howIMetYourMother().character(),
+                             faker.lordOfTheRings().character(),
+                             value
+                         ).shuffled(),
+                         id = faker.crypto().md5(),
+                         mandatory = faker.bool().bool(),
+                         callback = this,
+                         value = value,
+                         status = QuestionStatus.random()
 
-                )
-            )
-            list.add(
-                ImageQuestion(
-                    faker.hobbit().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    value = if (faker.bool().bool()) listOf(
-                        faker.avatar().image(),
-                        faker.avatar().image(),
-                        "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Chrome__logo.max-500x500.png",
-                        ""
-                    ).toMutableList() else mutableListOf<String>(),
-                    callback = this
-
-                )
-            )
-            list.add(
-                VideoQuestion(
-                    faker.backToTheFuture().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    value = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
-                    callback = this
-
-                )
-            )
-            list.add(
-                AudioQuestion(
-                    title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    callback = this
-
-                )
-            )
+                     )
+                 )
             list.add(
                 DropdownQuestion(
                     faker.friends().quote(), id = faker.crypto().md5(),
@@ -220,19 +153,58 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                         faker.friends().character()
                     ),
                     done = faker.bool().bool(),
-                    callback = this
+                    callback = this,
+                    status = QuestionStatus.random()
 
                 )
             )
-            list.add(
-                InputQuestion(
-                    faker.harryPotter().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    done = faker.bool().bool(),
-                    callback = this
+                 list.add(
+                     ImageQuestion(
+                         faker.hobbit().quote(), id = faker.crypto().md5(),
+                         mandatory = faker.bool().bool(),
+                         done = faker.bool().bool(),
 
-                )
-            )
+                         callback = this,
+                         status = QuestionStatus.random()
+
+
+                     )
+                 )
+                 list.add(
+                     VideoQuestion(
+                         faker.backToTheFuture().quote(), id = faker.crypto().md5(),
+                         mandatory = faker.bool().bool(),
+                         done = faker.bool().bool(),
+                         callback = this,
+                         status = QuestionStatus.random()
+
+
+                     )
+                 )
+                 list.add(
+                     AudioQuestion(
+                         title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
+                         mandatory = faker.bool().bool(),
+                         done = faker.bool().bool(),
+                         callback = this,
+                         status = QuestionStatus.random()
+
+
+                     )
+                 )
+
+                 list.add(
+                     InputQuestion(
+                         faker.harryPotter().quote(),
+                         id = faker.crypto().md5(),
+                         mandatory = faker.bool().bool(),
+                         done = faker.bool().bool(),
+                         callback = this,
+                         status = QuestionStatus.random()
+
+
+                     )
+                 )
         }
         return list.shuffled()
     }

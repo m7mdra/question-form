@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.media.MediaPlayer
@@ -30,7 +29,6 @@ import androidx.core.util.set
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textview.MaterialTextView
 import com.jakewharton.rxbinding4.widget.textChanges
 import com.m7mdra.questionForm.question.*
 import com.m7mdra.questionForm.question.QuestionType.*
@@ -196,25 +194,14 @@ class QuestionAdapter(
             .subscribe { question.update(it.toString()) }
         textWatcherDisposables[position] = disposable
 
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.textInputEditText.disable()
-            holder.submittedTextView.show()
         } else {
             holder.textInputEditText.enable()
-            holder.submittedTextView.gone()
         }
-
+        holder.stateLayout.inflateViewForStatus(question.status)
     }
 
-    private fun MaterialTextView.statusForText(status: QuestionStatus) {
-        when (status) {
-            QuestionStatus.Accepted -> {
-            }
-            QuestionStatus.Pending -> TODO()
-            QuestionStatus.Rejected -> TODO()
-            QuestionStatus.Default -> TODO()
-        }
-    }
 
     private fun bindDropQuestion(
         viewHolder: RecyclerView.ViewHolder,
@@ -246,14 +233,14 @@ class QuestionAdapter(
         }
         autoCompleteTextView.onItemClickListener = onItemClickListener
         dropDownListener[position] = onItemClickListener
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.autoCompleteTextView.disable()
-            holder.submittedTextView.show()
+            holder.autoCompleteTextViewLayout.disable()
         } else {
+            holder.autoCompleteTextViewLayout.enable()
             holder.autoCompleteTextView.enable()
-
-            holder.submittedTextView.gone()
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
     }
 
     private fun bindRadioQuestion(
@@ -286,21 +273,19 @@ class QuestionAdapter(
             radioButton.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     question.update(it)
-
                 }
             }
         }
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.rootView.disable()
             holder.itemView.disable()
             holder.rootView.disableChildren()
-            holder.submittedTextView.show()
         } else {
             holder.rootView.enable()
             holder.itemView.enable()
             holder.rootView.enableChildren()
-            holder.submittedTextView.gone()
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
     }
 
     private fun bindAudioQuestion(
@@ -383,15 +368,14 @@ class QuestionAdapter(
             audioRecordListener?.invoke(question, position)
 
         }
-        if (question.done) {
+        if (question.status.isPendingOrAccepted()) {
             holder.recordAudioButton.disable()
-            holder.submittedTextView.show()
 
         } else {
             holder.recordAudioButton.enable()
-            holder.submittedTextView.gone()
 
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
 
 
     }
@@ -446,13 +430,12 @@ class QuestionAdapter(
                 videoView.start()
             }
         }
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.captureOrPickVideoButton.disable()
-            holder.submittedTextView.show()
         } else {
             holder.captureOrPickVideoButton.enable()
-            holder.submittedTextView.gone()
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
 
     }
 
@@ -486,16 +469,16 @@ class QuestionAdapter(
             imagePickListener?.invoke(question, position)
         }
         imageAdapters[adapterPosition] = imageAdapter
-        if (question.value.isNotEmpty())
+        if (question.value.isNotEmpty()) {
             imageAdapter.addAll(question.value)
+        }
         holder.imagesRecyclerView.adapter = imageAdapter
-        if (question.completed) {
+        if (question.status.isPendingOrAccepted()) {
             holder.imageButton.disable()
-            holder.submittedTextView.show()
         } else {
             holder.imageButton.enable()
-            holder.submittedTextView.gone()
         }
+        holder.stateLayout.inflateViewForStatus(question.status)
 
     }
 
@@ -531,17 +514,15 @@ class QuestionAdapter(
             holder.checkboxLayout.addView(checkBox)
         }
 
-/*        if (question.done) {
+        if (question.status.isPendingOrAccepted()) {
             holder.rootView.disable()
             holder.itemView.disable()
             holder.rootView.disableChildren()
-            holder.submittedTextView.show()
         } else {
             holder.rootView.enable()
             holder.itemView.enable()
             holder.rootView.enableChildren()
-            holder.submittedTextView.gone()
-        }*/
+        }
 
         holder.stateLayout.inflateViewForStatus(question.status)
     }
@@ -553,7 +534,9 @@ class QuestionAdapter(
             QuestionStatus.Rejected -> R.layout.layout_rejected_status
             QuestionStatus.Default -> R.layout.layout_default_status
         }
-        layoutInflater.inflate(layoutId, this, false)
+        val view = layoutInflater.inflate(layoutId, null, false)
+        removeAllViews()
+        addView(view)
     }
 
     private val layoutInflater by lazy {
@@ -588,7 +571,7 @@ class QuestionAdapter(
             val first = list.firstOrNull { !it.validate() } ?: return@post
             val indexOfFirstError = list.indexOf(first)
 
-
+            "${first.identifier}/${first.questionType}: ${first.status} valid:${first.isValid()}".log()
             val visibleRange = layoutManager.visibleRange()
             "previousErrorIndex:${previousErrorIndex} is in visible range $visibleRange ? ${previousErrorIndex in visibleRange} ".log()
             if (indexOfFirstError != -1) {
@@ -600,7 +583,6 @@ class QuestionAdapter(
                 attachedRecyclerView?.smoothSnapToPosition(indexOfFirstError)
                 previousErrorIndex = indexOfFirstError
                 notifyItemChanged(indexOfFirstError)
-
             }
         }
 
@@ -611,7 +593,6 @@ class QuestionAdapter(
         super.onAttachedToRecyclerView(recyclerView)
         attachedRecyclerView = recyclerView
         layoutManager = recyclerView.layoutManager as? LinearLayoutManager
-        layoutManager.visibleRange().log()
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
@@ -629,6 +610,7 @@ class QuestionAdapter(
 
     fun collect(): List<Question<*>> {
         return list.filter { it !is TitleQuestion }
+            .filter { it.status.isNotPendingNorAccepted() }
             .map { it }
     }
 
@@ -642,17 +624,6 @@ class QuestionAdapter(
         val firstVisibleItemPosition = this?.findFirstVisibleItemPosition() ?: 0
         val lastVisibleItemPosition = this?.findLastVisibleItemPosition() ?: 0
         return IntRange(firstVisibleItemPosition, lastVisibleItemPosition)
-    }
-
-    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
-        super.onViewAttachedToWindow(holder)
-        "onViewAttachedToWindow: $holder".log()
-    }
-
-    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
-        super.onViewDetachedFromWindow(holder)
-        "onViewDetachedFromWindow: $holder".log()
-
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {

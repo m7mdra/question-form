@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="8dp"
-    android:drawableStart="@drawable/ic_baseline_error_outline_24"
+    android:drawableStart="@drawable/ic_baseline_check_circle_outline_24"
     android:drawablePadding="8dp"
     android:gravity="center"
     android:text="Accepted"
