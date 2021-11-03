@@ -90,7 +90,7 @@ class QuestionAdapter(
         if (indexOfQuestion == -1)
             return
         question.status = status
-        if (question.value == null && value != null) {
+        if (value != null) {
             when (question) {
                 is AudioQuestion -> {
                     question.update(value as? String)
