@@ -12,7 +12,7 @@ class ImageQuestion(
     val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
     override var value: MutableList<String> = mutableListOf(),
-    private val callback:  @RawValue QuestionCallback? = null,
+    private val callback: @RawValue QuestionCallback? = null,
     override var status: QuestionStatus = QuestionStatus.Default
 
 
@@ -32,7 +32,6 @@ class ImageQuestion(
         val valid = isValid()
         hasError = !valid
         return valid
-
     }
 
     override fun isValid(): Boolean {
@@ -45,9 +44,13 @@ class ImageQuestion(
 
 
     override fun update(value: MutableList<String>) {
-        this.value.addAll(value)
         super.update(this.value)
-        "UPDATED LIST WITH VALUE: $value ${isValid()} error: $hasError".log()
+        this.value = value
+    }
+
+    fun removeChildAt(childIndex: Int) {
+        value.removeAt(childIndex)
+        super.update(value)
     }
 
 }

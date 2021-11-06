@@ -16,7 +16,6 @@ import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
-import android.util.Log
 import android.util.SparseArray
 import android.util.SparseBooleanArray
 import android.util.SparseIntArray
@@ -37,7 +36,6 @@ import com.m7mdra.questionForm.viewholder.*
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 
@@ -83,6 +81,12 @@ class QuestionAdapter(
         notifyItemChanged(indexOfQuestion)
     }
 
+    fun removeImage(parentIndex: Int, childIndex: Int) {
+        imageAdapters[parentIndex].removeAt(childIndex)
+        (list[parentIndex] as ImageQuestion).removeChildAt(childIndex)
+        notifyItemChanged(parentIndex)
+    }
+
     fun updateQuestionStatus(id: String, status: QuestionStatus, value: Any? = null) {
         "updateQuestionStatus: $id,$status,$value".log()
         val question = list.firstOrNull { it.identifier == id } ?: return
@@ -110,7 +114,7 @@ class QuestionAdapter(
                 is VideoQuestion -> {
                     question.update(value as? String)
                 }
-                is RadioQuestion->{
+                is RadioQuestion -> {
                     question.update(value as? String)
                 }
             }

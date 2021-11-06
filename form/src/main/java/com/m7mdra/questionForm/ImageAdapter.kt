@@ -31,6 +31,12 @@ class ImageAdapter(
         notifyDataSetChanged()
     }
 
+    fun removeAt(position:Int){
+        list.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RowImageViewHolder {
         val view =
