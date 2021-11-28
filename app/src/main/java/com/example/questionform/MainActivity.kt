@@ -12,7 +12,6 @@ import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.net.toFile
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.javafaker.Faker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.m7mdra.questionForm.*
 import com.m7mdra.questionForm.question.*
@@ -27,7 +26,7 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity(), QuestionCallback {
     private lateinit var questionAdapter: QuestionAdapter
     private lateinit var arrayAdapter: ArrayAdapter<String>
-    val faker = Faker()
+//    val faker = Faker()
 
 
     private val audioRecordListener: (AudioQuestion, Int) -> Unit = { _, position ->
@@ -68,8 +67,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
             askForCameraPermission()
         }
     }
-    val id = faker.crypto().md5()
-  val value=  faker.hobbit().character()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,7 +84,6 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
         )
         arrayAdapter.addAll("High", "Medium", "Low")
 
-        val list = generateList()
         questionAdapter =
             QuestionAdapter(
                 this,
@@ -98,7 +95,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                     image.log()
                 })
         recyclerView.adapter = questionAdapter
-        questionAdapter.addQuestions(list)
+        questionAdapter.addQuestions(listOf())
 
         val linearLayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = linearLayoutManager
@@ -106,103 +103,103 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
         recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
     }
 
-    private fun generateList(): List<Question<*>> {
-        val list = mutableListOf<Question<*>>()
-        repeat((0..10).count()) {
-            list.add(
-                CheckQuestion(
-                    title = faker.elderScrolls().quote(),
-                    entries = listOf(
-                        faker.elderScrolls().creature(),
-                        faker.elderScrolls().creature(),
-                        faker.elderScrolls().creature(),
-                        faker.elderScrolls().creature()
-                    ),
-                    status = QuestionStatus.random(),
-                    id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    callback = this
-                )
-            )
-            val localValue = faker.howIMetYourMother().character()
-
-            list.add(
-                RadioQuestion(
-                    title = faker.gameOfThrones().character(),
-                    entries = listOf(
-                        value,
-                        faker.lordOfTheRings().character(),
-                        localValue
-                    ).shuffled(),
-                    id = id,
-                    mandatory = faker.bool().bool(),
-                    callback = this,
-                    value = localValue,
-                    status = QuestionStatus.random()
-
-                )
-            )
-            list.add(
-                DropdownQuestion(
-                    faker.friends().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    entries = listOf(
-                        faker.friends().character(),
-                        faker.friends().character(),
-                        faker.friends().character(),
-                        faker.friends().character()
-                    ),
-                    callback = this,
-                    status = QuestionStatus.random()
-
-                )
-            )
-            list.add(
-                ImageQuestion(
-                    faker.hobbit().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-
-                    callback = this,
-                    status = QuestionStatus.random()
-
-
-                )
-            )
-            list.add(
-                VideoQuestion(
-                    faker.backToTheFuture().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    callback = this,
-                    status = QuestionStatus.random()
-
-
-                )
-            )
-            list.add(
-                AudioQuestion(
-                    title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    callback = this,
-                    status = QuestionStatus.random()
-
-
-                )
-            )
-
-            list.add(
-                InputQuestion(
-                    faker.harryPotter().quote(),
-                    id = faker.crypto().md5(),
-                    mandatory = faker.bool().bool(),
-                    callback = this,
-                    status = QuestionStatus.random()
-
-
-                )
-            )
-        }
-        return list.shuffled()
-    }
+//    private fun generateList(): List<Question<*>> {
+//        val list = mutableListOf<Question<*>>()
+//        repeat((0..10).count()) {
+//            list.add(
+//                CheckQuestion(
+//                    title = faker.elderScrolls().quote(),
+//                    entries = listOf(
+//                        faker.elderScrolls().creature(),
+//                        faker.elderScrolls().creature(),
+//                        faker.elderScrolls().creature(),
+//                        faker.elderScrolls().creature()
+//                    ),
+//                    status = QuestionStatus.random(),
+//                    id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    callback = this
+//                )
+//            )
+//            val localValue = faker.howIMetYourMother().character()
+//
+//            list.add(
+//                RadioQuestion(
+//                    title = faker.gameOfThrones().character(),
+//                    entries = listOf(
+//                        value,
+//                        faker.lordOfTheRings().character(),
+//                        localValue
+//                    ).shuffled(),
+//                    id = id,
+//                    mandatory = faker.bool().bool(),
+//                    callback = this,
+//                    value = localValue,
+//                    status = QuestionStatus.random()
+//
+//                )
+//            )
+//            list.add(
+//                DropdownQuestion(
+//                    faker.friends().quote(), id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    entries = listOf(
+//                        faker.friends().character(),
+//                        faker.friends().character(),
+//                        faker.friends().character(),
+//                        faker.friends().character()
+//                    ),
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//                )
+//            )
+//            list.add(
+//                ImageQuestion(
+//                    faker.hobbit().quote(), id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//
+//                )
+//            )
+//            list.add(
+//                VideoQuestion(
+//                    faker.backToTheFuture().quote(), id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//
+//                )
+//            )
+//            list.add(
+//                AudioQuestion(
+//                    title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//
+//                )
+//            )
+//
+//            list.add(
+//                InputQuestion(
+//                    faker.harryPotter().quote(),
+//                    id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//
+//                )
+//            )
+//        }
+//        return list.shuffled()
+//    }
 
     private lateinit var videoFile: File
     private lateinit var imageFile: File
