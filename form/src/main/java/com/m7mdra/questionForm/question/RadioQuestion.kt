@@ -21,7 +21,7 @@ class RadioQuestion(
         identifier = id,
         status = status,
         required = mandatory,
-        extraParams = params,
+        extraParams = params.toMutableMap(),
         callback = callback
     ), Parcelable {
     override var hasError: Boolean = false

@@ -19,7 +19,7 @@ class InputQuestion(
         QuestionType.Input,
         identifier = id,
         required = mandatory,
-        extraParams = params,
+        extraParams = params.toMutableMap(),
         callback = callback,
         status = status
     ), Parcelable {

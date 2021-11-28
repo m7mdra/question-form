@@ -19,7 +19,7 @@ class VideoQuestion(
     questionType = QuestionType.Video,
     identifier = id,
     required = mandatory,
-    extraParams = params,
+    extraParams = params.toMutableMap(),
     callback = callback,
     status = status
 ), Parcelable {

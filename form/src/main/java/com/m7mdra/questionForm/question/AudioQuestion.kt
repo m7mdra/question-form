@@ -21,7 +21,7 @@ class AudioQuestion(
         questionType = QuestionType.Audio,
         identifier = id,
         required = mandatory,
-        extraParams = params,
+        extraParams = params.toMutableMap(),
         status = status,
         callback = callback
     ), Parcelable {

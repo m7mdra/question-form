@@ -87,12 +87,20 @@ class QuestionAdapter(
         notifyItemChanged(parentIndex)
     }
 
-    fun updateQuestionStatus(id: String, status: QuestionStatus, value: Any? = null) {
+    fun updateQuestionStatus(
+        id: String,
+        status: QuestionStatus,
+        value: Any? = null,
+        newParams: Map<String, String> = mapOf()
+    ) {
         "updateQuestionStatus: $id,$status,$value".log()
         val question = list.firstOrNull { it.identifier == id } ?: return
+
         val indexOfQuestion = list.indexOf(question)
         if (indexOfQuestion == -1)
             return
+        if (newParams.isNotEmpty())
+            question.addParams(newParams)
         question.status = status
         if (value != null) {
             when (question) {

@@ -9,7 +9,7 @@ class TitleQuestion(val title: String) :
         questionType = QuestionType.Title,
         required = false,
         identifier = "",
-        extraParams = mapOf(),
+        extraParams = mutableMapOf(),
         callback = null,
         status = QuestionStatus.Default
     ),

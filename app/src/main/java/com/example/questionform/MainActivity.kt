@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
         setContentView(R.layout.activity_main)
 
         validateButton.setOnClickListener {
-            questionAdapter.updateQuestionStatus(id, QuestionStatus.random(), value)
+            questionAdapter.validate()
         }
         collectButton.setOnClickListener {
             questionAdapter.collect().log()

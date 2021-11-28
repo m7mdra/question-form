@@ -5,7 +5,7 @@ abstract class Question<T>(
     val questionType: QuestionType,
     val required: Boolean = false,
     open val identifier: String,
-    val extraParams: Map<String, Any?>,
+    val extraParams: MutableMap<String, String>,
     private val callback: QuestionCallback?,
     open var status:QuestionStatus
 ) {
@@ -27,6 +27,10 @@ abstract class Question<T>(
     open fun update(value: T) {
         this.value = value
         callback?.onChange(this)
+    }
+
+    fun addParams(map: Map<String,String>){
+        extraParams.putAll(map)
     }
 
     override fun equals(other: Any?): Boolean {
