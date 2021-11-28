@@ -44,7 +44,7 @@ class ImageQuestion(
 
 
     override fun update(value: MutableList<String>) {
-        super.update(this.value)
+        super.update(value)
         this.value = value
     }
 
