@@ -12,7 +12,8 @@ class VideoQuestion(
     private val params: Map<String, String> = mapOf(),
     override var value: String? = null,
     private val callback: @RawValue QuestionCallback? = null,
-    override var status: QuestionStatus = QuestionStatus.Default
+    override var status: QuestionStatus = QuestionStatus.Default,
+    override var message: String = ""
 
 
 ) : Question<String?>(
@@ -21,7 +22,8 @@ class VideoQuestion(
     required = mandatory,
     extraParams = params.toMutableMap(),
     callback = callback,
-    status = status
+    status = status,
+    message = message
 ), Parcelable {
     override var hasError: Boolean = false
 

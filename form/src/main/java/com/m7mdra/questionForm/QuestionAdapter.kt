@@ -91,7 +91,8 @@ class QuestionAdapter(
         id: String,
         status: QuestionStatus,
         value: Any? = null,
-        newParams: Map<String, String> = mapOf()
+        newParams: Map<String, String> = mapOf(),
+        message :String = ""
     ) {
         "updateQuestionStatus: $id,$status,$value".log()
         val question = list.firstOrNull { it.identifier == id } ?: return
@@ -99,8 +100,12 @@ class QuestionAdapter(
         val indexOfQuestion = list.indexOf(question)
         if (indexOfQuestion == -1)
             return
-        if (newParams.isNotEmpty())
+        if (newParams.isNotEmpty()) {
             question.addParams(newParams)
+        }
+        if(message.isNotEmpty()){
+            question.addMessage(message)
+        }
         question.status = status
         if (value != null) {
             when (question) {
@@ -240,6 +245,12 @@ class QuestionAdapter(
             .filter { it.isNotEmpty() && it.isNotBlank() }
             .debounce(500, TimeUnit.MILLISECONDS)
             .subscribe { question.update(it.toString()) }
+        if(question.message.isEmpty()){
+            holder.messageTextView.gone()
+        }else{
+            holder.messageTextView.text = question.message
+            holder.messageTextView.show()
+        }
         textWatcherDisposables[position] = disposable
 
         if (question.status.isPendingOrAccepted()) {
@@ -265,6 +276,12 @@ class QuestionAdapter(
         holder.errorTextView.visibility =
             shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
+        if(question.message.isEmpty()){
+            holder.messageTextView.gone()
+        }else{
+            holder.messageTextView.text = question.message
+            holder.messageTextView.show()
+        }
 
         autoCompleteTextView.setText(question.value, false)
         autoCompleteTextView.setAdapter(
@@ -303,6 +320,12 @@ class QuestionAdapter(
 
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title)
+        if(question.message.isEmpty()){
+            holder.messageTextView.gone()
+        }else{
+            holder.messageTextView.text = question.message
+            holder.messageTextView.show()
+        }
 
         val radioGroup = holder.radioGroup
         val entries = question.entries
@@ -348,6 +371,12 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
+        if(question.message.isEmpty()){
+            holder.messageTextView.gone()
+        }else{
+            holder.messageTextView.text = question.message
+            holder.messageTextView.show()
+        }
 
 
         holder.titleTextView.text =
@@ -440,6 +469,12 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
+        if(question.message.isEmpty()){
+            holder.messageTextView.gone()
+        }else{
+            holder.messageTextView.text = question.message
+            holder.messageTextView.show()
+        }
 
         val cameraPermissionGranted = holder.context.isCameraPermissionGranted()
         holder.titleTextView.text =
@@ -501,6 +536,12 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
+        if(question.message.isEmpty()){
+            holder.messageTextView.gone()
+        }else{
+            holder.messageTextView.text = question.message
+            holder.messageTextView.show()
+        }
 
 
         holder.imageButton.text =
@@ -539,6 +580,12 @@ class QuestionAdapter(
         val question = list[position] as CheckQuestion
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title)
+        if(question.message.isEmpty()){
+            holder.messageTextView.gone()
+        }else{
+            holder.messageTextView.text = question.message
+            holder.messageTextView.show()
+        }
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
@@ -585,6 +632,17 @@ class QuestionAdapter(
         val view = layoutInflater.inflate(layoutId, null, false)
         removeAllViews()
         addView(view)
+    }
+
+    @SuppressLint("NewApi")
+    private fun InflatableLayout.inflateViewForStatus(status: QuestionStatus) {
+        val layoutId = when (status) {
+            QuestionStatus.Accepted -> R.layout.layout_accepted_status
+            QuestionStatus.Pending -> R.layout.layout_pending_status
+            QuestionStatus.Rejected -> R.layout.layout_rejected_status
+            QuestionStatus.Default -> R.layout.layout_default_status
+        }
+        inflateNewView(layoutId)
     }
 
     private val layoutInflater by lazy {

@@ -12,12 +12,15 @@ class InputQuestion(
     private val params: Map<String, String> = mapOf(),
     override var value: String? = null,
     private val callback: @RawValue QuestionCallback? = null,
-    override var status: QuestionStatus = QuestionStatus.Default
+    override var status: QuestionStatus = QuestionStatus.Default,
+    override var message: String = ""
+
 
 ) :
     Question<String?>(
         QuestionType.Input,
         identifier = id,
+        message = message,
         required = mandatory,
         extraParams = params.toMutableMap(),
         callback = callback,

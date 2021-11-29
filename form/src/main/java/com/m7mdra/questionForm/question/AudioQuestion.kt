@@ -13,13 +13,15 @@ class AudioQuestion(
     private val mandatory: Boolean = false,
     private val params: Map<String, String> = mapOf(),
     private val callback: @RawValue QuestionCallback? = null,
-    override var status: QuestionStatus = QuestionStatus.Default
+    override var status: QuestionStatus = QuestionStatus.Default,
+    override var message: String = ""
 
 
 ) :
     Question<String?>(
         questionType = QuestionType.Audio,
         identifier = id,
+        message = message,
         required = mandatory,
         extraParams = params.toMutableMap(),
         status = status,

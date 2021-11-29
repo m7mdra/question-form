@@ -13,7 +13,8 @@ class ImageQuestion(
     private val params: Map<String, String> = mapOf(),
     override var value: MutableList<String> = mutableListOf(),
     private val callback: @RawValue QuestionCallback? = null,
-    override var status: QuestionStatus = QuestionStatus.Default
+    override var status: QuestionStatus = QuestionStatus.Default,
+            override var message: String = ""
 
 
 ) :
@@ -21,6 +22,7 @@ class ImageQuestion(
         QuestionType.Image,
         identifier = id,
         required = mandatory,
+        message = message,
         extraParams = params.toMutableMap(),
         status = status,
         callback = callback

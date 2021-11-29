@@ -7,8 +7,6 @@ import android.widget.TextView
 import android.widget.VideoView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.textview.MaterialTextView
-import kotlinx.android.synthetic.main.row_audio.view.*
 import kotlinx.android.synthetic.main.row_video.view.*
 import kotlinx.android.synthetic.main.row_video.view.errorTextView
 import kotlinx.android.synthetic.main.row_video.view.rootLayout
@@ -20,6 +18,7 @@ class VideoViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
     val videoView: VideoView = view.videoView
     val titleTextView: TextView = view.titleTextView
     val errorTextView: TextView = view.errorTextView
+    val messageTextView: TextView = view.messageTextView
 
     val playOrStopButton: ImageView = view.playButton
     val stateLayout: FrameLayout =view.stateLayout

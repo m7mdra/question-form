@@ -13,7 +13,9 @@ class CheckQuestion(
     private val params: Map<String, String> = mapOf(),
     override var value: List<String> = listOf(),
     private val callback: @RawValue QuestionCallback? = null,
-    override var status: QuestionStatus = QuestionStatus.Default
+    override var status: QuestionStatus = QuestionStatus.Default,
+    override var message: String = ""
+
 
 
 ) :
@@ -21,6 +23,7 @@ class CheckQuestion(
         QuestionType.Check,
         identifier = id,
         status = status,
+        message = message,
         required = mandatory,
         extraParams = params.toMutableMap(),
         callback = callback

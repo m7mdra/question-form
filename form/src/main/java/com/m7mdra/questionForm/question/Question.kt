@@ -7,7 +7,8 @@ abstract class Question<T>(
     open val identifier: String,
     val extraParams: MutableMap<String, String>,
     private val callback: QuestionCallback?,
-    open var status:QuestionStatus
+    open var status: QuestionStatus,
+    open var message: String
 ) {
     abstract var value: T
     abstract fun isValid(): Boolean
@@ -29,8 +30,12 @@ abstract class Question<T>(
         callback?.onChange(this)
     }
 
-    fun addParams(map: Map<String,String>){
+    fun addParams(map: Map<String, String>) {
         extraParams.putAll(map)
+    }
+
+    fun addMessage(newMessage: String) {
+        this.message = newMessage
     }
 
     override fun equals(other: Any?): Boolean {

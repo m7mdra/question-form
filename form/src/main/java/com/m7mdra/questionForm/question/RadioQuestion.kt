@@ -13,12 +13,15 @@ class RadioQuestion(
     private val params: Map<String, String> = mapOf(),
     override var value: String? = null,
     private val callback: @RawValue QuestionCallback? = null,
-    override var status: QuestionStatus = QuestionStatus.Default
+    override var status: QuestionStatus = QuestionStatus.Default,
+    override var message: String = ""
+
 
 ) :
     Question<String?>(
         QuestionType.Radio,
         identifier = id,
+        message = message,
         status = status,
         required = mandatory,
         extraParams = params.toMutableMap(),

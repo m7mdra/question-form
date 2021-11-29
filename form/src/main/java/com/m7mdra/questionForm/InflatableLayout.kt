@@ -33,9 +33,11 @@ class InflatableLayout @JvmOverloads constructor(
         }
         initView()
     }
-    private fun initView(){
-        removeAllViews()
-        inflate(context,layoutResId,this)
+    private fun initView() {
+        if (layoutResId != -1) {
+            removeAllViews()
+            inflate(context, layoutResId, this)
+        }
     }
     fun inflateNewView(@LayoutRes layoutId:Int){
         this.layoutResId = layoutId

@@ -95,7 +95,66 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                     image.log()
                 })
         recyclerView.adapter = questionAdapter
-        questionAdapter.addQuestions(listOf())
+        questionAdapter.addQuestions(
+            listOf(
+                InputQuestion(
+                    id = "1",
+                    title = "Title title",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true,
+                    message = "Message message"
+                ),
+                ImageQuestion(
+                    id = "1",
+                    title = "Title title",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true,
+                    message = "Message message"
+                ),
+                DropdownQuestion(
+                    entries = listOf("Option 1", "Option 2", "Option 3"),
+                    id = "1",
+                    title = "Title title",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true,
+                    message = "Message message"
+                ),
+                AudioQuestion(
+                    id = "3",
+                    title = "Title title",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true,
+                    message = "Message message32131"
+                ),
+                CheckQuestion(
+                    id = "4",
+                    title = "Title title2",
+                    message = "Hello this is a message for error",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true, entries = listOf("Value one", "Value two")
+                ),
+                RadioQuestion(
+                    id = "4",
+                    title = "Title title2",
+                    message = "Hello this is a message for error",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true, entries = listOf("Value one", "Value two")
+                ),
+                VideoQuestion(
+                    id = "4",
+                    title = "Title title2",
+                    message = "Hello this is a message for error",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true
+                ),
+                InputQuestion(
+                    id = "2",
+                    title = "Title title2",
+                    status = QuestionStatus.Pending,
+                    mandatory = true,
+                ),
+            )
+        )
 
         val linearLayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = linearLayoutManager

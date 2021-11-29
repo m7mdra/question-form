@@ -11,6 +11,7 @@ class TitleQuestion(val title: String) :
         identifier = "",
         extraParams = mutableMapOf(),
         callback = null,
+        message = "",
         status = QuestionStatus.Default
     ),
     Parcelable {
