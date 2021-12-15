@@ -4,7 +4,7 @@
 
 A form builder with support to different types of questions and high preformance.
 
-it support subset of types without no intention to allow extensions
+it supports only a subset of types without no intention to allow extensions.
 
 ```groovy
 allprojects {
