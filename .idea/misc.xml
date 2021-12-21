@@ -4,7 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.5322916666666667" />
-        <entry key="app/src/main/res/layout/activity_main2.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.421195652173913" />
+        <entry key="app/src/main/res/layout/activity_record_audio.xml" value="0.327445652173913" />
         <entry key="form/src/main/res/drawable/ic_baseline_calendar_today_24.xml" value="0.53125" />
         <entry key="form/src/main/res/drawable/ic_baseline_camera_alt_24.xml" value="0.53125" />
         <entry key="form/src/main/res/drawable/ic_baseline_check_24.xml" value="0.53125" />
@@ -16,18 +17,19 @@
         <entry key="form/src/main/res/drawable/ic_baseline_play_circle_filled_24.xml" value="0.53125" />
         <entry key="form/src/main/res/drawable/ic_baseline_stop_24.xml" value="0.53125" />
         <entry key="form/src/main/res/drawable/ic_baseline_videocam_24.xml" value="0.53125" />
-        <entry key="form/src/main/res/layout/layout_accepted_status.xml" value="1.5" />
-        <entry key="form/src/main/res/layout/layout_default_status.xml" value="0.16458333333333333" />
-        <entry key="form/src/main/res/layout/layout_pending_status.xml" value="0.625" />
-        <entry key="form/src/main/res/layout/layout_rejected_status.xml" value="0.75" />
-        <entry key="form/src/main/res/layout/row_audio.xml" value="0.5523415977961432" />
-        <entry key="form/src/main/res/layout/row_check.xml" value="0.5112443778110944" />
-        <entry key="form/src/main/res/layout/row_dropdown.xml" value="0.75" />
-        <entry key="form/src/main/res/layout/row_image.xml" value="0.5212962962962963" />
-        <entry key="form/src/main/res/layout/row_input.xml" value="0.5" />
-        <entry key="form/src/main/res/layout/row_radio.xml" value="0.67" />
-        <entry key="form/src/main/res/layout/row_title.xml" value="0.5212962962962963" />
-        <entry key="form/src/main/res/layout/row_video.xml" value="0.9" />
+        <entry key="form/src/main/res/drawable/placeholder_image.xml" value="0.53125" />
+        <entry key="form/src/main/res/layout/layout_accepted_status.xml" value="0.421195652173913" />
+        <entry key="form/src/main/res/layout/row_audio.xml" value="0.5" />
+        <entry key="form/src/main/res/layout/row_audio_hr.xml" value="0.42617753623188404" />
+        <entry key="form/src/main/res/layout/row_check.xml" value="0.33" />
+        <entry key="form/src/main/res/layout/row_check_hr.xml" value="0.42617753623188404" />
+        <entry key="form/src/main/res/layout/row_dropdown.xml" value="0.29981884057971014" />
+        <entry key="form/src/main/res/layout/row_dropdown_hr.xml" value="0.42617753623188404" />
+        <entry key="form/src/main/res/layout/row_image.xml" value="0.29981884057971014" />
+        <entry key="form/src/main/res/layout/row_input.xml" value="0.29981884057971014" />
+        <entry key="form/src/main/res/layout/row_radio.xml" value="0.29981884057971014" />
+        <entry key="form/src/main/res/layout/row_row_image.xml" value="0.31521739130434784" />
+        <entry key="form/src/main/res/layout/row_video.xml" value="0.29981884057971014" />
       </map>
     </option>
   </component>

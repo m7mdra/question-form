@@ -26,9 +26,8 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.util.forEach
 import androidx.core.util.set
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.LinearSmoothScroller
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.ListAdapter
 import com.jakewharton.rxbinding4.widget.textChanges
 import com.m7mdra.questionForm.question.*
 import com.m7mdra.questionForm.question.QuestionType.*
@@ -47,7 +46,11 @@ class QuestionAdapter(
     private val videoPickListener: ((VideoQuestion, Int) -> Unit)? = null,
     private val imageClickListener: ((Int, Int, String) -> Unit)? = null
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    ListAdapter<Question<*>, RecyclerView.ViewHolder>(
+        AsyncDifferConfig.Builder(
+            QuestionDiffUtilCallback()
+        ).build()
+    ) {
     private val list = mutableListOf<Question<*>>()
 
     @SuppressLint("NotifyDataSetChanged")
@@ -92,7 +95,7 @@ class QuestionAdapter(
         status: QuestionStatus,
         value: Any? = null,
         newParams: Map<String, String> = mapOf(),
-        message :String = ""
+        message: String = ""
     ) {
         "updateQuestionStatus: $id,$status,$value".log()
         val question = list.firstOrNull { it.identifier == id } ?: return
@@ -103,7 +106,7 @@ class QuestionAdapter(
         if (newParams.isNotEmpty()) {
             question.addParams(newParams)
         }
-        if(message.isNotEmpty()){
+        if (message.isNotEmpty()) {
             question.addMessage(message)
         }
         question.status = status
@@ -245,9 +248,9 @@ class QuestionAdapter(
             .filter { it.isNotEmpty() && it.isNotBlank() }
             .debounce(500, TimeUnit.MILLISECONDS)
             .subscribe { question.update(it.toString()) }
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -276,9 +279,9 @@ class QuestionAdapter(
         holder.errorTextView.visibility =
             shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -320,9 +323,9 @@ class QuestionAdapter(
 
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -371,9 +374,9 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -469,9 +472,9 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -536,9 +539,9 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -580,9 +583,9 @@ class QuestionAdapter(
         val question = list[position] as CheckQuestion
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
