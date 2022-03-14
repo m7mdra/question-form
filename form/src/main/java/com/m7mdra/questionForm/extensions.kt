@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.text.format.DateUtils
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -124,3 +125,6 @@ fun AppCompatActivity.adjustScreen() {
 }
 
 fun Long.formatDuration(): String = DateUtils.formatElapsedTime(this)
+/**
+ * Vibrates the device. Used for providing feedback when the user performs an action.
+ */

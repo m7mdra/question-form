@@ -3,13 +3,13 @@ package com.m7mdra.questionForm
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Context.VIBRATOR_SERVICE
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -45,10 +45,15 @@ class QuestionAdapter(
     private val imagePickListener: ((ImageQuestion, Int) -> Unit)? = null,
     private val audioRecordListener: ((AudioQuestion, Int) -> Unit)? = null,
     private val videoPickListener: ((VideoQuestion, Int) -> Unit)? = null,
-    private val imageClickListener: ((Int, Int, String) -> Unit)? = null
+    private val imageClickListener: ((Int, Int, String) -> Unit)? = null,
+    private val vibrateWhenError: Boolean = false
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val list = mutableListOf<Question<*>>()
+    private val vibrator by lazy {
+        context.getSystemService(VIBRATOR_SERVICE) as Vibrator
+    }
+
 
     @SuppressLint("NotifyDataSetChanged")
     fun addQuestions(questions: List<Question<*>>) {
@@ -92,7 +97,7 @@ class QuestionAdapter(
         status: QuestionStatus,
         value: Any? = null,
         newParams: Map<String, String> = mapOf(),
-        message :String = ""
+        message: String = ""
     ) {
         "updateQuestionStatus: $id,$status,$value".log()
         val question = list.firstOrNull { it.identifier == id } ?: return
@@ -103,7 +108,7 @@ class QuestionAdapter(
         if (newParams.isNotEmpty()) {
             question.addParams(newParams)
         }
-        if(message.isNotEmpty()){
+        if (message.isNotEmpty()) {
             question.addMessage(message)
         }
         question.status = status
@@ -245,9 +250,9 @@ class QuestionAdapter(
             .filter { it.isNotEmpty() && it.isNotBlank() }
             .debounce(500, TimeUnit.MILLISECONDS)
             .subscribe { question.update(it.toString()) }
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -276,9 +281,9 @@ class QuestionAdapter(
         holder.errorTextView.visibility =
             shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -320,9 +325,9 @@ class QuestionAdapter(
 
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -371,9 +376,9 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -469,9 +474,9 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -536,9 +541,9 @@ class QuestionAdapter(
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
         holder.itemView.setBackgroundResource(if (question.hasError) R.drawable.error_stroke else 0)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -580,9 +585,9 @@ class QuestionAdapter(
         val question = list[position] as CheckQuestion
         holder.titleTextView.text =
             titleWithRedAsterisk(question.required, question.title)
-        if(question.message.isEmpty()){
+        if (question.message.isEmpty()) {
             holder.messageTextView.gone()
-        }else{
+        } else {
             holder.messageTextView.text = question.message
             holder.messageTextView.show()
         }
@@ -663,11 +668,35 @@ class QuestionAdapter(
         return list.size
     }
 
+    private fun vibrate(context: Context) {
+        val milliseconds: Long = 25
+        if (Build.VERSION.SDK_INT >= 26) {
+            val createOneShot = VibrationEffect.createOneShot(
+                milliseconds, VibrationEffect.DEFAULT_AMPLITUDE
+            )
+            vibrator.vibrate(createOneShot)
+        } else {
+            vibrator.vibrate(milliseconds)
+        }
+    }
+
     fun validate(): Boolean {
-
-        notifyErrors()
-
-        return list.all { it.isValid() }
+        val allValid = list.all { it.isValid() }
+        return if (allValid) {
+            list.forEachIndexed { index, question ->
+                if (question.hasError) {
+                    question.hasError = false
+                    notifyItemChanged(index)
+                }
+            }
+            true
+        } else {
+            if (vibrateWhenError) {
+                vibrate(context)
+            }
+            notifyErrors()
+            false
+        }
     }
 
     private var previousErrorIndex = -1
@@ -848,13 +877,16 @@ class QuestionAdapter(
     }
 
     private fun RecyclerView.smoothSnapToPosition(position: Int) {
-        val smoothScroller = object : LinearSmoothScroller(context) {
-            override fun getVerticalSnapPreference(): Int = SNAP_TO_START
-            override fun getHorizontalSnapPreference(): Int = SNAP_TO_START
-        }
+        val smoothScroller = newLinearSmoothScroller()
         smoothScroller.targetPosition = position
         layoutManager?.startSmoothScroll(smoothScroller)
     }
+
+    private fun RecyclerView.newLinearSmoothScroller() =
+        object : LinearSmoothScroller(context) {
+            override fun getVerticalSnapPreference(): Int = SNAP_TO_START
+            override fun getHorizontalSnapPreference(): Int = SNAP_TO_START
+        }
 
     private fun viewHolder(
         viewType: Int,
