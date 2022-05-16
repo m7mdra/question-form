@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                 imageClickListener = { parentPosition, childPosition, image ->
 
                     image.log()
-                })
+                },)
         recyclerView.adapter = questionAdapter
         questionAdapter.addQuestions(
             listOf(
@@ -109,7 +109,13 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                     title = "Title title",
                     status = QuestionStatus.Rejected,
                     mandatory = true,
-                    message = "Message message"
+                    message = "Message message",
+                    callback = object : QuestionCallback{
+                        override fun onChange(question: Question<*>) {
+                            question.log()
+                        }
+
+                    }
                 ),
                 DropdownQuestion(
                     entries = listOf("Option 1", "Option 2", "Option 3"),
