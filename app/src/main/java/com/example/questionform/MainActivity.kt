@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider.getUriForFile
+import androidx.core.net.toFile
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -18,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.IOException
 import java.util.*
+import kotlin.random.Random
 
 
 @Suppress("DEPRECATION")
@@ -91,36 +93,73 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                 imageClickListener = { parentPosition, childPosition, image ->
 
                     image.log()
-                })
+                },)
         recyclerView.adapter = questionAdapter
-        val questions = mutableListOf<Question<*>>()
-        (0..1000).forEach { _ ->
-            questions.add( DropdownQuestion(
-                entries = listOf("Option 1", "Option 2", "Option 3"),
-                id = "${Random().nextInt()}",
-                title = "Title title",
-                status = QuestionStatus.Default,
-                mandatory = Random().nextBoolean(),
-                message = "Message message"
-            ))
-            questions .add( CheckQuestion(
-                id = "${Random().nextInt()}",
-                title = "Title title2",
-                status = QuestionStatus.Default,
-                mandatory = Random().nextBoolean(),
-                entries = listOf("Value one", "Value two")
-            ))
-           questions.add( RadioQuestion(
-                id = "${Random().nextInt()}",
-                title = "Title title2",
-                status = QuestionStatus.Default,
-                mandatory = Random().nextBoolean(),
-               entries = listOf("Value one", "Value two")
-            ))
-        }
-        questions.shuffle()
         questionAdapter.addQuestions(
-            questions
+            listOf(
+                InputQuestion(
+                    id = "1",
+                    title = "Title title",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true,
+                    message = "Message message"
+                ),
+                ImageQuestion(
+                    id = "1",
+                    title = "Title title",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true,
+                    message = "Message message",
+                    callback = object : QuestionCallback{
+                        override fun onChange(question: Question<*>) {
+                            question.log()
+                        }
+
+                    }
+                ),
+                DropdownQuestion(
+                    entries = listOf("Option 1", "Option 2", "Option 3"),
+                    id = "1",
+                    title = "Title title",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true,
+                    message = "Message message"
+                ),
+                AudioQuestion(
+                    id = "3",
+                    title = "Title title",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true,
+                    message = "Message message32131"
+                ),
+                CheckQuestion(
+                    id = "4",
+                    title = "Title title2",
+                    message = "Hello this is a message for error",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true, entries = listOf("Value one", "Value two")
+                ),
+                RadioQuestion(
+                    id = "4",
+                    title = "Title title2",
+                    message = "Hello this is a message for error",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true, entries = listOf("Value one", "Value two")
+                ),
+                VideoQuestion(
+                    id = "4",
+                    title = "Title title2",
+                    message = "Hello this is a message for error",
+                    status = QuestionStatus.Rejected,
+                    mandatory = true
+                ),
+                InputQuestion(
+                    id = "2",
+                    title = "Title title2",
+                    status = QuestionStatus.Pending,
+                    mandatory = true,
+                ),
+            )
         )
 
         val linearLayoutManager = LinearLayoutManager(this)
@@ -129,6 +168,103 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
         recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
     }
 
+//    private fun generateList(): List<Question<*>> {
+//        val list = mutableListOf<Question<*>>()
+//        repeat((0..10).count()) {
+//            list.add(
+//                CheckQuestion(
+//                    title = faker.elderScrolls().quote(),
+//                    entries = listOf(
+//                        faker.elderScrolls().creature(),
+//                        faker.elderScrolls().creature(),
+//                        faker.elderScrolls().creature(),
+//                        faker.elderScrolls().creature()
+//                    ),
+//                    status = QuestionStatus.random(),
+//                    id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    callback = this
+//                )
+//            )
+//            val localValue = faker.howIMetYourMother().character()
+//
+//            list.add(
+//                RadioQuestion(
+//                    title = faker.gameOfThrones().character(),
+//                    entries = listOf(
+//                        value,
+//                        faker.lordOfTheRings().character(),
+//                        localValue
+//                    ).shuffled(),
+//                    id = id,
+//                    mandatory = faker.bool().bool(),
+//                    callback = this,
+//                    value = localValue,
+//                    status = QuestionStatus.random()
+//
+//                )
+//            )
+//            list.add(
+//                DropdownQuestion(
+//                    faker.friends().quote(), id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    entries = listOf(
+//                        faker.friends().character(),
+//                        faker.friends().character(),
+//                        faker.friends().character(),
+//                        faker.friends().character()
+//                    ),
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//                )
+//            )
+//            list.add(
+//                ImageQuestion(
+//                    faker.hobbit().quote(), id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//
+//                )
+//            )
+//            list.add(
+//                VideoQuestion(
+//                    faker.backToTheFuture().quote(), id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//
+//                )
+//            )
+//            list.add(
+//                AudioQuestion(
+//                    title = faker.gameOfThrones().quote(), id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//
+//                )
+//            )
+//
+//            list.add(
+//                InputQuestion(
+//                    faker.harryPotter().quote(),
+//                    id = faker.crypto().md5(),
+//                    mandatory = faker.bool().bool(),
+//                    callback = this,
+//                    status = QuestionStatus.random()
+//
+//
+//                )
+//            )
+//        }
+//        return list.shuffled()
+//    }
 
     private lateinit var videoFile: File
     private lateinit var imageFile: File

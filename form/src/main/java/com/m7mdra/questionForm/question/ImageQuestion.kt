@@ -46,8 +46,8 @@ class ImageQuestion(
 
 
     override fun update(value: MutableList<String>) {
-        super.update(value)
-        this.value = value
+        this.value.addAll(value)
+        super.update(this.value)
     }
 
     fun removeChildAt(childIndex: Int) {
