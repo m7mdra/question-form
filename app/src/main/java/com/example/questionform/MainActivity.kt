@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
             listOf(
                 InputQuestion(
                     id = "1",
-                    title = "Title title",
+                    title = "Title titleTitle titleTitle titleTitle titleTitle titleTitle titleTitle titleTitle titleTitle title",
                     status = QuestionStatus.Rejected,
                     mandatory = true,
                     message = "Message message"

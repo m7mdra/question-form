@@ -20,10 +20,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="Title"
+            android:layout_marginEnd="8dp"
+            android:text="This field can not be empty.This field can not be empty."
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             android:textColor="@android:color/black"
-            app:layout_constraintEnd_toStartOf="@+id/stateLayout"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -38,11 +39,15 @@
             android:layout_marginEnd="8dp"
             android:hint="Answer here"
             app:boxBackgroundMode="outline"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/messageTextView">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:imeOptions="actionDone"
+                android:inputType="text"
+
                 android:id="@+id/textInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -67,10 +72,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/titleTextView"
             tools:layout="@layout/layout_pending_status" />
 
         <TextView
@@ -78,7 +82,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
             android:textColor="@android:color/holo_red_dark"
