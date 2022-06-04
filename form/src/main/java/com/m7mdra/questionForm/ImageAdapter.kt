@@ -1,16 +1,12 @@
 package com.m7mdra.questionForm
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.webkit.URLUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.m7mdra.questionForm.viewholder.RowImageViewHolder
-import com.squareup.picasso.Cache
-import com.squareup.picasso.LruCache
-import com.squareup.picasso.OkHttp3Downloader
-import com.squareup.picasso.Picasso
 import java.io.File
 
 class ImageAdapter(
@@ -31,11 +27,10 @@ class ImageAdapter(
         notifyDataSetChanged()
     }
 
-    fun removeAt(position:Int){
+    fun removeAt(position: Int) {
         list.removeAt(position)
         notifyItemRemoved(position)
     }
-
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RowImageViewHolder {
@@ -44,12 +39,8 @@ class ImageAdapter(
         return RowImageViewHolder(view)
     }
 
-    private val picasso: Picasso by lazy {
-        Picasso.Builder(context)
-            .memoryCache(LruCache(context))
-            .loggingEnabled(BuildConfig.DEBUG)
-            .downloader(OkHttp3Downloader(context))
-            .build()
+    private val requestManager by lazy {
+        Glide.with(context)
     }
 
 
@@ -58,23 +49,20 @@ class ImageAdapter(
         holder.view.setOnClickListener {
             clickListener.invoke(position, imageSource)
         }
-        if(imageSource.isNotEmpty()) {
-            if (URLUtil.isHttpUrl(imageSource) || URLUtil.isHttpsUrl(imageSource)) {
-                picasso.load(imageSource)
-                    .fit()
-                    .centerInside()
-                    .error(R.drawable.placeholder_image)
-                    .placeholder(R.drawable.placeholder_image)
-                    .into(holder.selectedImageView)
-            } else  {
-                picasso
-                    .load(File(imageSource))
-                    .fit()
-                    .error(R.drawable.placeholder_image)
-                    .placeholder(R.drawable.placeholder_image)
-                    .centerInside()
-                    .into(holder.selectedImageView)
+        if (imageSource.isNotEmpty()) {
+            val request = if (URLUtil.isHttpUrl(imageSource) || URLUtil.isHttpsUrl(imageSource)) {
+                requestManager.load(imageSource)
+
+            } else {
+                requestManager.load(File(imageSource))
+
             }
+            request
+
+                .centerInside()
+                .error(R.drawable.placeholder_image)
+                .placeholder(R.drawable.placeholder_image)
+                .into(holder.selectedImageView)
         }
 
 

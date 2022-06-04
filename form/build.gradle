@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
+    id 'kotlin-kapt'
     id 'kotlin-android-extensions'
     id 'maven-publish'
 }
@@ -60,6 +61,7 @@ dependencies {
     androidTestImplementation "io.mockk:mockk-android:+"
     androidTestImplementation "io.mockk:mockk-agent-jvm:+"
     implementation 'com.jakewharton.rxbinding4:rxbinding:4.0.0'
-    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.github.bumptech.glide:glide:4.13.0'
+    kapt 'com.github.bumptech.glide:compiler:4.13.0'
 
 }

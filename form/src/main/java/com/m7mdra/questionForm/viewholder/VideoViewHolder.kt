@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.row_video.view.titleTextView
 
 class VideoViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
     val captureOrPickVideoButton: MaterialButton = view.captureOrPickVideoButton
-    val videoView: VideoView = view.videoView
+    val videoImageView: ImageView = view.videoImageView
     val titleTextView: TextView = view.titleTextView
     val errorTextView: TextView = view.errorTextView
     val messageTextView: TextView = view.messageTextView

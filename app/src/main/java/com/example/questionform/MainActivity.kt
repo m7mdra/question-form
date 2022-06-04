@@ -4,12 +4,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider.getUriForFile
-import androidx.core.net.toFile
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -17,7 +15,6 @@ import com.m7mdra.questionForm.*
 import com.m7mdra.questionForm.question.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
-import java.io.IOException
 import java.util.*
 import kotlin.random.Random
 
@@ -62,17 +59,33 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
         if (isCameraPermissionGranted()) {
             lastVideoPosition = position
             dispatchVideoCaptureIntent()
-
         } else {
             askForCameraPermission()
         }
     }
 
+    private val videoRecordCallback: (result: Boolean) -> Unit = { success ->
+        if (success) {
+            questionAdapter.updatePickedVideo(videoFile.path, lastVideoPosition)
+
+        }
+
+    }
+    private val imageCaptureCallback: (result: Boolean) -> Unit = { success ->
+        if (success) {
+            questionAdapter.updateImageAdapterAtPosition(imageFile.path, lastImagePosition)
+        }
+    }
+    private lateinit var recordVideoLauncher: ActivityResultLauncher<File>
+    private lateinit var captureImageLauncher: ActivityResultLauncher<File>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        captureImageLauncher =
+            registerForActivityResult(ActivityContractors.CaptureImage(), imageCaptureCallback)
+        recordVideoLauncher =
+            registerForActivityResult(ActivityContractors.RecordVideo(), videoRecordCallback)
         validateButton.setOnClickListener {
             questionAdapter.validate()
         }
@@ -90,10 +103,15 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                 imagePickListener,
                 audioRecordListener,
                 videoPickListener,
-                imageClickListener = { parentPosition, childPosition, image ->
+                imageClickListener = { parentPosition, childPosition, question, image ->
 
                     image.log()
-                },)
+                },
+                videoClickListener = { index, videoQuestion ->
+                    videoQuestion.log()
+
+                }
+            )
         recyclerView.adapter = questionAdapter
         questionAdapter.addQuestions(
             listOf(
@@ -110,7 +128,7 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                     status = QuestionStatus.Rejected,
                     mandatory = true,
                     message = "Message message",
-                    callback = object : QuestionCallback{
+                    callback = object : QuestionCallback {
                         override fun onChange(question: Question<*>) {
                             question.log()
                         }
@@ -151,7 +169,8 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
                     title = "Title title2",
                     message = "Hello this is a message for error",
                     status = QuestionStatus.Rejected,
-                    mandatory = true
+                    mandatory = true,
+                    value = "https://cdn.videvo.net/videvo_files/video/premium/video0261/large_watermarked/500_00300_preview.mp4"
                 ),
                 InputQuestion(
                     id = "2",
@@ -268,80 +287,27 @@ class MainActivity : AppCompatActivity(), QuestionCallback {
 
     private lateinit var videoFile: File
     private lateinit var imageFile: File
-    private fun dispatchVideoCaptureIntent() {
-        try {
-            Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { intent ->
-                intent.resolveActivity(packageManager)?.also { _ ->
-                    val newFile: File? = try {
-                        val imagePath = File(filesDir, "videos")
-                        imagePath.mkdir()
-                        File.createTempFile("video${Date().time}", ".mp4", imagePath)
 
-                    } catch (ex: IOException) {
-                        finish()
-                        null
-                    }
-                    if (newFile != null) {
-                        videoFile = newFile
-                    }
-                    newFile?.also {
-                        it.log()
-                        val contentUri =
-                            getUriForFile(this, packageName, it)
-                        contentUri.log()
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri)
-                        startActivityForResult(intent, 43)
-                    }
-                }
-            }
-        } catch (error: Exception) {
-            error.printStackTrace()
-        }
+    private fun dispatchVideoCaptureIntent() {
+
+        val videoPath = File(filesDir, "videos")
+        videoPath.mkdir()
+        videoFile = File(videoPath, "vid${Date().time}.mp4")
+
+        recordVideoLauncher.launch(videoFile)
     }
 
     private fun dispatchImageCaptureIntent() {
-        try {
-            Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { intent ->
-                intent.resolveActivity(packageManager)?.also { _ ->
-                    val newFile: File? = try {
-                        val imagePath = File(filesDir, "images")
-                        imagePath.mkdir()
-                        File.createTempFile("image${Date().time}", ".jpeg", imagePath)
+        val imagePath = File(filesDir, "images")
+        imagePath.mkdir()
+        imageFile = File(imagePath, "img${Date().time}.jpg")
 
-                    } catch (ex: IOException) {
-                        finish()
-                        null
-                    }
-                    if (newFile != null) {
-                        imageFile = newFile
-                    }
-                    newFile?.also {
-                        it.log()
-                        val contentUri =
-                            getUriForFile(this, packageName, it)
-                        contentUri.log()
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri)
-                        startActivityForResult(intent, 42)
-                    }
-                }
-            }
-        } catch (error: Exception) {
-            error.printStackTrace()
-        }
+        captureImageLauncher.launch(imageFile)
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 43) {
-            if (resultCode == RESULT_OK) {
-                questionAdapter.updatePickedVideo(videoFile.path, lastVideoPosition)
-            }
-        }
-        if (requestCode == 42) {
-            if (resultCode == RESULT_OK) {
-                questionAdapter.updateImageAdapterAtPosition(imageFile.path, lastImagePosition)
-            }
-        }
         if (requestCode == 321) {
             if (resultCode == RESULT_OK) {
                 val recordFile: Uri? = data?.getParcelableExtra<Uri>("recordPath")

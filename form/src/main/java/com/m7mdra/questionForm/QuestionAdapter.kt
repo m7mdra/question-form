@@ -22,7 +22,7 @@ import android.util.SparseIntArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
+import android.webkit.URLUtil
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.util.forEach
@@ -30,6 +30,8 @@ import androidx.core.util.set
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.jakewharton.rxbinding4.widget.textChanges
 import com.m7mdra.questionForm.question.*
 import com.m7mdra.questionForm.question.QuestionType.*
@@ -37,6 +39,7 @@ import com.m7mdra.questionForm.viewholder.*
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 
@@ -46,14 +49,29 @@ class QuestionAdapter(
     private val imagePickListener: ((ImageQuestion, Int) -> Unit)? = null,
     private val audioRecordListener: ((AudioQuestion, Int) -> Unit)? = null,
     private val videoPickListener: ((VideoQuestion, Int) -> Unit)? = null,
-    private val imageClickListener: ((Int, Int, String) -> Unit)? = null,
-    private val vibrateWhenError: Boolean = false
+    private val imageClickListener: ((Int, Int, ImageQuestion, String) -> Unit)? = null,
+    private val videoClickListener: ((Int, VideoQuestion) -> Unit)? = null,
+    private val vibrateWhenError: Boolean = false,
+//    private val imageRequestManager: RequestManager
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val list = mutableListOf<Question<*>>()
     private val vibrator by lazy {
         context.getSystemService(VIBRATOR_SERVICE) as Vibrator
     }
+    private var attachedRecyclerView: RecyclerView? = null
+    private var layoutManager: LinearLayoutManager? = null
+
+
+    private val textWatcherDisposables = SparseArray<Disposable?>()
+    private val dropDownListener = SparseArray<AdapterView.OnItemClickListener>()
+    private val imageAdapters = SparseArray<ImageAdapter>()
+    private val audioPreparedPosition = SparseBooleanArray()
+    private val audioViewHolderIndexes = SparseIntArray()
+    private val mediaViewHolderIndexes = SparseIntArray()
+    private val audioHandlers = SparseArray<Handler>()
+    private val audioHandlersCallback = SparseArray<Runnable>()
+    private val mediaPlayers = SparseArray<MediaPlayer>()
 
 
     @SuppressLint("NotifyDataSetChanged")
@@ -141,19 +159,6 @@ class QuestionAdapter(
         notifyItemChanged(indexOfQuestion)
     }
 
-    private var attachedRecyclerView: RecyclerView? = null
-    private var layoutManager: LinearLayoutManager? = null
-
-
-    private val textWatcherDisposables = SparseArray<Disposable?>()
-    private val dropDownListener = SparseArray<AdapterView.OnItemClickListener>()
-    private val imageAdapters = SparseArray<ImageAdapter>()
-    private val audioPreparedPosition = SparseBooleanArray()
-    private val audioViewHolderIndexes = SparseIntArray()
-    private val mediaViewHolderIndexes = SparseIntArray()
-    private val audioHandlers = SparseArray<Handler>()
-    private val audioHandlersCallback = SparseArray<Runnable>()
-    private val mediaPlayers = SparseArray<MediaPlayer>()
 
     fun dispose() {
         mediaPlayers.forEach { _, value ->
@@ -470,7 +475,7 @@ class QuestionAdapter(
         mediaViewHolderIndexes.append(position, position)
         val holder = viewHolder as VideoViewHolder
         val question = list[position] as VideoQuestion
-        val videoView = holder.videoView
+        val videoImageView = holder.videoImageView
 
 
         holder.errorTextView.visibility = shouldShowError(question.hasError)
@@ -488,37 +493,34 @@ class QuestionAdapter(
         holder.captureOrPickVideoButton.text =
             if (cameraPermissionGranted) "Record video" else "Grant permission"
         holder.captureOrPickVideoButton.setOnClickListener {
-
             videoPickListener?.invoke(question, position)
         }
 
         val video = question.value
         if (video != null && video.isNotEmpty()) {
-            videoView.show()
-            videoView.setVideoURI(Uri.parse(video))
-
-            videoView.setOnPreparedListener {
-                holder.playOrStopButton.show()
-                holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+            videoImageView.show()
+            holder.playOrStopButton.show()
+            videoImageView.setOnClickListener {
+                videoClickListener?.invoke(position, question)
             }
-            videoView.setOnCompletionListener {
-                holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+            if (URLUtil.isHttpUrl(video) || URLUtil.isHttpsUrl(video)) {
+                Glide.with(context).load(video)
+                    .thumbnail()
+                    .centerCrop()
+                    .into(videoImageView)
+            } else {
+                "file exists? ${File(video).exists()}".log()
+                Glide.with(context).load(Uri.fromFile(File(video)))
+                    .thumbnail()
+                    .centerCrop()
+                    .into(videoImageView)
             }
 
         } else {
             holder.playOrStopButton.gone()
-            videoView.gone()
+            videoImageView.gone()
         }
-        holder.playOrStopButton.setOnClickListener {
 
-            if (videoView.isPlaying) {
-                holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
-                videoView.pause()
-            } else {
-                holder.playOrStopButton.setImageResource(R.drawable.ic_baseline_pause_circle_filled_24)
-                videoView.start()
-            }
-        }
         if (question.status.isPendingOrAccepted()) {
             holder.captureOrPickVideoButton.disable()
         } else {
@@ -557,7 +559,7 @@ class QuestionAdapter(
         holder.titleTextView.text =
             titleWithRedAsterisk(question.mandatory, question.title)
         val imageAdapter = ImageAdapter(context) { childPosition, image ->
-            imageClickListener?.invoke(position, childPosition, image)
+            imageClickListener?.invoke(position, childPosition, question, image)
         }
         holder.imageButton.setOnClickListener {
 
@@ -756,9 +758,9 @@ class QuestionAdapter(
         super.onViewRecycled(holder)
         val adapterPosition = holder.adapterPosition
         if (holder is VideoViewHolder) {
-            val videoView = holder.videoView
+            val videoView = holder.videoImageView
             holder.playOrStopButton.gone()
-            videoView.stopPlayback()
+
         }
         if (holder is AudioViewHolder) {
             recycleAudioView(holder)
