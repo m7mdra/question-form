@@ -7,7 +7,7 @@ https://user-images.githubusercontent.com/16242735/158178257-f62cb540-42fe-4f20-
 [![](https://jitpack.io/v/m7mdra/question-form.svg)](https://jitpack.io/#m7mdra/question-form)
 
 A form builder with support to different types of questions.
-it provide a hight performance as it relies of recyclerview, as the name suggest it recycle views and only create new ones when required.
+it provide a high performance as it relies on recyclerview, as the name suggest it recycle views and only create new ones when required.
 
 it supports only a subset of types without no intention to allow extensions.
 
