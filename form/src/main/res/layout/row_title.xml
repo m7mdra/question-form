@@ -5,18 +5,17 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/titleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:id="@+id/titleTextView"
         android:layout_marginBottom="8dp"
         android:text="title"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
 
-    <View
+    <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?android:listDivider" />
+        android:layout_height="wrap_content"/>
 </LinearLayout>

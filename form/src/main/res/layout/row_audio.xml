@@ -5,7 +5,6 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:animateLayoutChanges="true"
     android:padding="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,12 +17,9 @@
             android:id="@+id/titleTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="Title"
+            android:text="Generator1 internel fuel level quantity (كمية الوقود في خزان الوقود الداخلي للمولد)Generator1 internel fuel level quantity (كمية الوقود في خزان الوقود الداخلي للمولد)Generator1 internel fuel level quantity (كمية الوقود في خزان الوقود الداخلي للمولد)"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/stateLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,7 +27,6 @@
             android:id="@+id/playOrStopButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/circle"
             android:clickable="true"
@@ -62,7 +57,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:text="00:00"
             app:layout_constraintBottom_toBottomOf="@+id/recordProgress"
@@ -72,29 +66,24 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/recordAudioButton"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             android:enabled="false"
             android:text="Record"
             app:icon="@drawable/ic_baseline_mic_24"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recordProgress" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/playOrStopButton" />
 
         <TextView
             android:id="@+id/errorTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             android:textColor="@color/design_default_color_error"
             android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/recordAudioButton"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/playOrStopButton"
+            app:layout_constraintTop_toBottomOf="@+id/recordAudioButton"
             tools:text="This field can not be empty."
             tools:visibility="visible" />
 
@@ -103,24 +92,22 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginEnd="8dp"
             android:drawablePadding="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/titleTextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+            app:layout_constraintTop_toTopOf="parent"
             tools:layout="@layout/layout_rejected_status" />
 
         <TextView
             android:id="@+id/messageTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
             android:textColor="@android:color/holo_red_dark"
             android:visibility="gone"
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/stateLayout"
+            app:layout_constraintTop_toBottomOf="@+id/titleTextView"
             tools:text="Message Message"
             tools:visibility="visible" />
 

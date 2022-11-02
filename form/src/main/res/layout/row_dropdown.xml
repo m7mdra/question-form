@@ -18,12 +18,10 @@
             android:id="@+id/titleTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="Title"
+            android:text="Generator1 internel fuel level quantity (كمية الوقود في خزان الوقود الداخلي للمولد)Generator1 internel fuel level quantity (كمية الوقود في خزان الوقود الداخلي للمولد)"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             android:textColor="@android:color/black"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/stateLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -33,9 +31,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             android:hint="Select a value"
             app:endIconMode="dropdown_menu"
             app:layout_constraintEnd_toEndOf="parent"
@@ -54,13 +50,14 @@
 
         <TextView
             android:id="@+id/errorTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="This field can not be empty."
             android:textColor="@color/design_default_color_error"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextViewLayout"
             tools:visibility="visible" />
@@ -70,22 +67,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/messageTextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+            app:layout_constraintTop_toTopOf="parent"
             tools:layout="@layout/layout_rejected_status" />
 
         <TextView
             android:id="@+id/messageTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:textColor="@android:color/holo_red_dark"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/stateLayout"
+            app:layout_constraintTop_toBottomOf="@+id/titleTextView"
             tools:text="Message message"
             tools:visibility="visible" />
 
